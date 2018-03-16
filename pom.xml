@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>cpswarm</groupId>
+	<artifactId>it.ismb.pert.cpswarm.simulation.orchestrator</artifactId>
+	<version>1.0.0</version>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>OSGI-INF/**</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>./src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+  			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-compiler-plugin</artifactId>
+    			<version>3.6.1</version>
+    			<configuration>
+      			<source>1.8</source>
+      			<target>1.8</target>
+    			</configuration>
+  			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+	    <dependency>
+      		<groupId>junit</groupId>
+      		<artifactId>junit</artifactId>
+      		<version>4.12</version>
+      		<scope>test</scope>
+    	</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-core -->
+		<dependency>
+    		<groupId>org.igniterealtime.smack</groupId>
+    		<artifactId>smack-core</artifactId>
+    		<version>4.2.1-beta1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-extensions -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-extensions</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-tcp -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-tcp</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-java7 -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-java7</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-sasl-provided -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-sasl-provided</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-debug -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-debug</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>		
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-omemo -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-omemo</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-omemo-signal -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-omemo-signal</artifactId>
+		    <version>4.2.1-beta1</version>
+		</dependency>		
+	</dependencies>
+</project>
