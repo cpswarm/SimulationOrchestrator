@@ -17,11 +17,19 @@ import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import messages.server.Server;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.PacketListenerImpl;
-import javax.net.ssl.SSLContext;
 
+import javax.net.ssl.SSLContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 
@@ -34,6 +42,31 @@ public class SimulationOrchestrator {
 	private String serverName = null;
 	private Map<Jid, Server> simulationManagers = null;
 	
+	public static void main (String args[]) {
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder;
+		String serverURI = "";
+		String serverName = "";
+		String serverPassword = "";
+		try {
+			documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/simulation/xmpp/orchestrator.xml"));
+			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
+			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
+			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		new SimulationOrchestrator(serverURI, serverName, serverPassword);
+		while(true) {}
+	}
 	
 	public SimulationOrchestrator(String serverIP, String serverName, String serverPassword) {
 		this.serverName = serverName;

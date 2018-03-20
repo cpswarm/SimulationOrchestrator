@@ -49,7 +49,7 @@ public class PacketListenerImpl implements StanzaListener {
 	@Override
 	public void processStanza(final Stanza packet) {
 		final Presence presence = (Presence) packet;
-		// If the presence indicates that another user is trying to add the launcher
+		// If the presence indicates that another user is trying to add the orchestrator
 		// to its roster, it checks the username that has done the
 		// request and inserts the user in a group
 		if (presence.getType() == Presence.Type.subscribe) {

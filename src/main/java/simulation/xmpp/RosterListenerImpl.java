@@ -85,7 +85,7 @@ public final class RosterListenerImpl implements RosterListener {
 			System.out.println(
 					"SimulationOrchestrator, " + presence.getFrom() +"is offline");
 			//TODO
-			// handle launcher offline 
+			// handle orchestrator offline 
 			
 			// If instead it is an indication of available
 			// it is inserted in the list of those available
@@ -94,7 +94,7 @@ public final class RosterListenerImpl implements RosterListener {
 			System.out.println(
 					"SimulationOrchestrator, " + presence.getFrom() +"is online");
 			//TODO
-			// handle launcher online 
+			// handle orchestrator online 
 			
 		}
 	}
@@ -119,7 +119,7 @@ public final class RosterListenerImpl implements RosterListener {
 		System.out.println(
 				"SimulationOrchestrator, "+ presence.getFrom() + "is offline");
 		//TODO
-		// handle launcher offline
+		// handle orchestrator offline
 	}
 
 	@Override
