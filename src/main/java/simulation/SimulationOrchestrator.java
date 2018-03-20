@@ -1,6 +1,8 @@
 package simulation;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.StanzaListener;
@@ -12,6 +14,7 @@ import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import messages.server.Server;
@@ -26,17 +29,15 @@ import java.security.SecureRandom;
 public class SimulationOrchestrator {
 	private static final String RESOURCE = "cpswarm";
 	private XMPPTCPConnection connection;
-	private Server server;
-	private boolean available = true;
-	private boolean started = false;
-	private String simulationHash="";
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
+	private Map<Jid, Server> simulationManagers = null;
+	
 	
 	public SimulationOrchestrator(String serverIP, String serverName, String serverPassword) {
 		this.serverName = serverName;
-		
+		this.simulationManagers = new HashMap<Jid, Server>();
 		try {
 
 			final SSLContext sc = SSLContext.getInstance("TLS");
@@ -147,23 +148,16 @@ public class SimulationOrchestrator {
 		}
 	}
     	
-	public boolean isAvailable() {
-		return available;
-	}
-
-	public void setAvailable(boolean availalble) {
-		this.available = availalble;
-	}
-	
-	public boolean isStarted() {
-		return started;
-	}
-
-	public Server getServer() {
-		return server;
-	};
-	
+		
 	public XMPPTCPConnection getConnection() {
 		return connection;
+	}
+	
+	public void putSimulationManager(Jid jid, Server server) {
+		simulationManagers.put(jid,server);
+	}	
+
+	public void removeSimulationManager(Jid jid) {
+		simulationManagers.remove(jid);
 	}
 }

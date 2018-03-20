@@ -4,16 +4,24 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
+import simulation.SimulationOrchestrator;
+
 /**
  *
- * The standard implementation of <code>MessageEventCoordinator</code>
+ * The implementation of the receiver of messages
  *
  */
 public final class MessageEventCoordinatorImpl implements IncomingChatMessageListener {
 
+	private SimulationOrchestrator parent = null;
+	
+	public MessageEventCoordinatorImpl(final SimulationOrchestrator orchestrator) {
+		this.parent = orchestrator;
+	}
+	
 	@Override
-	public void newIncomingMessage(EntityBareJid arg0, Message arg1, org.jivesoftware.smack.chat2.Chat arg2) {
-		// DO nothing		
+	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
+		parent.putSimulationManager(sender, null);
 	}
 
 }

@@ -12,6 +12,9 @@ import org.jivesoftware.smack.roster.RosterGroup;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
+import com.google.gson.Gson;
+
+import messages.server.Server;
 import simulation.SimulationOrchestrator;
 
 
@@ -82,8 +85,16 @@ public class PacketListenerImpl implements StanzaListener {
 				return;
 			}
 		} else {
-			System.out.println(
-					"presence received from " + presence.getFrom()+ ", status: "+presence.getStatus());
+			if(presence.isAvailable()) {
+				Gson gson = new Gson();
+				System.out.println(
+						"presence received from " + presence.getFrom()+ ", status: "+presence.getStatus());
+				parent.putSimulationManager(presence.getFrom(), gson.fromJson(presence.getStatus(), Server.class));
+			} else {
+				System.out.println(
+						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
+				parent.removeSimulationManager(presence.getFrom());
+			}
 		}
 	}
 }
