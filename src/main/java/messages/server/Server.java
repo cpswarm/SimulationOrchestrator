@@ -1,6 +1,7 @@
 
 package messages.server;
 
+import java.util.Comparator;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -12,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
  * 
  * 
  */
-public class Server {
+public class Server implements Comparable<Server> {
 
     /**
      * ID of the simulation server
@@ -119,4 +120,10 @@ public class Server {
         this.capabilities = capabilities;
     }
 
+	@Override
+	public int compareTo(Server serverToCompare) {
+		return this.getCapabilities().compareTo(serverToCompare.getCapabilities());
+	}
+    
+    
 }

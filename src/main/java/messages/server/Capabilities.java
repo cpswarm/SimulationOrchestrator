@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName;
  * Capabilities of the simulator
  * 
  */
-public class Capabilities {
+public class Capabilities implements Comparable<Capabilities>{
 
     /**
      * Number of spatial dimensions in the simulator
@@ -60,5 +60,15 @@ public class Capabilities {
     public void setMaxAgents(Long maxAgents) {
         this.maxAgents = maxAgents;
     }
+
+	@Override
+	public int compareTo(Capabilities capabilitiesToCompare) {
+		if(this.getDimensions()>=capabilitiesToCompare.getDimensions() &&
+				this.getMaxAgents()>=capabilitiesToCompare.getMaxAgents()) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
 
 }

@@ -152,7 +152,13 @@ public class SimulationOrchestrator {
 		return true;
     }
     
-    
+    public void evaluateSimulationManagers(Server serverCompare) {
+    	for(Jid account : simulationManagers.keySet()) {
+    		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
+    			// SEND MESSAGE
+    		}
+    	}
+    }
 	
 	/**
 	 * Method used to add a {@link PacketListener</code> to the connection
