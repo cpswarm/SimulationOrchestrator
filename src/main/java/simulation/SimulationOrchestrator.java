@@ -50,7 +50,7 @@ public class SimulationOrchestrator {
 		String serverPassword = "";
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/simulation/xmpp/orchestrator.xml"));
+			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
