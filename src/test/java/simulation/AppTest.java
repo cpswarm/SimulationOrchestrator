@@ -1,7 +1,10 @@
 package simulation;
 
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.junit.Assert;
 import org.junit.Test;
+import org.jxmpp.jid.impl.JidCreate;
 
 import junit.framework.TestCase;
 import simulation.SimulationOrchestrator;
@@ -16,21 +19,21 @@ public class AppTest extends TestCase{
 	
    @Test
    public void testCreation() {
-	   Assert.assertTrue(true);
-	   /*
-	   SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword);
-	   DummyManager manager = new DummyManager(serverIP, serverName, serverPassword);
-	   while(true) {
-		 try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-	   }
-	   */
-	   //Assert.assertNotNull(launcher);
-	   //Assert.assertNotNull(manager);
+	   try {
+		   SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword);
+		   Assert.assertNotNull(orchestrator);
+		   do {
+			   Thread.sleep(1000);
+		   }while(!orchestrator.getConnection().isConnected());
+		   DummyManager manager = new DummyManager(serverIP, serverName, "server");
+		   Assert.assertNotNull(manager);
+		   Thread.sleep(10000);
+		   final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
+		   RosterEntry entry = roster.getEntry(JidCreate.bareFrom("test@"+serverName));
+		   Assert.assertNotNull(entry);
+	   } catch (Exception e) {
+		   Assert.fail();
+	   }  
    }
  
    /*
