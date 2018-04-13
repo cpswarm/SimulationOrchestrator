@@ -82,6 +82,15 @@ public class SimulationOrchestrator {
 					.setCompressionEnabled(false).setCustomSSLContext(sc)
 					.setDebuggerEnabled(true).build();
 			connection = new XMPPTCPConnection(connectionConfig);
+			
+			final StanzaFilter presenceFilter = new StanzaTypeFilter(
+					Presence.class);
+			System.out.println("adding the packet listener to the local connection");
+			// This listener checks the presences
+			final PacketListenerImpl packetListener = new PacketListenerImpl(
+					this);
+			this.addAsyncStanzaListener(packetListener, presenceFilter);
+			
 			connection.connect();
 
 			connection.login("orchestrator", serverPassword , Resourcepart.from(RESOURCE));
@@ -97,13 +106,6 @@ public class SimulationOrchestrator {
 			// Adds a roster listener
 			//addRosterListener(rosterListener);
 
-			final StanzaFilter presenceFilter = new StanzaTypeFilter(
-					Presence.class);
-			System.out.println("adding the packet listener to the local connection");
-			// This listener checks the presences
-			final PacketListenerImpl packetListener = new PacketListenerImpl(
-					this);
-			this.addAsyncStanzaListener(packetListener, presenceFilter);
 			
 			// Does the login
 			connection.login(serverName, serverPassword, Resourcepart.from(RESOURCE));
