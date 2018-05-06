@@ -13,6 +13,7 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import messages.server.Server;
 import simulation.SimulationOrchestrator;
@@ -89,7 +90,17 @@ public class PacketListenerImpl implements StanzaListener {
 				Gson gson = new Gson();
 				System.out.println(
 						"presence received from " + presence.getFrom()+ ", status: "+presence.getStatus());
-				parent.putSimulationManager(presence.getFrom(), gson.fromJson(presence.getStatus(), Server.class));
+				try {
+					parent.putSimulationManager(JidCreate.entityFullFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));
+				} catch (JsonSyntaxException | XmppStringprepException e) {
+					System.out.println(
+							"error adding the user: " + presence.getFrom());
+					System.out.println("msg "+e.getMessage());
+		            System.out.println("loc "+e.getLocalizedMessage());
+		            System.out.println("cause "+e.getCause());
+		            System.out.println("excep "+e);
+					return;
+				}
 			} else {
 				System.out.println(
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());

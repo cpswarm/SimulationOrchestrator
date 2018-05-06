@@ -20,6 +20,7 @@ import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.LeafNode;
@@ -56,10 +57,13 @@ public class DummyManager {
 	private String serverName = null;
 	private String clientID = null;
 	
-	public DummyManager(String serverIP, String serverName, String serverPassword) {
+	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		clientID = "test";
 		this.serverName = serverName;
-		
+		if(!dataFolder.endsWith("\\")) {
+			dataFolder+="\\";
+		}
+			
 		try {
 
 			clientJID = JidCreate.from(clientID+"@"+serverName);
@@ -74,14 +78,16 @@ public class DummyManager {
 			connection = new XMPPTCPConnection(connectionConfig);
 			connection.connect();
 
-			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			System.out.println("Connected to server");
 
 			connectionListener = new ManagerConnectionListenerImpl(this);
 			// Adds a listener for the status of the connection
 			connection.addConnectionListener(connectionListener);
 
+			final FileTransferManager manager = FileTransferManager
+					.getInstanceFor(connection);
 			
+			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(dataFolder));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener
@@ -95,11 +101,17 @@ public class DummyManager {
 
 			addAsyncStanzaListener(packetListener, presenceFilter);
 
-			// Does the login
-			connection.login(serverName, serverPassword, Resourcepart.from(RESOURCE));
+			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			Thread.sleep(2000);
 			final Presence presence = new Presence(Presence.Type.available);
-			presence.setStatus("Pronto");
+			presence.setStatus("{\r\n" + 
+				   "	\"server\": 1,\r\n" + 
+				   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+				   "	\"simulations\": [\"minisim\"],\r\n" + 
+				   "	\"capabilities\": {\r\n" + 
+				   "		\"dimensions\": 2\r\n" + 
+				   "	}\r\n" + 
+				   "}\r\n");
 			try {
 				connection.sendStanza(presence);
 			} catch (final NotConnectedException | InterruptedException e) {

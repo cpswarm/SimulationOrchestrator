@@ -6,7 +6,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.jxmpp.jid.impl.JidCreate;
 
+import com.google.gson.Gson;
+
 import junit.framework.TestCase;
+import messages.server.Server;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -16,16 +19,18 @@ public class AppTest extends TestCase{
 	private String serverIP = System.getProperty("test_server_ip");
 	private String serverName = System.getProperty("test_server_name");
 	private String serverPassword = System.getProperty("test_server_password");
+	private String orchestratorDataFolder = System.getProperty("test_orchestrator_data_folder");
+	private String managerDataFolder = System.getProperty("test_manager_data_folder");
 	
    @Test
    public void testCreation() {
 	   try {
-		   SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword);
+		   SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorDataFolder);
 		   Assert.assertNotNull(orchestrator);
 		   do {
 			   Thread.sleep(1000);
 		   }while(!orchestrator.getConnection().isConnected());
-		   DummyManager manager = new DummyManager(serverIP, serverName, "server");
+		   DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
 		   Assert.assertNotNull(manager);
 		   Thread.sleep(10000);
 		   final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
@@ -36,14 +41,32 @@ public class AppTest extends TestCase{
 	   }  
    }
  
-   /*
    @Test
-   public void testConnectionLost() {
-	   DummyManager manager = new DummyManager(serverIP, serverName, serverPassword);
-	   Assert.assertTrue(manager.getConnection().isConnected());
+   public void testConfiguration() {
+	   try {
+		   Gson gson = new Gson();
+		   Server server = gson.fromJson("{\r\n" + 
+				   "	\"server\": 1,\r\n" + 
+				   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+				   "	\"simulations\": [\"minisim\"],\r\n" + 
+				   "	\"capabilities\": {\r\n" + 
+				   "		\"dimensions\": 2\r\n" + 
+				   "	}\r\n" + 
+				   "}\r\n" + 
+				   "", Server.class);
+		   SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorDataFolder);
+		   Assert.assertNotNull(orchestrator);
+		   do {
+			   Thread.sleep(1000);
+		   }while(!orchestrator.getConnection().isConnected());
+		   DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
+		   orchestrator.evaluateSimulationManagers(server);
+	   } catch (Exception e) {
+		   Assert.fail();
+	   }  
    }
    
-   
+   /*
    @Test
    public void testMessageArrived() {
 	   DummyManager manager = new DummyManager(serverIP, serverName, serverPassword);

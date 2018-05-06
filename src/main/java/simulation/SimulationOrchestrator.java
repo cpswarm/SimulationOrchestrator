@@ -1,9 +1,11 @@
 package simulation;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
@@ -13,7 +15,13 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
+import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
@@ -21,6 +29,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import messages.server.Server;
+import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.PacketListenerImpl;
 
@@ -32,6 +41,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 
 public class SimulationOrchestrator {
@@ -40,7 +51,8 @@ public class SimulationOrchestrator {
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
-	private Map<Jid, Server> simulationManagers = null;
+	private Map<EntityFullJid, Server> simulationManagers = null;
+	private String dataFolder = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -48,29 +60,35 @@ public class SimulationOrchestrator {
 		String serverURI = "";
 		String serverName = "";
 		String serverPassword = "";
+		String dataFolder = "";
+		
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
-		} catch (ParserConfigurationException e1) {
+			dataFolder = document.getElementsByTagName("dataFolder").item(0).getTextContent();
+			if(!dataFolder.endsWith("\\")) {
+				dataFolder+="\\";
+			}
+			if(!new File(dataFolder).isDirectory()) {
+				System.out.println("Data folder must be a folder");
+				return;
+			}
+		} catch (ParserConfigurationException | SAXException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		new SimulationOrchestrator(serverURI, serverName, serverPassword);
+			return;
+		} 
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, dataFolder);
 		while(true) {}
 	}
 	
-	public SimulationOrchestrator(String serverIP, String serverName, String serverPassword) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String dataFolder) {
 		this.serverName = serverName;
-		this.simulationManagers = new HashMap<Jid, Server>();
+		this.dataFolder = dataFolder;
+		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		try {
 
 			final SSLContext sc = SSLContext.getInstance("TLS");
@@ -155,9 +173,16 @@ public class SimulationOrchestrator {
     }
     
     public void evaluateSimulationManagers(Server serverCompare) {
-    	for(Jid account : simulationManagers.keySet()) {
+    	Zipper zipper = new Zipper(dataFolder);
+		zipper.generateFileList(new File(dataFolder));
+    	String[] fileNameParts = (dataFolder+"test.zip").split("\\.");
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
+		Date date = new Date();
+		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
+    	zipper.zipIt(fileName);
+    	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
-    			// SEND MESSAGE
+    			this.transferFile(account, fileName);
     		}
     	}
     }
@@ -189,12 +214,58 @@ public class SimulationOrchestrator {
 		}
 	}
     	
+	/**
+	 * This method verifies if the receiver supports the file transfer and in
+	 * this case it sends a file
+	 */
+	private void transferFile(final EntityFullJid receiver, final String filePath) {
+		final ServiceDiscoveryManager disco = ServiceDiscoveryManager
+				.getInstanceFor(connection);
+
+		// Receives the info about the client of the receiver
+		DiscoverInfo discoInfo = null;
+		try {
+			discoInfo = disco.discoverInfo(receiver);
+		} catch (XMPPException | NoResponseException | NotConnectedException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// Controls if the file transfer is supported
+		if (discoInfo
+				.containsFeature("http://jabber.org/protocol/si/profile/file-transfer")) {
+			final FileTransferManager manager = FileTransferManager
+					.getInstanceFor(connection);
+			OutgoingFileTransfer transfer = null;
+			transfer = manager
+					.createOutgoingFileTransfer(receiver);
+			// Here the file is actually sent
+			try {
+				transfer.sendFile(new File(filePath), "Simulation files");
+				while (!transfer.isDone()) {
+					if (transfer.getStatus() == Status.refused) {
+						System.out.println("Transfer refused");
+					}
+				}
+			} catch (final SmackException e) {
+				e.printStackTrace();
+			}
+			final Status status = transfer.getStatus();
+			if (status == Status.cancelled) {
+				System.out.println("Transfer cancelled");
+			} else if (status == Status.error) {
+				System.out.println("Error in file transfer");
+			} else if (status == Status.complete) {
+				System.out.println("File transferred");
+			}
+		}
+	}
+	
 		
 	public XMPPTCPConnection getConnection() {
 		return connection;
 	}
 	
-	public void putSimulationManager(Jid jid, Server server) {
+	public void putSimulationManager(EntityFullJid jid, Server server) {
 		simulationManagers.put(jid,server);
 	}	
 
