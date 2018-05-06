@@ -67,21 +67,32 @@ public class Zipper
 	 * Traverse a directory and get all files,
 	 * and add the file into fileList
 	 * @param node file or directory
+	 * 
+	 * @return String
+	 * 		path of the file to be sent to the Optimization Tool
 	 */
-	public void generateFileList(File node){
-
+	public String generateFileList(File node){
+		String result = "";
 		//add file only
 		if(node.isFile()){
-			fileList.add(generateZipEntry(node.getAbsoluteFile().toString()));
+			// It excludes from the file list the file zse, which it has to be send to the Optimization Tool
+			if(!node.getAbsoluteFile().toString().endsWith("zse")) {
+				fileList.add(generateZipEntry(node.getAbsoluteFile().toString()));
+			} else {
+				result = node.getAbsoluteFile().toString();
+			}
 		}
 
 		if(node.isDirectory()){
 			String[] subNote = node.list();
 			for(String filename : subNote){
-				generateFileList(new File(node, filename));
+				String res = generateFileList(new File(node, filename));
+				if (!res.isEmpty()) {
+					result = res;
+				}
 			}
 		}
-
+		return result;
 	}
 
 	/**

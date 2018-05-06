@@ -1,0 +1,64 @@
+<!--
+DTD for Loading template for FREVO session saves
+Version: Development 0.3
+by Istvan Fehervari
+-->
+
+<!ELEMENT frevo (sessionconfig, problem, method, representation, ranking) >
+
+<!ELEMENT sessionconfig (configentry)+ >
+
+<!ELEMENT configentry EMPTY >
+
+<!ATTLIST configentry
+		key CDATA #REQUIRED
+		type CDATA #REQUIRED
+		value CDATA #REQUIRED >
+
+<!ELEMENT problem (problementry)+ >
+
+<!ATTLIST problem
+		class CDATA #REQUIRED >
+
+<!ELEMENT problementry EMPTY >
+
+<!ATTLIST problementry
+		key CDATA #REQUIRED
+		type CDATA #REQUIRED
+		value CDATA #REQUIRED >
+		
+<!ELEMENT method (methodentry)+ >
+
+<!ATTLIST method
+		class CDATA #REQUIRED >
+		
+<!ELEMENT methodentry EMPTY >
+
+<!ATTLIST methodentry
+		key CDATA #REQUIRED
+		type CDATA #REQUIRED
+		value CDATA #REQUIRED >
+
+<!ELEMENT representation (representationentry)+ >
+
+<!ATTLIST representation
+		class CDATA #REQUIRED >
+		
+<!ELEMENT representationentry EMPTY >
+
+<!ATTLIST representationentry
+		key CDATA #REQUIRED
+		type CDATA #REQUIRED
+		value CDATA #REQUIRED >
+		
+<!ELEMENT ranking (rankingentry)+ >
+
+<!ATTLIST ranking
+		class CDATA #REQUIRED >
+		
+<!ELEMENT rankingentry EMPTY >
+
+<!ATTLIST rankingentry
+		key CDATA #REQUIRED
+		type CDATA #REQUIRED
+		value CDATA #REQUIRED >

@@ -1,7 +1,9 @@
 package simulation;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jivesoftware.smack.SmackException;
@@ -28,6 +30,10 @@ import org.jxmpp.jid.parts.Resourcepart;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import config.Configentry;
+import config.Configuration;
+import config.Frevo;
+import config.ObjectFactory;
 import messages.server.Server;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
@@ -174,17 +180,20 @@ public class SimulationOrchestrator {
     
     public void evaluateSimulationManagers(Server serverCompare) {
     	Zipper zipper = new Zipper(dataFolder);
-		zipper.generateFileList(new File(dataFolder));
+		String configurationFile = zipper.generateFileList(new File(dataFolder));
     	String[] fileNameParts = (dataFolder+"test.zip").split("\\.");
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
 		Date date = new Date();
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
+    	List availableManagers = new ArrayList<String>();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
     			this.transferFile(account, fileName);
+    			availableManagers.add(account); 
     		}
     	}
+    	modifyOptimizationToolConfiguration(configurationFile, availableManagers);
     }
 	
 	/**
@@ -212,6 +221,22 @@ public class SimulationOrchestrator {
 					"Connection disconnected, packet listener addition interrupted");
 			return false;
 		}
+	}
+	
+	
+	private void modifyOptimizationToolConfiguration(final String configurationFile, final List<String>availableManagers) {
+		Frevo configuration = Configuration.loadConfFromXMLFile(new File(configurationFile), true);
+		ObjectFactory factory = new ObjectFactory();
+		Configentry configEntry= factory.createConfigentry();
+		configEntry.setKey("threads");
+		configEntry.setType("INT");
+		configEntry.setValue(String.valueOf(availableManagers.size()));
+		configuration.getSessionconfig().getConfigentry().add(configEntry);
+		configEntry= factory.createConfigentry();
+		configEntry.setKey("jids");
+		configEntry.setType("STRING");
+		configEntry.setValue(String.join(",", availableManagers));
+		Configuration.storeConfInToXMLFile(new File(configurationFile), configuration, true);
 	}
     	
 	/**
