@@ -19,7 +19,7 @@ import javax.xml.validation.SchemaFactory;
  *
  */
 public final class Configuration {
-	private static final String SCHEMA_BUNDLE_CONF_XSD = "/file.dtd";
+	private static final String SCHEMA_BUNDLE_CONF_XSD = "/file.xsd";
 	private static final String NS_URI = "http://www.w3.org/2001/XMLSchema";
 
 	/**
