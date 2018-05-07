@@ -186,7 +186,7 @@ public class SimulationOrchestrator {
 		Date date = new Date();
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
-    	List availableManagers = new ArrayList<String>();
+    	List<EntityFullJid> availableManagers = new ArrayList<EntityFullJid>();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
     			this.transferFile(account, fileName);
@@ -224,7 +224,7 @@ public class SimulationOrchestrator {
 	}
 	
 	
-	private void modifyOptimizationToolConfiguration(final String configurationFile, final List<String>availableManagers) {
+	private void modifyOptimizationToolConfiguration(final String configurationFile, final List<EntityFullJid> availableManagers) {
 		Frevo configuration = Configuration.loadConfFromXMLFile(new File(configurationFile), true);
 		ObjectFactory factory = new ObjectFactory();
 		Configentry configEntry= factory.createConfigentry();
