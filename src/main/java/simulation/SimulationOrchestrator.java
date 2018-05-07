@@ -225,7 +225,7 @@ public class SimulationOrchestrator {
 	
 	
 	private void modifyOptimizationToolConfiguration(final String configurationFile, final List<EntityFullJid> availableManagers) {
-		Frevo configuration = Configuration.loadConfFromXMLFile(new File(configurationFile), true);
+		Frevo configuration = Configuration.loadConfFromXMLFile(new File(configurationFile), false);
 		ObjectFactory factory = new ObjectFactory();
 		Configentry configEntry= factory.createConfigentry();
 		configEntry.setKey("threads");
@@ -236,7 +236,8 @@ public class SimulationOrchestrator {
 		configEntry.setKey("jids");
 		configEntry.setType("STRING");
 		configEntry.setValue(String.join(",", availableManagers));
-		Configuration.storeConfInToXMLFile(new File(configurationFile), configuration, true);
+		configuration.getSessionconfig().getConfigentry().add(configEntry);
+		Configuration.storeConfInToXMLFile(new File(configurationFile), configuration, false);
 	}
     	
 	/**
@@ -270,8 +271,9 @@ public class SimulationOrchestrator {
 					if (transfer.getStatus() == Status.refused) {
 						System.out.println("Transfer refused");
 					}
+					Thread.sleep(1000);
 				}
-			} catch (final SmackException e) {
+			} catch (final SmackException | InterruptedException e) {
 				e.printStackTrace();
 			}
 			final Status status = transfer.getStatus();

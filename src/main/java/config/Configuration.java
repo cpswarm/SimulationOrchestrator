@@ -52,7 +52,7 @@ public final class Configuration {
 			// Unmarshall
 			final JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class);
 			final Unmarshaller u = jc.createUnmarshaller();
-
+			
 			if (validation) {
 				final SchemaFactory sf = SchemaFactory.newInstance(NS_URI);
 				final InputStream is = Configuration.class.getResourceAsStream(SCHEMA_BUNDLE_CONF_XSD);
@@ -67,9 +67,7 @@ public final class Configuration {
 				});
 			}
 
-			@SuppressWarnings("unchecked")
-			final JAXBElement<Frevo> je = (JAXBElement<Frevo>) u.unmarshal(input);
-			res = je.getValue();
+			res = (Frevo) u.unmarshal(input);
 
 		} catch (final Exception e) {
 			e.printStackTrace();
