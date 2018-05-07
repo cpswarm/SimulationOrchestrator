@@ -24,17 +24,6 @@
       			<target>1.8</target>
     			</configuration>
   			</plugin>
-  			<plugin>
-  <groupId>org.jvnet.jax-ws-commons</groupId>
-  <artifactId>jaxws-maven-plugin</artifactId>
-  <version>2.3</version>
-  <configuration>
-    <!-- Needed with JAXP 1.5 -->
-    <vmArgs>
-        <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
-    </vmArgs>
-  </configuration>
-</plugin>
 		</plugins>
 	</build>
 	<dependencies>
