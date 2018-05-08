@@ -11,6 +11,7 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smackx.filetransfer.FileTransferListener;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
+import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 
 public class ManagerFileTransferListenerImpl implements FileTransferListener {
 
@@ -28,6 +29,17 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			transfer.recieveFile(new File(fileToReceive));
 		} catch (final SmackException | IOException e) {
 			e.printStackTrace();
+		}
+		while (!transfer.isDone()) {
+			if (transfer.getStatus() == Status.refused) {
+				System.out.println("Transfer refused");
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		System.out.println("File transferred");
 		try {
