@@ -8,17 +8,24 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferListener;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
+import org.jxmpp.jid.EntityBareJid;
 
 public class ManagerFileTransferListenerImpl implements FileTransferListener {
 
 	private String dataFolder = null;
+	private DummyManager parent = null;
+	private EntityBareJid orchestrator = null;
 	
-	public ManagerFileTransferListenerImpl(final String dataFolder) {
+	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final EntityBareJid orchestrator) {
 		this.dataFolder = dataFolder;
+		this.parent = manager;
+		this.orchestrator = orchestrator;
 	}
 	
 	@Override
@@ -27,32 +34,29 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 		final String fileToReceive = dataFolder+request.getFileName();
 		try {
 			transfer.recieveFile(new File(fileToReceive));
-		} catch (final SmackException | IOException e) {
-			e.printStackTrace();
-		}
-		while (!transfer.isDone()) {
-			if (transfer.getStatus() == Status.refused) {
-				System.out.println("Transfer refused");
-			}
-			try {
+
+			while (!transfer.isDone()) {
+				if (transfer.getStatus() == Status.refused) {
+					System.out.println("Transfer refused");
+				}
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		System.out.println("File transferred");
-		try {
+			System.out.println("File received");
 			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
+			final Chat newChat = chatmanager.chatWith(orchestrator);
+			if(unzipFiles(fileToReceive)) {
+				newChat.send("simulator configured");
+			} else {
+				newChat.send("error");
+			}
+		} catch (final SmackException | IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		unzipFiles(fileToReceive);
 	}
 	
 	
-	private void unzipFiles(final String fileToReceive) {
+	private boolean unzipFiles(final String fileToReceive) {
 		try {
 			byte[] buffer = new byte[1024];
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(fileToReceive));
@@ -71,8 +75,9 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			zis.closeEntry();
 			zis.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 }

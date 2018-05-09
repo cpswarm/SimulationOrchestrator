@@ -91,7 +91,9 @@ public class PacketListenerImpl implements StanzaListener {
 				System.out.println(
 						"presence received from " + presence.getFrom()+ ", status: "+presence.getStatus());
 				try {
-					parent.putSimulationManager(JidCreate.entityFullFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));
+					if(presence.getFrom().toString().startsWith("manager")) {
+						parent.putSimulationManager(JidCreate.entityFullFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));	
+					}
 				} catch (JsonSyntaxException | XmppStringprepException e) {
 					System.out.println(
 							"error adding the user: " + presence.getFrom());
@@ -104,7 +106,9 @@ public class PacketListenerImpl implements StanzaListener {
 			} else {
 				System.out.println(
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
-				parent.removeSimulationManager(presence.getFrom());
+				if(presence.getFrom().toString().startsWith("manager")) {
+					parent.removeSimulationManager(presence.getFrom());
+				}
 			}
 		}
 	}

@@ -58,7 +58,7 @@ public class DummyManager {
 	private String clientID = null;
 	
 	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder) {
-		clientID = "test";
+		clientID = "manager_test";
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\")) {
 			dataFolder+="\\";
@@ -87,7 +87,7 @@ public class DummyManager {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(dataFolder));
+			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener
@@ -130,7 +130,7 @@ public class DummyManager {
 			me.printStackTrace();
 		}
 		
-		addOrchestratorToTheRoster();
+		addOrchestratorAndOptimizationToTheRoster();
 	}
 
     
@@ -227,20 +227,19 @@ public class DummyManager {
     
 
 	/**
-	 * Method used to add to the roster the Orchestrator
+	 * Method used to add to the roster the Orchestrator and the Optimization Tool
 	 *
 	 * @throws XMPPException
 	 *             if something is wrong
 	 */
-	private void addOrchestratorToTheRoster() {
+	private void addOrchestratorAndOptimizationToTheRoster() {
 		// Sets the type of subscription of the roster
 		final Roster roster = Roster.getInstanceFor(connection);
 		roster.setSubscriptionMode(SubscriptionMode.accept_all);
-
-		final String[] groups = { "orchestrator" };
-		final RosterGroup group = roster
-				.getGroup("orchestrator");
 		try {
+			final String[] groups = { "orchestrator" };
+			RosterGroup group = roster
+				.getGroup("orchestrator");		
 			if (group != null) {
 				if (!group.contains(JidCreate.bareFrom("orchestrator@"
 						+ serverName))) {
@@ -253,6 +252,23 @@ public class DummyManager {
 						+ serverName),
 						"orchestrator", groups);
 			}
+			
+			final String[] groups2 = { "optimization" };
+			group = roster
+				.getGroup("optimization");
+			if (group != null) {
+				if (!group.contains(JidCreate.bareFrom("optimization@"
+						+ serverName))) {
+					roster.createEntry(JidCreate.bareFrom("optimization@"
+							+ serverName),
+							"optimization", groups2);
+				} 
+			} else {
+				roster.createEntry(JidCreate.bareFrom("optimization@"
+						+ serverName),
+						"optimization", groups2);
+			}			
+			
 		} catch (XmppStringprepException | NotLoggedInException | NoResponseException | XMPPErrorException
 				| NotConnectedException | InterruptedException e) {
 			// The client is disconnected

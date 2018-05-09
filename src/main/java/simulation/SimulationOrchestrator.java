@@ -9,11 +9,17 @@ import java.util.Map;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.SmackException.NotLoggedInException;
+import org.jivesoftware.smack.XMPPException.XMPPErrorException;
+import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterGroup;
+import org.jivesoftware.smack.roster.Roster.SubscriptionMode;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -25,8 +31,10 @@ import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -37,6 +45,7 @@ import config.ObjectFactory;
 import messages.server.Server;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
+import simulation.xmpp.MessageEventCoordinatorImpl;
 import simulation.xmpp.PacketListenerImpl;
 
 import javax.net.ssl.SSLContext;
@@ -59,6 +68,9 @@ public class SimulationOrchestrator {
 	private String serverName = null;
 	private Map<EntityFullJid, Server> simulationManagers = null;
 	private String dataFolder = null;
+	private int managerConfigured = 0;
+	private List<EntityFullJid> availableManagers = null;
+	private String configurationFile = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -124,12 +136,8 @@ public class SimulationOrchestrator {
 			// Adds a listener for the status of the connection
 			connection.addConnectionListener(connectionListener);
 
-			
-			
-			//rosterListener = new RosterListenerImpl(this);
-			// Adds a roster listener
-			//addRosterListener(rosterListener);
-
+			// Adds the listener for the incoming messages
+			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
 			
 			// Does the login
 			connection.login(serverName, serverPassword, Resourcepart.from(RESOURCE));
@@ -153,6 +161,8 @@ public class SimulationOrchestrator {
 			System.out.println("excep "+me);
 			me.printStackTrace();
 		}
+		
+		addOptimizationToTheRoster();
 	}
 
     
@@ -180,20 +190,20 @@ public class SimulationOrchestrator {
     
     public void evaluateSimulationManagers(Server serverCompare) {
     	Zipper zipper = new Zipper(dataFolder);
-		String configurationFile = zipper.generateFileList(new File(dataFolder));
+		configurationFile = zipper.generateFileList(new File(dataFolder));
     	String[] fileNameParts = (dataFolder+"test.zip").split("\\.");
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
 		Date date = new Date();
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
-    	List<EntityFullJid> availableManagers = new ArrayList<EntityFullJid>();
+    	availableManagers = new ArrayList<EntityFullJid>();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
-    			this.transferFile(account, fileName);
+    			this.transferFile(account, fileName, "simulation files");
     			availableManagers.add(account); 
     		}
     	}
-    	modifyOptimizationToolConfiguration(configurationFile, availableManagers);
+    	modifyOptimizationToolConfiguration();
     }
 	
 	/**
@@ -224,7 +234,7 @@ public class SimulationOrchestrator {
 	}
 	
 	
-	private void modifyOptimizationToolConfiguration(final String configurationFile, final List<EntityFullJid> availableManagers) {
+	private void modifyOptimizationToolConfiguration() {
 		Frevo configuration = Configuration.loadConfFromXMLFile(new File(configurationFile), false);
 		ObjectFactory factory = new ObjectFactory();
 		Configentry configEntry= factory.createConfigentry();
@@ -244,7 +254,7 @@ public class SimulationOrchestrator {
 	 * This method verifies if the receiver supports the file transfer and in
 	 * this case it sends a file
 	 */
-	private void transferFile(final EntityFullJid receiver, final String filePath) {
+	private void transferFile(final EntityFullJid receiver, final String filePath, final String message) {
 		final ServiceDiscoveryManager disco = ServiceDiscoveryManager
 				.getInstanceFor(connection);
 
@@ -266,7 +276,7 @@ public class SimulationOrchestrator {
 					.createOutgoingFileTransfer(receiver);
 			// Here the file is actually sent
 			try {
-				transfer.sendFile(new File(filePath), "Simulation files");
+				transfer.sendFile(new File(filePath), message);
 				while (!transfer.isDone()) {
 					if (transfer.getStatus() == Status.refused) {
 						System.out.println("Transfer refused");
@@ -288,6 +298,43 @@ public class SimulationOrchestrator {
 	}
 	
 		
+	/**
+	 * Method used to add to the roster the Optimization Tool
+	 *
+	 * @throws XMPPException
+	 *             if something is wrong
+	 */
+	private void addOptimizationToTheRoster() {
+		// Sets the type of subscription of the roster
+		final Roster roster = Roster.getInstanceFor(connection);
+		roster.setSubscriptionMode(SubscriptionMode.accept_all);
+		try {
+			final String[] groups = { "optimization" };
+			final RosterGroup group = roster
+				.getGroup("optimization");
+			if (group != null) {
+				if (!group.contains(JidCreate.bareFrom("optimization@"
+						+ serverName))) {
+					roster.createEntry(JidCreate.bareFrom("optimization@"
+							+ serverName),
+							"optimization", groups);
+				} 
+			} else {
+				roster.createEntry(JidCreate.bareFrom("optimization@"
+						+ serverName),
+						"optimization", groups);
+			}			
+			
+		} catch (XmppStringprepException | NotLoggedInException | NoResponseException | XMPPErrorException
+				| NotConnectedException | InterruptedException e) {
+			// The client is disconnected
+			System.out.println(
+					"Connection disconnected, adding system bundles to roster interrupted");
+		} 
+	}
+	
+
+	
 	public XMPPTCPConnection getConnection() {
 		return connection;
 	}
@@ -298,5 +345,17 @@ public class SimulationOrchestrator {
 
 	public void removeSimulationManager(Jid jid) {
 		simulationManagers.remove(jid);
+	}
+	
+	public synchronized void addManagerConfigured() {
+		managerConfigured++;
+		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
+		if(managerConfigured==this.availableManagers.size()) {
+			try {
+				this.transferFile(JidCreate.entityFullFrom("optimization@"+serverName+"/"+RESOURCE), configurationFile, "optimization configuration");
+			} catch (XmppStringprepException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

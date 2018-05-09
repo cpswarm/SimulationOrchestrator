@@ -61,6 +61,7 @@ public class AppTest extends TestCase{
 		   }while(!orchestrator.getConnection().isConnected());
 		   DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
 		   orchestrator.evaluateSimulationManagers(server);
+		   while(true) {}
 	   } catch (Exception e) {
 		   Assert.fail();
 	   }  
