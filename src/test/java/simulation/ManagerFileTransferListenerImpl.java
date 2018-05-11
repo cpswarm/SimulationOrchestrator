@@ -43,13 +43,20 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			}
 			System.out.println("File received");
 			Thread.sleep(1000);
-			final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
-			final Chat newChat = chatmanager.chatWith(orchestrator);
-			if(unzipFiles(fileToReceive)) {
-				newChat.send("simulator configured");
-			} else {
-				newChat.send("error");
+			// If it's the configuration from the Simulation Orchestrator
+			if(request.getRequestor().toString().startsWith("orchestrator")) {
+				final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
+				final Chat newChat = chatmanager.chatWith(orchestrator);
+				if(unzipFiles(fileToReceive)) {
+					newChat.send("simulator configured");
+				} else {
+					newChat.send("error");
+				}
+			// If it's the candidate from the Optimization Tool
+			} else if(request.getRequestor().toString().startsWith("optimization")) {
+				
 			}
+			
 		} catch (final SmackException | IOException | InterruptedException e) {
 			e.printStackTrace();
 		}

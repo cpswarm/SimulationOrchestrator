@@ -71,6 +71,7 @@ public class SimulationOrchestrator {
 	private int managerConfigured = 0;
 	private List<EntityFullJid> availableManagers = null;
 	private String configurationFile = null;
+	private Jid optimizationJid = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -79,13 +80,14 @@ public class SimulationOrchestrator {
 		String serverName = "";
 		String serverPassword = "";
 		String dataFolder = "";
-		
+		String optimizationUser = "";
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
+			optimizationUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			dataFolder = document.getElementsByTagName("dataFolder").item(0).getTextContent();
 			if(!dataFolder.endsWith("\\")) {
 				dataFolder+="\\";
@@ -99,15 +101,16 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, dataFolder);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, dataFolder, optimizationUser);
 		while(true) {}
 	}
 	
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String dataFolder) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String dataFolder, final String optimizationUser) {
 		this.serverName = serverName;
 		this.dataFolder = dataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		try {
+			this.optimizationJid = JidCreate.from(optimizationUser+"@"+serverName+"/"+RESOURCE);
 
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
@@ -313,19 +316,16 @@ public class SimulationOrchestrator {
 			final RosterGroup group = roster
 				.getGroup("optimization");
 			if (group != null) {
-				if (!group.contains(JidCreate.bareFrom("optimization@"
-						+ serverName))) {
-					roster.createEntry(JidCreate.bareFrom("optimization@"
-							+ serverName),
+				if (!group.contains(optimizationJid.asBareJid())) {
+					roster.createEntry(optimizationJid.asBareJid(),
 							"optimization", groups);
 				} 
 			} else {
-				roster.createEntry(JidCreate.bareFrom("optimization@"
-						+ serverName),
+				roster.createEntry(optimizationJid.asBareJid(),
 						"optimization", groups);
 			}			
 			
-		} catch (XmppStringprepException | NotLoggedInException | NoResponseException | XMPPErrorException
+		} catch (NotLoggedInException | NoResponseException | XMPPErrorException
 				| NotConnectedException | InterruptedException e) {
 			// The client is disconnected
 			System.out.println(
@@ -351,11 +351,7 @@ public class SimulationOrchestrator {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
 		if(managerConfigured==this.availableManagers.size()) {
-			try {
-				this.transferFile(JidCreate.entityFullFrom("optimization@"+serverName+"/"+RESOURCE), configurationFile, "optimization configuration");
-			} catch (XmppStringprepException e) {
-				e.printStackTrace();
-			}
+			this.transferFile(optimizationJid.asEntityFullJidIfPossible(), configurationFile, "optimization configuration");
 		}
 	}
 }
