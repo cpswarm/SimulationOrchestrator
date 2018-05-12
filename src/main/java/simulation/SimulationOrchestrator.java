@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
@@ -72,6 +73,7 @@ public class SimulationOrchestrator {
 	private List<EntityFullJid> availableManagers = null;
 	private String configurationFile = null;
 	private Jid optimizationJid = null;
+	private String simulationId = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -200,9 +202,10 @@ public class SimulationOrchestrator {
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
     	availableManagers = new ArrayList<EntityFullJid>();
+    	simulationId = UUID.randomUUID().toString();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
-    			this.transferFile(account, fileName, "simulation files");
+    			this.transferFile(account, fileName, simulationId);
     			availableManagers.add(account); 
     		}
     	}
@@ -351,7 +354,7 @@ public class SimulationOrchestrator {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
 		if(managerConfigured==this.availableManagers.size()) {
-			this.transferFile(optimizationJid.asEntityFullJidIfPossible(), configurationFile, "optimization configuration");
+			this.transferFile(optimizationJid.asEntityFullJidIfPossible(), configurationFile, simulationId);
 		}
 	}
 }
