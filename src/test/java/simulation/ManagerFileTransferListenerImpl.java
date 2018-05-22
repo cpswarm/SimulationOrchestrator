@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -48,13 +49,24 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
 				final Chat newChat = chatmanager.chatWith(orchestrator);
 				if(unzipFiles(fileToReceive)) {
+					parent.setSimulationID(request.getDescription());
 					newChat.send("simulator configured");
 				} else {
 					newChat.send("error");
 				}
 			// If it's the candidate from the Optimization Tool
 			} else if(request.getRequestor().toString().startsWith("optimization")) {
-				
+				Process proc;
+				try {
+					proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
+					InputStream read = proc.getErrorStream();
+					while (true) {
+						System.out.print((char)read.read());
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 			}
 			
 		} catch (final SmackException | IOException | InterruptedException e) {

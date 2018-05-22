@@ -26,6 +26,8 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(!msg.getBody().equals("error")) {
 				parent.addManagerConfigured();
 			}
+		} else if(sender.compareTo(parent.getOptimizationJid())==0) {
+			
 		}
 	}
 

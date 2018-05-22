@@ -350,6 +350,14 @@ public class SimulationOrchestrator {
 		simulationManagers.remove(jid);
 	}
 	
+	public Jid getOptimizationJid() {
+		return optimizationJid;
+	}
+	
+	public String getSimulationId() {
+		return simulationId;
+	}
+
 	public synchronized void addManagerConfigured() {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool

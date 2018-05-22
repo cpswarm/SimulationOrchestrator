@@ -56,6 +56,7 @@ public class DummyManager {
 	private Jid clientJID = null;
 	private String serverName = null;
 	private String clientID = null;
+	private String simulationID = null;
 	
 	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		clientID = "manager_test";
@@ -350,10 +351,21 @@ public class DummyManager {
 		return mqttClient;
 	}
 	*/
+
 	
 	public boolean isStarted() {
 		return started;
 	}
+
+	public String getSimulationID() {
+		return simulationID;
+	}
+
+
+	public void setSimulationID(String simulationID) {
+		this.simulationID = simulationID;
+	}
+
 
 	public Server getServer() {
 		return server;
