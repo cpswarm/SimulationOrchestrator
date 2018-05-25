@@ -333,6 +333,7 @@ public class SimulationOrchestrator {
 			// The client is disconnected
 			System.out.println(
 					"Connection disconnected, adding system bundles to roster interrupted");
+			e.printStackTrace();
 		} 
 	}
 	
