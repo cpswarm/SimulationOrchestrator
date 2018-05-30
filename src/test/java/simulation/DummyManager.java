@@ -33,8 +33,6 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
-import messages.control.Control;
-import messages.fitness.Fitness;
 import messages.server.Server;
 
 import javax.net.ssl.SSLContext;
@@ -279,22 +277,6 @@ public class DummyManager {
 		} 
 	}
 	
-	
-	
-	private void parseControl(Item message) {
-		String payload = message.getId().toString();
-		Gson gson = new Gson();
-		Control control = gson.fromJson(payload, Control.class);
-		if(!server.getServer().equals(Long.valueOf(control.getServer())) || !simulationHash.equals(control.getSimulationHash())) {
-			if(!this.isAvailable() && !started) {
-				setAvailable(true);
-			}
-			return;
-		}
-		started=true;
-		handleControlContent(control);
-	}
-	
 		
 	public void setServerInfo(Server serverInfo) {
 		server = serverInfo;
@@ -306,11 +288,6 @@ public class DummyManager {
 
 	public void setAvailable(boolean availalble) {
 		this.available = availalble;
-	}
-
-	
-	public void handleControlContent(Control control) {
-		
 	}
 	
 		
@@ -329,24 +306,6 @@ public class DummyManager {
 		return true;
 	};
 	
-	
-	public boolean publishFitness(Fitness content) {
-		try {
-			Gson gson = new Gson();
-			content.setSimulationHash(simulationHash);
-			String fitnessString = gson.toJson(content, Fitness.class);
-			PubSubManager manager = PubSubManager.getInstance(connection);
-        	LeafNode node = manager.getLeafNode("fitness");
-        	node.publish(new Item(fitnessString));
-	        this.setAvailable(true);
-	        started=false;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-
 	/*
 	public MqttClient getMqttClient() {
 		return mqttClient;

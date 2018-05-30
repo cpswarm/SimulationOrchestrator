@@ -12,11 +12,13 @@ import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
+import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterGroup;
@@ -35,27 +37,28 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
-import org.jxmpp.stringprep.XmppStringprepException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import config.Configentry;
-import config.Configuration;
-import config.Frevo;
-import config.ObjectFactory;
+import messages.progress.GetProgress;
 import messages.server.Server;
+import messages.start.StartOptimization;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.MessageEventCoordinatorImpl;
 import simulation.xmpp.PacketListenerImpl;
 
 import javax.net.ssl.SSLContext;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -99,7 +102,6 @@ public class SimulationOrchestrator {
 				return;
 			}
 		} catch (ParserConfigurationException | SAXException | IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			return;
 		} 
@@ -209,7 +211,6 @@ public class SimulationOrchestrator {
     			availableManagers.add(account); 
     		}
     	}
-    	modifyOptimizationToolConfiguration();
     }
 	
 	/**
@@ -240,20 +241,14 @@ public class SimulationOrchestrator {
 	}
 	
 	
-	private void modifyOptimizationToolConfiguration() {
-		Frevo configuration = Configuration.loadConfFromXMLFile(new File(configurationFile), false);
-		ObjectFactory factory = new ObjectFactory();
-		Configentry configEntry= factory.createConfigentry();
-		configEntry.setKey("threads");
-		configEntry.setType("INT");
-		configEntry.setValue(String.valueOf(availableManagers.size()));
-		configuration.getSessionconfig().getConfigentry().add(configEntry);
-		configEntry= factory.createConfigentry();
-		configEntry.setKey("jids");
-		configEntry.setType("STRING");
-		configEntry.setValue(String.join(",", availableManagers));
-		configuration.getSessionconfig().getConfigentry().add(configEntry);
-		Configuration.storeConfInToXMLFile(new File(configurationFile), configuration, false);
+	private String createOptimizationToolConfiguration(final Boolean gui, final String params) {
+		messages.start.ObjectFactory factory = new messages.start.ObjectFactory();
+		StartOptimization start = factory.createStartOptimization();
+		start.setThreads(availableManagers.size());
+		start.setId(this.simulationId);
+		start.setGui(gui);
+		start.setParams(params);
+		return factory.marshalStartOptimization(start);
 	}
     	
 	/**
@@ -338,6 +333,31 @@ public class SimulationOrchestrator {
 	}
 	
 
+	public synchronized void addManagerConfigured() {
+		managerConfigured++;
+		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
+		if(managerConfigured==this.availableManagers.size()) {
+			this.transferFile(optimizationJid.asEntityFullJidIfPossible(), configurationFile, this.createOptimizationToolConfiguration(false, ""));
+		}
+	}
+	
+	
+	
+	public boolean sendGetProgress() {
+		messages.progress.ObjectFactory factory = new messages.progress.ObjectFactory();
+		GetProgress getProgress = factory.createGetProgress();
+		ChatManager manager = ChatManager.getInstanceFor(connection);
+		Chat chat = manager.chatWith(this.optimizationJid.asEntityBareJidIfPossible());
+		Message message = new Message();
+		message.setBody(factory.marshalGetProgress(getProgress));
+		try {
+			chat.send(message);
+		} catch (NotConnectedException | InterruptedException e) {
+			System.out.println("Error sending GetProgress message");
+			e.printStackTrace();
+		}
+		return true;
+	}
 	
 	public XMPPTCPConnection getConnection() {
 		return connection;
@@ -357,13 +377,5 @@ public class SimulationOrchestrator {
 	
 	public String getSimulationId() {
 		return simulationId;
-	}
-
-	public synchronized void addManagerConfigured() {
-		managerConfigured++;
-		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
-		if(managerConfigured==this.availableManagers.size()) {
-			this.transferFile(optimizationJid.asEntityFullJidIfPossible(), configurationFile, simulationId);
-		}
 	}
 }

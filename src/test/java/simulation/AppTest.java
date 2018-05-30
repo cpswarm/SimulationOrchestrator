@@ -35,8 +35,10 @@ public class AppTest extends TestCase{
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
-			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("test@"+serverName));
+			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_test@"+serverName));
 			Assert.assertNotNull(entry);
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
 		} catch (Exception e) {
 			Assert.fail();
 		}  
@@ -58,12 +60,14 @@ public class AppTest extends TestCase{
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorDataFolder, optimizationUser);
 			Assert.assertNotNull(orchestrator);
 			do {
-				Thread.sleep(1000);
+				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
 			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
+			Thread.sleep(1000);
 			orchestrator.evaluateSimulationManagers(server);
 			while(true) {}
 		} catch (Exception e) {
+			e.printStackTrace();
 			Assert.fail();
 		}  
 	}
