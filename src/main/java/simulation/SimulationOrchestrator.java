@@ -40,6 +40,8 @@ import org.jxmpp.jid.parts.Resourcepart;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.google.gson.Gson;
+
 import messages.progress.GetProgress;
 import messages.server.Server;
 import messages.start.StartOptimization;
@@ -49,16 +51,12 @@ import simulation.xmpp.MessageEventCoordinatorImpl;
 import simulation.xmpp.PacketListenerImpl;
 
 import javax.net.ssl.SSLContext;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -241,21 +239,11 @@ public class SimulationOrchestrator {
 	}
 	
 	
-	private String createOptimizationToolConfiguration(final Boolean gui, final String params) {
-		messages.start.ObjectFactory factory = new messages.start.ObjectFactory();
-		StartOptimization start = factory.createStartOptimization();
-		start.setThreads(availableManagers.size());
-		start.setId(this.simulationId);
-		start.setGui(gui);
-		start.setParams(params);
-		return factory.marshalStartOptimization(start);
-	}
-    	
 	/**
 	 * This method verifies if the receiver supports the file transfer and in
 	 * this case it sends a file
 	 */
-	private void transferFile(final EntityFullJid receiver, final String filePath, final String message) {
+	public void transferFile(final EntityFullJid receiver, final String filePath, final String message) {
 		final ServiceDiscoveryManager disco = ServiceDiscoveryManager
 				.getInstanceFor(connection);
 
@@ -337,28 +325,53 @@ public class SimulationOrchestrator {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
 		if(managerConfigured==this.availableManagers.size()) {
-			this.transferFile(optimizationJid.asEntityFullJidIfPossible(), configurationFile, this.createOptimizationToolConfiguration(false, ""));
+			sendStartOptimization(false, "");
 		}
 	}
 	
-	
-	
 	public boolean sendGetProgress() {
-		messages.progress.ObjectFactory factory = new messages.progress.ObjectFactory();
-		GetProgress getProgress = factory.createGetProgress();
+		Gson gson = new Gson();
+		GetProgress getProgress = new GetProgress();
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationJid.asEntityBareJidIfPossible());
 		Message message = new Message();
-		message.setBody(factory.marshalGetProgress(getProgress));
+		message.setBody(gson.toJson(getProgress));
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
 			System.out.println("Error sending GetProgress message");
 			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	
+	private boolean sendStartOptimization(final Boolean gui, final String params) {
+		Gson gson = new Gson();
+		StartOptimization start = new StartOptimization();
+		start.setThreads(availableManagers.size());
+		start.setID(this.simulationId);
+		start.setGui(gui);
+		start.setParams(params);
+		ChatManager manager = ChatManager.getInstanceFor(connection);
+		Chat chat = manager.chatWith(this.optimizationJid.asEntityBareJidIfPossible());
+		Message message = new Message();
+		message.setBody(gson.toJson(start));
+		try {
+			chat.send(message);
+		} catch (NotConnectedException | InterruptedException e) {
+			System.out.println("Error sending StartOptimization message");
+			e.printStackTrace();
+			return false;
 		}
 		return true;
 	}
 	
+	public String getConfigurationFile() {
+		return configurationFile;
+	}
+
 	public XMPPTCPConnection getConnection() {
 		return connection;
 	}
