@@ -46,16 +46,7 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 			}
 			System.out.println("File received");
 			Thread.sleep(1000);
-			// If it's the configuration from the Simulation Orchestrator
-			if(request.getRequestor().toString().startsWith("orchestrator")) {
-				final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
-				final Chat newChat = chatmanager.chatWith(orchestrator);
-				StringReader sr = new StringReader(request.getDescription());
-				JAXBContext jaxbContext = JAXBContext.newInstance(StartOptimization.class);
-				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-				StartOptimization response = (StartOptimization) unmarshaller.unmarshal(sr);
-			}
-		} catch (final SmackException | IOException | InterruptedException | JAXBException e) {
+		} catch (final SmackException | IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

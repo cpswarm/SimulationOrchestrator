@@ -29,7 +29,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(!msg.getBody().equals("error")) {
 				parent.addManagerConfigured();
 			}
-		} else if(sender.compareTo(parent.getOptimizationJid())==0) {
+		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
 			Gson gson = new Gson();
 			OptimizationReply reply = gson.fromJson(msg.getBody(), OptimizationReply.class);
 			switch(reply.getTitle()) {

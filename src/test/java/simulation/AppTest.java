@@ -22,7 +22,8 @@ public class AppTest extends TestCase{
 	private String orchestratorDataFolder = System.getProperty("test_orchestrator_data_folder");
 	private String managerDataFolder = System.getProperty("test_manager_data_folder");
 	private String optimizationUser = System.getProperty("optimization_user");
-
+	private String otDataFolder = System.getProperty("ot_data_folder");
+	
 	@Test
 	public void testCreation() {
 		try {
@@ -63,7 +64,9 @@ public class AppTest extends TestCase{
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
 			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder);
 			Thread.sleep(1000);
+			
 			orchestrator.evaluateSimulationManagers(server);
 			while(true) {}
 		} catch (Exception e) {
