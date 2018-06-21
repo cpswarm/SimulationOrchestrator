@@ -23,6 +23,7 @@ public class AppTest extends TestCase{
 	private String managerDataFolder = System.getProperty("test_manager_data_folder");
 	private String optimizationUser = System.getProperty("optimization_user");
 	private String otDataFolder = System.getProperty("ot_data_folder");
+	private String rosFolder = System.getProperty("ros_folder");
 	
 	@Test
 	public void testCreation() {
@@ -32,7 +33,7 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
@@ -63,7 +64,7 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder);
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder);
 			Thread.sleep(1000);
 			

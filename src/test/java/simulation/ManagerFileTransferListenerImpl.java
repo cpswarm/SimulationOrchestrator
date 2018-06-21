@@ -20,11 +20,15 @@ import org.jxmpp.jid.EntityBareJid;
 public class ManagerFileTransferListenerImpl implements FileTransferListener {
 
 	private String dataFolder = null;
+	private String rosFolder = null;
+	private String catkinWS = null;
 	private DummyManager parent = null;
 	private EntityBareJid orchestrator = null;
 	
-	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final EntityBareJid orchestrator) {
+	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator) {
 		this.dataFolder = dataFolder;
+		this.rosFolder = rosFolder;
+		this.catkinWS = rosFolder.substring(0,rosFolder.indexOf("src")); 
 		this.parent = manager;
 		this.orchestrator = orchestrator;
 	}
@@ -57,14 +61,17 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			// If it's the candidate from the Optimization Tool
 			} else if(request.getRequestor().toString().startsWith("optimization")) {
 				Process proc;
-				try {
-					proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
-					InputStream read = proc.getErrorStream();
-					while (true) {
-						System.out.print((char)read.read());
+				try { 
+					proc = Runtime.getRuntime().exec("catkin_make", null, new File(catkinWS));
+					int result = proc.waitFor();
+					if(result == 0) {
+						proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
+						InputStream read = proc.getErrorStream();
+						while (true) {
+							System.out.print((char)read.read());
+						}
 					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
+				} catch (InterruptedException | IOException e) {
 					e.printStackTrace();
 				} 
 			}
@@ -82,13 +89,19 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			ZipEntry zipEntry = zis.getNextEntry();
 			while(zipEntry != null){
 				String fileName = zipEntry.getName();
-				File newFile = new File(dataFolder + fileName);
+				File newFile = null;
+				// The wrapper is copied to the ROS folder
+				if(fileName.endsWith(".cpp")) {
+					newFile = new File(rosFolder + fileName);
+				} else {
+					newFile = new File(dataFolder + fileName);
+				}
 				FileOutputStream fos = new FileOutputStream(newFile);
 				int len;
 				while ((len = zis.read(buffer)) > 0) {
 					fos.write(buffer, 0, len);
 				}
-				fos.close();
+				fos.close();				
 				zipEntry = zis.getNextEntry();
 			}
 			zis.closeEntry();
@@ -96,7 +109,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
-		}
+		}	
 		return true;
 	}
 }
