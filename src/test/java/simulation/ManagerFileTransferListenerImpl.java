@@ -36,7 +36,13 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	@Override
 	public void fileTransferRequest(FileTransferRequest request) {
 		final IncomingFileTransfer transfer = request.accept();
-		final String fileToReceive = dataFolder+request.getFileName();
+		String fileToReceive = null;
+		// The configuration files are stored in the simulator folder, instead the candidate in the rosFolder
+		if(request.getRequestor().toString().startsWith("orchestrator")) {
+			fileToReceive = dataFolder+request.getFileName();
+		} else {
+			fileToReceive = rosFolder+request.getFileName();
+		}
 		try {
 			transfer.recieveFile(new File(fileToReceive));
 
