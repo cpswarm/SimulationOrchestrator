@@ -59,8 +59,10 @@ public class DummyManager {
 	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder) {
 		clientID = "manager_test";
 		this.serverName = serverName;
-		if(!dataFolder.endsWith("\\")) {
+		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 			dataFolder+="\\";
+		} else if (!dataFolder.endsWith("/") && OsUtils.isWindows()) {
+			dataFolder+="/";
 		}
 			
 		try {
