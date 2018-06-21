@@ -60,9 +60,10 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				}
 			// If it's the candidate from the Optimization Tool
 			} else if(request.getRequestor().toString().startsWith("optimization")) {
-				Process proc;
 				try { 
-					proc = Runtime.getRuntime().exec("catkin_make", null, new File(catkinWS));
+					ProcessBuilder pb = new ProcessBuilder("catkin_make");
+					pb.directory(new File(catkinWS));
+					Process proc = pb.start();
 					int result = proc.waitFor();
 					if(result == 0) {
 						proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
