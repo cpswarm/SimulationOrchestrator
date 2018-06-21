@@ -68,7 +68,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			} else if(request.getRequestor().toString().startsWith("optimization")) {
 				try { 
 					ProcessBuilder pb = new ProcessBuilder("catkin_make");
-					pb.directory(new File(catkinWS));
+					pb.directory(new File("/home/cpswarm/Desktop/ros/"));
 					Process proc = pb.start();
 					int result = proc.waitFor();
 					if(result == 0) {
