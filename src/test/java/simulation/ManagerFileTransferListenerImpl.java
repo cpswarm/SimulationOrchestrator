@@ -70,18 +70,24 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					Process proc = Runtime.getRuntime().exec("sh /home/cpswarm/Desktop/ros/ros.sh");
 					//pb.directory(new File("/home/cpswarm/Desktop/ros/"));
 					//Process proc = pb.start();
-					int result = proc.waitFor();
+					//int result = proc.waitFor();
+					InputStream read = proc.getErrorStream();
+					while (true) {
+						System.out.print((char)read.read());
+					}
+					/*
 					if(result == 0) {
-					/*	proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
+						proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
 						InputStream read = proc.getErrorStream();
 						while (true) {
 							System.out.print((char)read.read());
 						}
-					*/
+					
 						System.out.println("done");
 					} else {
 						System.out.println("Error");
 					}
+					*/
 				} catch (InterruptedException | IOException e) {
 					e.printStackTrace();
 				} 
