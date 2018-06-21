@@ -88,7 +88,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 						System.out.println("Error");
 					}
 					*/
-				} catch (InterruptedException | IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				} 
 			}
