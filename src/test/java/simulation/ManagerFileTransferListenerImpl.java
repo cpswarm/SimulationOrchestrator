@@ -46,7 +46,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				}
 				Thread.sleep(1000);
 			}
-			System.out.println("File received");
+			System.out.println("Simulation Manager "+fileToReceive+" received");
 			Thread.sleep(1000);
 			// If it's the configuration from the Simulation Orchestrator
 			if(request.getRequestor().toString().startsWith("orchestrator")) {

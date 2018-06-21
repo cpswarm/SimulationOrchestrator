@@ -61,10 +61,12 @@ public class DummyOptimizationTool {
 	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		clientID = "optimization_test";
 		this.serverName = serverName;
-		if(!dataFolder.endsWith("\\")) {
+		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 			dataFolder+="\\";
+		} else if (!dataFolder.endsWith("/") && OsUtils.isWindows()) {
+			dataFolder+="/";
 		}
-			
+		
 		try {
 
 			clientJID = JidCreate.from(clientID+"@"+serverName);
@@ -88,7 +90,7 @@ public class DummyOptimizationTool {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new OptimizationFileTransferListenerImpl(this, dataFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
+			manager.addFileTransferListener(new OptimizationFileTransferListenerImpl(this, dataFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE), JidCreate.entityFullFrom("manager_test@"+serverName+"/"+RESOURCE)));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener
