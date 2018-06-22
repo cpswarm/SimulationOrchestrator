@@ -72,7 +72,9 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					//Process proc = pb.start();
 					//int result = proc.waitFor();
 					InputStream read = proc.getErrorStream();
-					while (proc.isAlive()) {
+					int i=0;
+					while (i<100) {
+						i++;
 						System.out.print((char)read.read());
 					}
 					/*
