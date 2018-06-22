@@ -71,7 +71,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					//pb.directory(new File("/home/cpswarm/Desktop/ros/"));
 					//Process proc = pb.start();
 					//int result = proc.waitFor();
-					InputStream read = proc.getErrorStream();
+					InputStream read = proc.getInputStream();
 					int i=0;
 					while (i<100) {
 						i++;
