@@ -67,7 +67,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			// If it's the candidate from the Optimization Tool
 			} else if(request.getRequestor().toString().startsWith("optimization")) {
 				try { 
-					Process proc = Runtime.getRuntime().exec("/bin/bash /home/cpswarm/Desktop/ros/ros.sh");
+					Process proc = Runtime.getRuntime().exec("/bin/bash /home/cpswarm/Desktop/emergency_exit/ros.sh");
 					//pb.directory(new File("/home/cpswarm/Desktop/ros/"));
 					//Process proc = pb.start();
 					//int result = proc.waitFor();
