@@ -202,7 +202,7 @@ public class SimulationOrchestrator {
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
     	availableManagers = new ArrayList<EntityFullJid>();
-    	simulationId = UUID.randomUUID().toString();
+    	simulationId = "emergency_exit";//UUID.randomUUID().toString();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
     			this.transferFile(account, fileName, simulationId);

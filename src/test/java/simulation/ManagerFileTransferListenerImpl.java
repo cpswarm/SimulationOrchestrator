@@ -70,14 +70,12 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
 					int result = proc.waitFor();
 					if(result == 0) {
-						/*
-						proc = Runtime.getRuntime().exec("gazebo "+ this.dataFolder + this.parent.getSimulationID() + ".sdf");
+						System.out.println("launching the simulation");
+						proc = Runtime.getRuntime().exec("roslaunch "+ this.parent.getSimulationID() + " " +  this.parent.getSimulationID() + ".launch");
 						InputStream read = proc.getErrorStream();
 						while (true) {
 							System.out.print((char)read.read());
 						}
-						*/
-						System.out.println("done");
 					} else {
 						System.out.println("Error");
 					}
