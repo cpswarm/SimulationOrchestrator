@@ -42,6 +42,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.Gson;
 
+import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.progress.GetProgress;
 import messages.server.Server;
 import messages.start.StartOptimization;
@@ -65,6 +66,7 @@ import java.text.SimpleDateFormat;
 public class SimulationOrchestrator {
 	private static final String RESOURCE = "cpswarm";
 	private XMPPTCPConnection connection;
+	private MqttAsyncDispatcher client;
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
@@ -75,6 +77,7 @@ public class SimulationOrchestrator {
 	private String configurationFile = null;
 	private Jid optimizationJid = null;
 	private String simulationId = null;
+	private Boolean monitoring = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -84,6 +87,8 @@ public class SimulationOrchestrator {
 		String serverPassword = "";
 		String dataFolder = "";
 		String optimizationUser = "";
+		Boolean monitoring = null;
+		String mqttBroker = null;
 		try {
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
@@ -92,8 +97,14 @@ public class SimulationOrchestrator {
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			dataFolder = document.getElementsByTagName("dataFolder").item(0).getTextContent();
-			if(!dataFolder.endsWith("\\")) {
+			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
+			if(monitoring) {
+				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
+			}
+			if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 				dataFolder+="\\";
+			} else if (!dataFolder.endsWith("/") && OsUtils.isWindows()) {
+				dataFolder+="/";
 			}
 			if(!new File(dataFolder).isDirectory()) {
 				System.out.println("Data folder must be a folder");
@@ -103,14 +114,32 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, dataFolder, optimizationUser);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, dataFolder, optimizationUser, monitoring, mqttBroker);
 		while(true) {}
 	}
 	
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String dataFolder, final String optimizationUser) {
+	/**
+	 * 
+	 * @param serverIP
+	 * 		IP of the XMPP server
+	 * @param serverName
+	 * 		Name of the XMPP server
+	 * @param serverPassword
+	 * 		Password to be used to connect to the XMPP server
+	 * @param dataFolder
+	 * 		Folder to be used to store the files
+	 * @param optimizationUser
+	 * 		JID of the Optimization Tool
+	 * @param monitoring
+	 * 		Flag to enable or disable the thread which monitor the progress of the optimization process
+	 * @param mqttBroker
+	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
+	 */
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String dataFolder, final String optimizationUser, final boolean monitoring, final String mqttBroker) {
 		this.serverName = serverName;
 		this.dataFolder = dataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
+		this.monitoring = monitoring;
 		try {
 			this.optimizationJid = JidCreate.from(optimizationUser+"@"+serverName+"/"+RESOURCE);
 
@@ -153,6 +182,22 @@ public class SimulationOrchestrator {
 				connection.sendStanza(presence);
 			} catch (final NotConnectedException | InterruptedException e) {
 				e.printStackTrace();
+			}
+			
+			// If the monitoring is needed, it instantiates also the MQTT broker
+			if(monitoring) {
+				client = new MqttAsyncDispatcher(mqttBroker, UUID.randomUUID().toString(), null,
+						null, true, null);
+				// connect the client
+				client.connect();
+				while(!client.isConnected()){
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		} catch (final SmackException | IOException | XMPPException e) {
 			if (e instanceof SASLErrorException) {
@@ -202,7 +247,7 @@ public class SimulationOrchestrator {
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
     	availableManagers = new ArrayList<EntityFullJid>();
-    	simulationId = "emergency_exit";//UUID.randomUUID().toString();
+    	simulationId = UUID.randomUUID().toString();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
     			this.transferFile(account, fileName, simulationId);
@@ -390,5 +435,13 @@ public class SimulationOrchestrator {
 	
 	public String getSimulationId() {
 		return simulationId;
+	}
+	
+	public Boolean isMonitoring( ) {
+		return monitoring;
+	}
+	
+	public MqttAsyncDispatcher getMqttClient() {
+		return client;
 	}
 }

@@ -41,6 +41,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			case OptimizationReply.OPTIMIZATION_CANCELLED:
 				break;
 			case OptimizationReply.OPTIMIZATION_PROGRESS:
+				System.out.println("Optimization "+reply.getID()+ ", progress:" + reply.getOperationStatus());
+				if(parent.isMonitoring()) {
+					parent.getMqttClient().publish("/cpswarm/progress", msg.getBody().getBytes());
+				}
 				break;
 			}
 		}
