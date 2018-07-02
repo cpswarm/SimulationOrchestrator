@@ -14,7 +14,7 @@ public class StartOptimization {
 	 */
 	@SerializedName("title")
 	@Expose
-	private String title = "";
+	private String title = "StartOptimization";
 	/**
 	 * The Id Schema
 	 * <p>
