@@ -194,10 +194,17 @@ public class SimulationOrchestrator {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					GetProgressSender sender = new GetProgressSender(this);
+					
+					// create the thread
+					Thread senderThread = new Thread(sender);
+
+					// run
+					senderThread.start();
 				}
+				
 			}
 		} catch (final SmackException | IOException | XMPPException e) {
 			if (e instanceof SASLErrorException) {
