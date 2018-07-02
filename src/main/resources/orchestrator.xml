@@ -6,5 +6,5 @@
 	<optimizationUser>optimization</optimizationUser>
 	<dataFolder>C:\\Users\\co_da\\OneDrive\Desktop\\cpswarm\\</dataFolder>
 	<monitoring>true</monitoring>
-	<mqttBroker>tcp://127.0.0.1</mqttBroker>
+	<mqttBroker>tcp://127.0.0.1:1883</mqttBroker>
 </settings>
