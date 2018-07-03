@@ -14,7 +14,7 @@
 				</includes>
 			</resource>
 		</resources>
-				<pluginManagement>
+		<pluginManagement>
 	<plugins>
 		<!--This plugin's configuration is used to store Eclipse m2e settings only. 
 			It has no influence on the Maven build itself. -->
@@ -68,6 +68,16 @@
 </pluginManagement>
 		
 		<plugins>
+			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-compiler-plugin</artifactId>
+    			<version>3.6.1</version>
+    			<configuration>
+      			<source>1.8</source>
+      			<target>1.8</target>
+    			</configuration>
+  			</plugin>
+		
   			<plugin>
     			<groupId>org.apache.maven.plugins</groupId>
     			<artifactId>maven-install-plugin</artifactId>
