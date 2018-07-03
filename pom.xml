@@ -155,5 +155,10 @@
 		    <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
 		    <version>1.2.0</version>
 		</dependency>
+		<dependency>
+			<groupId>cpswarm</groupId>
+			<artifactId>it.ismb.pert.cpswarm.mqttLib</artifactId>
+			<version>1.1.0</version>
+		</dependency>
 	</dependencies>
 </project>
