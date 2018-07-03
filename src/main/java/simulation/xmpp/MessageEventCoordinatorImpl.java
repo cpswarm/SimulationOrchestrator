@@ -6,6 +6,7 @@ import org.jxmpp.jid.EntityBareJid;
 
 import com.google.gson.Gson;
 
+import messages.progress.OptimizationProgress;
 import messages.reply.OptimizationReply;
 import simulation.GetProgressSender;
 import simulation.SimulationOrchestrator;
@@ -34,28 +35,30 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			}
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
 			Gson gson = new Gson();
-			OptimizationReply reply = gson.fromJson(msg.getBody(), OptimizationReply.class);
-			switch(reply.getTitle()) {
-			case OptimizationReply.OPTIMIZATION_STARTED:
-				if(reply.getOperationStatus().equals("OK") && reply.getID().equals(parent.getSimulationId())) {
-					parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
-					getProgressSender = new GetProgressSender(parent);
-					
-					// create the thread
-					senderThread = new Thread(getProgressSender);
-
-					// run
-					senderThread.start();
-				}
-				break;
-			case OptimizationReply.OPTIMIZATION_CANCELLED:
-				break;
-			case OptimizationReply.OPTIMIZATION_PROGRESS:
-				System.out.println("Optimization "+reply.getID()+ ", progress:" + reply.getOperationStatus());
+			if(msg.getBody().contains("Progress")) {
+				OptimizationProgress progress = new OptimizationProgress();
+				System.out.println("Optimization "+progress.getID()+ ", progress:" + progress.getOperationStatus() + " " +progress.getUom());
 				if(parent.isMonitoring()) {
 					parent.getMqttClient().publish("/cpswarm/progress", msg.getBody().getBytes());
+				}				
+			} else {
+				OptimizationReply reply = gson.fromJson(msg.getBody(), OptimizationReply.class);
+				switch(reply.getTitle()) {
+				case OptimizationReply.OPTIMIZATION_STARTED:
+					if(reply.getOperationStatus().equals("OK") && reply.getID().equals(parent.getSimulationId())) {
+						parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
+						getProgressSender = new GetProgressSender(parent);
+						
+						// create the thread
+						senderThread = new Thread(getProgressSender);
+	
+						// run
+						senderThread.start();
+					}
+					break;
+				case OptimizationReply.OPTIMIZATION_CANCELLED:
+					break;
 				}
-				break;
 			}
 		}
 	}
