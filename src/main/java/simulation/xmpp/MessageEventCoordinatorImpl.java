@@ -7,6 +7,7 @@ import org.jxmpp.jid.EntityBareJid;
 import com.google.gson.Gson;
 
 import messages.reply.OptimizationReply;
+import simulation.GetProgressSender;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -17,6 +18,8 @@ import simulation.SimulationOrchestrator;
 public final class MessageEventCoordinatorImpl implements IncomingChatMessageListener {
 
 	private SimulationOrchestrator parent = null;
+	private GetProgressSender getProgressSender = null;
+	private Thread senderThread = null;
 	
 	public MessageEventCoordinatorImpl(final SimulationOrchestrator orchestrator) {
 		this.parent = orchestrator;
@@ -36,6 +39,13 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			case OptimizationReply.OPTIMIZATION_STARTED:
 				if(reply.getOperationStatus().equals("OK") && reply.getID().equals(parent.getSimulationId())) {
 					parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
+					getProgressSender = new GetProgressSender(parent);
+					
+					// create the thread
+					senderThread = new Thread(getProgressSender);
+
+					// run
+					senderThread.start();
 				}
 				break;
 			case OptimizationReply.OPTIMIZATION_CANCELLED:

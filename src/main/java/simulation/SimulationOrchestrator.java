@@ -194,13 +194,6 @@ public class SimulationOrchestrator {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					GetProgressSender sender = new GetProgressSender(this);
-					
-					// create the thread
-					Thread senderThread = new Thread(sender);
-
-					// run
-					senderThread.start();
 				}
 				
 			}
