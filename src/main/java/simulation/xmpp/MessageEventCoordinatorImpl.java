@@ -36,10 +36,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
 			Gson gson = new Gson();
 			if(msg.getBody().contains("Progress")) {
-				OptimizationProgress progress = new OptimizationProgress();
+				OptimizationProgress progress = gson.fromJson(msg.getBody(), OptimizationProgress.class);
 				System.out.println("Optimization "+progress.getID()+ ", progress:" + progress.getOperationStatus() + " " +progress.getUom());
 				if(parent.isMonitoring()) {
-					parent.getMqttClient().publish("/cpswarm/progress", msg.getBody().getBytes());
+					parent.getMqttClient().publish("/cpswarm/progress", gson.toJson(progress).getBytes());
 				}				
 			} else {
 				OptimizationReply reply = gson.fromJson(msg.getBody(), OptimizationReply.class);

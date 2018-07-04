@@ -375,6 +375,7 @@ public class SimulationOrchestrator {
 	public boolean sendGetProgress() {
 		Gson gson = new Gson();
 		GetProgress getProgress = new GetProgress();
+		getProgress.setID(this.simulationId);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationJid.asEntityBareJidIfPossible());
 		Message message = new Message();
