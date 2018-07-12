@@ -19,7 +19,8 @@ public class AppTest extends TestCase{
 	private String serverIP = System.getProperty("test_server_ip");
 	private String serverName = System.getProperty("test_server_name");
 	private String serverPassword = System.getProperty("test_server_password");
-	private String orchestratorDataFolder = System.getProperty("test_orchestrator_data_folder");
+	private String orchestratorInputDataFolder = System.getProperty("test_orchestrator_input_data_folder");
+	private String orchestratorOutputDataFolder = System.getProperty("test_orchestrator_output_data_folder");
 	private String managerDataFolder = System.getProperty("test_manager_data_folder");
 	private String optimizationUser = System.getProperty("optimization_user");
 	private String otDataFolder = System.getProperty("ot_data_folder");
@@ -30,7 +31,7 @@ public class AppTest extends TestCase{
 	@Test
 	public void testCreation() {
 		try {
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorDataFolder, optimizationUser, monitoring, mqttBroker);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -61,7 +62,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorDataFolder, optimizationUser, monitoring, mqttBroker);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);

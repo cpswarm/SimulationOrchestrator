@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
@@ -71,7 +78,8 @@ public class SimulationOrchestrator {
 	//private RosterListener rosterListener;
 	private String serverName = null;
 	private Map<EntityFullJid, Server> simulationManagers = null;
-	private String dataFolder = null;
+	private String inputDataFolder = null;
+	private String outputDataFolder = null;
 	private int managerConfigured = 0;
 	private List<EntityFullJid> availableManagers = null;
 	private String configurationFile = null;
@@ -85,28 +93,55 @@ public class SimulationOrchestrator {
 		String serverURI = "";
 		String serverName = "";
 		String serverPassword = "";
-		String dataFolder = "";
+		String inputDataFolder = "";
+		String outputDataFolder = "";
 		String optimizationUser = "";
 		Boolean monitoring = null;
 		String mqttBroker = null;
 		try {
+			Options options = new Options();
+
+			Option input = new Option("s", "src", true, "input folder path");
+			input.setRequired(true);
+			options.addOption(input);
+
+			Option output = new Option("t", "target", true, "output folder path");
+			output.setRequired(true);
+			options.addOption(output);
+
+			CommandLineParser parser = new DefaultParser();
+			HelpFormatter formatter = new HelpFormatter();
+			CommandLine cmd = null;
+
+			try {
+				cmd = parser.parse(options, args);
+			} catch (ParseException e) {
+				System.out.println(e.getMessage());
+				formatter.printHelp("utility-name", options);
+
+				System.exit(1);
+			}
+
+			inputDataFolder = cmd.getOptionValue("input");
+			outputDataFolder = cmd.getOptionValue("output");
+			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
-			dataFolder = document.getElementsByTagName("dataFolder").item(0).getTextContent();
+			
 			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
 			if(monitoring) {
 				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
 			}
-			if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
-				dataFolder+="\\";
-			} else if (!dataFolder.endsWith("/") && OsUtils.isWindows()) {
-				dataFolder+="/";
+			if(!inputDataFolder.endsWith("\\") && OsUtils.isWindows()) {
+				inputDataFolder+="\\";
+			} else if (!inputDataFolder.endsWith("/") && OsUtils.isWindows()) {
+				inputDataFolder+="/";
 			}
-			if(!new File(dataFolder).isDirectory()) {
+			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("Data folder must be a folder");
 				return;
 			}
@@ -114,7 +149,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, dataFolder, optimizationUser, monitoring, mqttBroker);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationUser, monitoring, mqttBroker);
 		while(true) {}
 	}
 	
@@ -126,7 +161,9 @@ public class SimulationOrchestrator {
 	 * 		Name of the XMPP server
 	 * @param serverPassword
 	 * 		Password to be used to connect to the XMPP server
-	 * @param dataFolder
+	 * @param inputDataFolder
+	 *      Folder to be used as source for the files
+	 * @param outputDataFolder
 	 * 		Folder to be used to store the files
 	 * @param optimizationUser
 	 * 		JID of the Optimization Tool
@@ -135,9 +172,10 @@ public class SimulationOrchestrator {
 	 * @param mqttBroker
 	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String dataFolder, final String optimizationUser, final boolean monitoring, final String mqttBroker) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationUser, final boolean monitoring, final String mqttBroker) {
 		this.serverName = serverName;
-		this.dataFolder = dataFolder;
+		this.inputDataFolder = inputDataFolder;
+		this.outputDataFolder = outputDataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		this.monitoring = monitoring;
 		try {
@@ -237,9 +275,9 @@ public class SimulationOrchestrator {
     }
     
     public void evaluateSimulationManagers(Server serverCompare) {
-    	Zipper zipper = new Zipper(dataFolder);
-		configurationFile = zipper.generateFileList(new File(dataFolder));
-    	String[] fileNameParts = (dataFolder+"test.zip").split("\\.");
+    	Zipper zipper = new Zipper(inputDataFolder);
+		configurationFile = zipper.generateFileList(new File(inputDataFolder));
+    	String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
 		Date date = new Date();
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];

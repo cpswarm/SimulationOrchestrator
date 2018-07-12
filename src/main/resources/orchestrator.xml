@@ -4,7 +4,6 @@
 	<serverName>desktop-akqg1ea</serverName>
 	<serverPassword>orchestrator</serverPassword>
 	<optimizationUser>optimization</optimizationUser>
-	<dataFolder>C:\\Users\\co_da\\OneDrive\Desktop\\cpswarm\\</dataFolder>
 	<monitoring>true</monitoring>
 	<mqttBroker>tcp://130.192.86.237:1883</mqttBroker>
 </settings>
