@@ -76,6 +76,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 						while (true) {
 							System.out.print((char)read.read());
 						}*/
+						proc = Runtime.getRuntime().exec("roslaunch cpswarm_sar gazebo.launch");
 						System.out.println("done");
 					} else {
 						System.out.println("Error");
