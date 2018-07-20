@@ -22,13 +22,17 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private String dataFolder = null;
 	private String rosFolder = null;
 	private String catkinWS = null;
+	private String packageName = null;
+	private String launchFile = null;
 	private DummyManager parent = null;
 	private EntityBareJid orchestrator = null;
 	
-	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator) {
+	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator, final String packageName, final String launchFile) {
 		this.dataFolder = dataFolder;
 		this.rosFolder = rosFolder;
-		this.catkinWS = rosFolder.substring(0,rosFolder.indexOf("src")); 
+		this.catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
+		this.packageName = packageName;
+		this.launchFile = launchFile;
 		this.parent = manager;
 		this.orchestrator = orchestrator;
 	}
@@ -80,7 +84,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 							System.out.print((char)read.read());
 						}*/
 						System.out.println("Launching the simulation");
-						proc = Runtime.getRuntime().exec("roslaunch cpswarm_sar gazebo.launch");
+						proc = Runtime.getRuntime().exec("roslaunch "+packageName+" "+launchFile);
 						System.out.println("done");
 					} else {
 						System.out.println("Error");

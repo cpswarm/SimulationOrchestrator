@@ -55,8 +55,10 @@ public class DummyManager {
 	private String serverName = null;
 	private String clientID = null;
 	private String simulationID = null;
+	private String packageName = null;
+	private String launchFile = null;
 	
-	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder) {
+	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String packageName, final String launchFile) {
 		clientID = "manager_test";
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
@@ -88,7 +90,7 @@ public class DummyManager {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
+			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE), packageName, launchFile));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener

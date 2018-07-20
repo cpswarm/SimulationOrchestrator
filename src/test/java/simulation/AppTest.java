@@ -27,6 +27,8 @@ public class AppTest extends TestCase{
 	private String rosFolder = System.getProperty("ros_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
+	private String packageName = System.getProperty("packageName");
+	private String launchFile = System.getProperty("launchFile");
 	
 	@Test
 	public void testCreation() {
@@ -36,7 +38,7 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, packageName, launchFile);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
@@ -67,7 +69,7 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, packageName, launchFile);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder);
 			Thread.sleep(1000);
 			
