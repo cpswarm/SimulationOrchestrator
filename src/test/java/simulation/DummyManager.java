@@ -54,6 +54,8 @@ public class DummyManager {
 	private String serverName = null;
 	private String clientID = null;
 	private String optimizationId = null;
+	private Boolean guiEnabled = false;
+	private String params = null;
 	
 	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
 		clientID = "manager_test";
@@ -339,4 +341,21 @@ public class DummyManager {
 	public Jid getJid() {
 		return clientJID;
 	}
+
+	public Boolean getGuiEnabled() {
+		return guiEnabled;
+	}
+
+	public void setGuiEnabled(Boolean guiEnabled) {
+		this.guiEnabled = guiEnabled;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
+	}
+
 }
