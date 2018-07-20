@@ -10,6 +10,7 @@ import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
+import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Presence;
@@ -103,6 +104,9 @@ public class DummyManager {
 
 			addAsyncStanzaListener(packetListener, presenceFilter);
 
+			// Adds the listener for the incoming messages
+			ChatManager.getInstanceFor(connection).addIncomingListener(new ManagerMessageEventCoordinatorImpl(this));
+			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			Thread.sleep(2000);
 			final Presence presence = new Presence(Presence.Type.available);
