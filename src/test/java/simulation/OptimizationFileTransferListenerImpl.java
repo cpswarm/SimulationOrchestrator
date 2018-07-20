@@ -24,7 +24,9 @@ import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
+import org.jxmpp.jid.impl.JidCreate;
 
+import messages.simulation.RunSimulation;
 import messages.start.StartOptimization;
 
 public class OptimizationFileTransferListenerImpl implements FileTransferListener {
@@ -55,6 +57,13 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 				Thread.sleep(1000);
 			}
 			System.out.println("Optimization Tool "+fileToReceive+" received");
+			RunSimulation runSimulation = new RunSimulation();
+			runSimulation.setID(parent.getSimulationID());
+			runSimulation.setGui(parent.getGuiEnabled());
+			runSimulation.setParams("");
+			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
+			Chat chat = chatManager.chatWith(this.maanger.asEntityBareJid());
+			chat.send(runSimulation.toString());
 			// It transfers the candidate to the manager
 			this.transferFile(this.maanger, this.dataFolder+"candidate.c", "candidate");
 			Thread.sleep(1000);

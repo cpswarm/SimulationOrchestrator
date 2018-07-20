@@ -57,6 +57,7 @@ public class DummyOptimizationTool {
 	private String serverName = null;
 	private String clientID = null;
 	private String simulationID = null;
+	private Boolean guiEnabled = false;
 	
 	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		clientID = "optimization_test";
@@ -306,5 +307,15 @@ public class DummyOptimizationTool {
 	
 	public Jid getJid() {
 		return clientJID;
+	}
+
+
+	public Boolean getGuiEnabled() {
+		return guiEnabled;
+	}
+
+
+	public void setGuiEnabled(Boolean guiEnabled) {
+		this.guiEnabled = guiEnabled;
 	}
 }

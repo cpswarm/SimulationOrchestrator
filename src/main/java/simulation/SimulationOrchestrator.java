@@ -86,6 +86,7 @@ public class SimulationOrchestrator {
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
 	private Boolean monitoring = null;
+	private Boolean guiEnabled = false;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -97,6 +98,7 @@ public class SimulationOrchestrator {
 		String outputDataFolder = "";
 		String optimizationToolUser = "";
 		String optimizationId = "";
+		Boolean guiEnabled = false;
 		Boolean monitoring = null;
 		String mqttBroker = null;
 		try {
@@ -111,8 +113,13 @@ public class SimulationOrchestrator {
 			options.addOption(output);
 
 			Option id = new Option("i", "id", true, "optimization ID");
-			output.setRequired(true);
+			id.setRequired(true);
 			options.addOption(id);
+			
+			Option gui = new Option("g", "gui", true, "GUI to be used or not for the simulation");
+			gui.setType(Boolean.class);
+			gui.setRequired(false);
+			options.addOption(gui);
 			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
@@ -130,7 +137,10 @@ public class SimulationOrchestrator {
 			inputDataFolder = cmd.getOptionValue("src");
 			outputDataFolder = cmd.getOptionValue("target");
 			optimizationId = cmd.getOptionValue("id");
-			
+			if(cmd.getOptionValue("gui")!=null) {
+				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
+			}
+
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
@@ -155,7 +165,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled);
 		while(true) {}
 	}
 	
@@ -179,14 +189,17 @@ public class SimulationOrchestrator {
 	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
 	 * @param optimizationId
 	 * 		ID of the optimization process
+	 * @param guiEnabled
+	 * 		Indicates if the GUI is enabled or not
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
+		this.guiEnabled = guiEnabled;
 		try {
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
@@ -414,7 +427,7 @@ public class SimulationOrchestrator {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
 		if(managerConfigured==this.availableManagers.size()) {
-			sendStartOptimization(false, "");
+			sendStartOptimization("");
 		}
 	}
 	
@@ -437,12 +450,12 @@ public class SimulationOrchestrator {
 	}
 
 	
-	private boolean sendStartOptimization(final Boolean gui, final String params) {
+	private boolean sendStartOptimization(final String params) {
 		Gson gson = new Gson();
 		StartOptimization start = new StartOptimization();
 		start.setThreads(availableManagers.size());
 		start.setID(this.optimizationId);
-		start.setGui(gui);
+		start.setGui(guiEnabled);
 		start.setParams(params);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,7 +22,6 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private String rosFolder = null;
 	private String catkinWS = null;
 	private String optimizationId = null;
-	private String launchFile = null;
 	private DummyManager parent = null;
 	private EntityBareJid orchestrator = null;
 	
