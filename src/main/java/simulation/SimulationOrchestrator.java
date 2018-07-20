@@ -83,8 +83,8 @@ public class SimulationOrchestrator {
 	private int managerConfigured = 0;
 	private List<EntityFullJid> availableManagers = null;
 	private String configurationFile = null;
-	private Jid optimizationJid = null;
-	private String simulationId = null;
+	private Jid optimizationToolJid = null;
+	private String optimizationId = null;
 	private Boolean monitoring = null;
 	
 	public static void main (String args[]) {
@@ -95,7 +95,8 @@ public class SimulationOrchestrator {
 		String serverPassword = "";
 		String inputDataFolder = "";
 		String outputDataFolder = "";
-		String optimizationUser = "";
+		String optimizationToolUser = "";
+		String optimizationId = "";
 		Boolean monitoring = null;
 		String mqttBroker = null;
 		try {
@@ -109,6 +110,10 @@ public class SimulationOrchestrator {
 			output.setRequired(true);
 			options.addOption(output);
 
+			Option id = new Option("i", "id", true, "optimization ID");
+			output.setRequired(true);
+			options.addOption(id);
+			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
 			CommandLine cmd = null;
@@ -122,15 +127,16 @@ public class SimulationOrchestrator {
 				System.exit(1);
 			}
 
-			inputDataFolder = cmd.getOptionValue("input");
-			outputDataFolder = cmd.getOptionValue("output");
+			inputDataFolder = cmd.getOptionValue("src");
+			outputDataFolder = cmd.getOptionValue("target");
+			optimizationId = cmd.getOptionValue("id");
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
-			optimizationUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
+			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			
 			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
 			if(monitoring) {
@@ -138,7 +144,7 @@ public class SimulationOrchestrator {
 			}
 			if(!inputDataFolder.endsWith("\\") && OsUtils.isWindows()) {
 				inputDataFolder+="\\";
-			} else if (!inputDataFolder.endsWith("/") && OsUtils.isWindows()) {
+			} else if (!inputDataFolder.endsWith("/") && !OsUtils.isWindows()) {
 				inputDataFolder+="/";
 			}
 			if(!new File(inputDataFolder).isDirectory()) {
@@ -149,7 +155,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationUser, monitoring, mqttBroker);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId);
 		while(true) {}
 	}
 	
@@ -165,21 +171,24 @@ public class SimulationOrchestrator {
 	 *      Folder to be used as source for the files
 	 * @param outputDataFolder
 	 * 		Folder to be used to store the files
-	 * @param optimizationUser
+	 * @param optimizationToolUser
 	 * 		JID of the Optimization Tool
 	 * @param monitoring
 	 * 		Flag to enable or disable the thread which monitor the progress of the optimization process
 	 * @param mqttBroker
 	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
+	 * @param optimizationId
+	 * 		ID of the optimization process
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationUser, final boolean monitoring, final String mqttBroker) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		this.monitoring = monitoring;
+		this.optimizationId = optimizationId;
 		try {
-			this.optimizationJid = JidCreate.from(optimizationUser+"@"+serverName+"/"+RESOURCE);
+			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
@@ -283,10 +292,9 @@ public class SimulationOrchestrator {
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
     	availableManagers = new ArrayList<EntityFullJid>();
-    	simulationId = UUID.randomUUID().toString();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
-    			this.transferFile(account, fileName, simulationId);
+    			this.transferFile(account, fileName, optimizationId);
     			availableManagers.add(account); 
     		}
     	}
@@ -383,12 +391,12 @@ public class SimulationOrchestrator {
 			final RosterGroup group = roster
 				.getGroup("optimization");
 			if (group != null) {
-				if (!group.contains(optimizationJid.asBareJid())) {
-					roster.createEntry(optimizationJid.asBareJid(),
+				if (!group.contains(optimizationToolJid.asBareJid())) {
+					roster.createEntry(optimizationToolJid.asBareJid(),
 							"optimization", groups);
 				} 
 			} else {
-				roster.createEntry(optimizationJid.asBareJid(),
+				roster.createEntry(optimizationToolJid.asBareJid(),
 						"optimization", groups);
 			}			
 			
@@ -413,9 +421,9 @@ public class SimulationOrchestrator {
 	public boolean sendGetProgress() {
 		Gson gson = new Gson();
 		GetProgress getProgress = new GetProgress();
-		getProgress.setID(this.simulationId);
+		getProgress.setID(this.optimizationId);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
-		Chat chat = manager.chatWith(this.optimizationJid.asEntityBareJidIfPossible());
+		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
 		message.setBody(gson.toJson(getProgress));
 		try {
@@ -433,11 +441,11 @@ public class SimulationOrchestrator {
 		Gson gson = new Gson();
 		StartOptimization start = new StartOptimization();
 		start.setThreads(availableManagers.size());
-		start.setID(this.simulationId);
+		start.setID(this.optimizationId);
 		start.setGui(gui);
 		start.setParams(params);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
-		Chat chat = manager.chatWith(this.optimizationJid.asEntityBareJidIfPossible());
+		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
 		message.setBody(gson.toJson(start));
 		try {
@@ -467,11 +475,11 @@ public class SimulationOrchestrator {
 	}
 	
 	public Jid getOptimizationJid() {
-		return optimizationJid;
+		return optimizationToolJid;
 	}
 	
 	public String getSimulationId() {
-		return simulationId;
+		return optimizationId;
 	}
 	
 	public Boolean isMonitoring( ) {

@@ -47,23 +47,20 @@ public class DummyManager {
 	private Server server;
 	private boolean available = true;
 	private boolean started = false;
-	private String simulationHash="";
 	private ManagerConnectionListenerImpl connectionListener;
 	private StanzaListener packetListener;
 	//private RosterListener rosterListener;
 	private Jid clientJID = null;
 	private String serverName = null;
 	private String clientID = null;
-	private String simulationID = null;
-	private String packageName = null;
-	private String launchFile = null;
+	private String optimizationId = null;
 	
-	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String packageName, final String launchFile) {
+	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
 		clientID = "manager_test";
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 			dataFolder+="\\";
-		} else if (!dataFolder.endsWith("/") && OsUtils.isWindows()) {
+		} else if (!dataFolder.endsWith("/") && !OsUtils.isWindows()) {
 			dataFolder+="/";
 		}
 			
@@ -90,7 +87,7 @@ public class DummyManager {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE), packageName, launchFile));
+			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE), optimizationId));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener
@@ -321,13 +318,13 @@ public class DummyManager {
 		return started;
 	}
 
-	public String getSimulationID() {
-		return simulationID;
+	public String getOptimizationId() {
+		return optimizationId;
 	}
 
 
-	public void setSimulationID(String simulationID) {
-		this.simulationID = simulationID;
+	public void setOptimizationID(final String optimizationId) {
+		this.optimizationId = optimizationId;
 	}
 
 

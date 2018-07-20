@@ -27,18 +27,17 @@ public class AppTest extends TestCase{
 	private String rosFolder = System.getProperty("ros_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
-	private String packageName = System.getProperty("packageName");
-	private String launchFile = System.getProperty("launchFile");
+	private String optimizationId = System.getProperty("optimizationId");
 	
 	@Test
 	public void testCreation() {
 		try {
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, packageName, launchFile);
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
@@ -64,12 +63,12 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, packageName, launchFile);
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder);
 			Thread.sleep(1000);
 			

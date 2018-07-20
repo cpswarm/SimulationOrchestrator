@@ -22,17 +22,16 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private String dataFolder = null;
 	private String rosFolder = null;
 	private String catkinWS = null;
-	private String packageName = null;
+	private String optimizationId = null;
 	private String launchFile = null;
 	private DummyManager parent = null;
 	private EntityBareJid orchestrator = null;
 	
-	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator, final String packageName, final String launchFile) {
+	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator, final String optimizationId) {
 		this.dataFolder = dataFolder;
 		this.rosFolder = rosFolder;
 		this.catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
-		this.packageName = packageName;
-		this.launchFile = launchFile;
+		this.optimizationId = optimizationId;
 		this.parent = manager;
 		this.orchestrator = orchestrator;
 	}
@@ -63,7 +62,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
 				final Chat newChat = chatmanager.chatWith(orchestrator);
 				if(unzipFiles(fileToReceive)) {
-					parent.setSimulationID(request.getDescription());
+					parent.setOptimizationID(request.getDescription());
 					newChat.send("simulator configured");
 				} else {
 					newChat.send("error");
@@ -77,14 +76,8 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					int result = proc.waitFor();
 					System.out.println("Compilation finished, "+result);
 					if(result == 0) {
-						/*System.out.println("launching the simulation");
-						proc = Runtime.getRuntime().exec("roslaunch "+ this.parent.getSimulationID() + " " +  this.parent.getSimulationID() + ".launch");
-						InputStream read = proc.getErrorStream();
-						while (true) {
-							System.out.print((char)read.read());
-						}*/
-						System.out.println("Launching the simulation for package: "+packageName+" with launch file "+launchFile);
-						proc = Runtime.getRuntime().exec("roslaunch "+packageName+" "+launchFile);
+						System.out.println("Launching the simulation for package: "+optimizationId);
+						proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" "+optimizationId+".launch");
 						System.out.println("done");
 					} else {
 						System.out.println("Error");

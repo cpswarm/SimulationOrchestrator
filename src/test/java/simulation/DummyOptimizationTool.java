@@ -63,7 +63,7 @@ public class DummyOptimizationTool {
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 			dataFolder+="\\";
-		} else if (!dataFolder.endsWith("/") && OsUtils.isWindows()) {
+		} else if (!dataFolder.endsWith("/") && !OsUtils.isWindows()) {
 			dataFolder+="/";
 		}
 		
