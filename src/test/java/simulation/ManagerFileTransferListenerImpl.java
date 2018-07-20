@@ -83,7 +83,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 						while (true) {
 							System.out.print((char)read.read());
 						}*/
-						System.out.println("Launching the simulation");
+						System.out.println("Launching the simulation for package: "+packageName+" with launch file "+launchFile);
 						proc = Runtime.getRuntime().exec("roslaunch "+packageName+" "+launchFile);
 						System.out.println("done");
 					} else {
