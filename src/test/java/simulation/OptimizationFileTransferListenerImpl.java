@@ -26,6 +26,8 @@ import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.impl.JidCreate;
 
+import com.google.gson.Gson;
+
 import messages.simulation.RunSimulation;
 import messages.start.StartOptimization;
 
@@ -63,7 +65,8 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 			runSimulation.setParams("");
 			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 			Chat chat = chatManager.chatWith(this.maanger.asEntityBareJid());
-			chat.send(runSimulation.toString());
+			Gson gson = new Gson();
+			chat.send(gson.toJson(runSimulation));
 			// It transfers the candidate to the manager
 			this.transferFile(this.maanger, this.dataFolder+"candidate.c", "candidate");
 			Thread.sleep(1000);
