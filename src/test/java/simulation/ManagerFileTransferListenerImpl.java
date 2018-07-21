@@ -93,6 +93,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	
 	private boolean unzipFiles(final String fileToReceive) {
 		try {
+			System.out.println("Uniziping "+fileToReceive);
 			byte[] buffer = new byte[1024];
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(fileToReceive));
 			ZipEntry zipEntry = zis.getNextEntry();
@@ -110,6 +111,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				while ((len = zis.read(buffer)) > 0) {
 					fos.write(buffer, 0, len);
 				}
+				System.out.println("Unzipped "+fos.toString());
 				fos.close();				
 				zipEntry = zis.getNextEntry();
 			}
