@@ -27,6 +27,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		Message message = new Message();
 		if(msg.getBody().contains("Start")) {
 			StartOptimization start = gson.fromJson(msg.getBody(), StartOptimization.class);
+			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
 			OptimizationReply reply = new OptimizationReply();
 			reply.setID(start.getID());
 			reply.setTitle(OptimizationReply.OPTIMIZATION_STARTED);

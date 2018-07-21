@@ -457,6 +457,7 @@ public class SimulationOrchestrator {
 		start.setID(this.optimizationId);
 		start.setGui(guiEnabled);
 		start.setParams(params);
+		System.out.println("Sending StartOptimization message: "+gson.toJson(start));
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
