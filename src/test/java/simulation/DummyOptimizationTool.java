@@ -106,7 +106,7 @@ public class DummyOptimizationTool {
 			addAsyncStanzaListener(packetListener, presenceFilter);
 
 			// Adds the listener for the incoming messages
-			ChatManager.getInstanceFor(connection).addIncomingListener(new OptimizationMessageEventCoordinatorImpl());
+			ChatManager.getInstanceFor(connection).addIncomingListener(new OptimizationMessageEventCoordinatorImpl(this));
 			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			Thread.sleep(2000);

@@ -20,6 +20,11 @@ import messages.start.StartOptimization;
 public final class OptimizationMessageEventCoordinatorImpl implements IncomingChatMessageListener {
 	
 	private int value = 0;
+	private DummyOptimizationTool parent = null;
+	
+	public OptimizationMessageEventCoordinatorImpl(DummyOptimizationTool parent) {
+		this.parent = parent;
+	}
 	
 	@Override
 	public void newIncomingMessage(EntityBareJid jid, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
@@ -27,6 +32,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		Message message = new Message();
 		if(msg.getBody().contains("Start")) {
 			StartOptimization start = gson.fromJson(msg.getBody(), StartOptimization.class);
+			parent.setGuiEnabled(start.getGui());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
 			OptimizationReply reply = new OptimizationReply();
 			reply.setID(start.getID());
