@@ -26,6 +26,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 		if(sender.toString().startsWith("optimization")) {
 			Gson gson = new Gson();
 			RunSimulation runSimulation = gson.fromJson(msg.getBody(), RunSimulation.class);
+			System.out.println("Run simulation received "+runSimulation.getID()+ " gui enabled: "+runSimulation.getGui()+ " params: "+runSimulation.getParams());
 			parent.setOptimizationID(runSimulation.getID());
 			parent.setGuiEnabled(runSimulation.getGui());
 			parent.setParams(runSimulation.getParams());
