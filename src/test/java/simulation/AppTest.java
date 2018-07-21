@@ -27,8 +27,8 @@ public class AppTest extends TestCase{
 	private String rosFolder = System.getProperty("ros_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
-	private String optimizationId = System.getProperty("optimizationId");
-	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("guiEnabled"));
+	private String optimizationId = System.getProperty("optimization_id");
+	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	
 	@Test
 	public void testCreation() {
