@@ -60,9 +60,11 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
 				final Chat newChat = chatmanager.chatWith(orchestrator);
 				if(unzipFiles(fileToReceive)) {
+					System.out.println("SimulationManager configured");
 					parent.setOptimizationID(request.getDescription());
 					newChat.send("simulator configured");
 				} else {
+					System.out.println("Error configuring the simulation manager");
 					newChat.send("error");
 				}
 			// If it's the candidate from the Optimization Tool
