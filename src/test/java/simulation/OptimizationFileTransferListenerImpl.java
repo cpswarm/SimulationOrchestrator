@@ -2,11 +2,6 @@ package simulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
@@ -24,12 +19,10 @@ import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
-import org.jxmpp.jid.impl.JidCreate;
 
 import com.google.gson.Gson;
 
 import messages.simulation.RunSimulation;
-import messages.start.StartOptimization;
 
 public class OptimizationFileTransferListenerImpl implements FileTransferListener {
 
