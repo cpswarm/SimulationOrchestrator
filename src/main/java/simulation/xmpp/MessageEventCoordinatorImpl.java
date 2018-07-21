@@ -44,9 +44,11 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				}				
 			} else {
 				OptimizationReply reply = gson.fromJson(msg.getBody(), OptimizationReply.class);
+				System.out.println("Reply received: "+msg.getBody());
 				switch(reply.getTitle()) {
 				case OptimizationReply.OPTIMIZATION_STARTED:
 					if(reply.getOperationStatus().equals("OK") && reply.getID().equals(parent.getSimulationId())) {
+						System.out.println("Transfering the configuration file to the manager");
 						parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
 						getProgressSender = new GetProgressSender(parent);
 						

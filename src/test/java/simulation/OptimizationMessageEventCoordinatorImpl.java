@@ -33,6 +33,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			reply.setTitle(OptimizationReply.OPTIMIZATION_STARTED);
 			reply.setOperationStatus("OK");
 			message.setBody(gson.toJson(reply));
+			System.out.println("Sending reply to the StartOptimization: "+gson.toJson(reply));
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {
