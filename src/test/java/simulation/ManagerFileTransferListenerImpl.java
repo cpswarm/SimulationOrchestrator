@@ -111,7 +111,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				while ((len = zis.read(buffer)) > 0) {
 					fos.write(buffer, 0, len);
 				}
-				System.out.println("Unzipped "+fos.toString());
+				System.out.println("Unzipped "+newFile);
 				fos.close();				
 				zipEntry = zis.getNextEntry();
 			}
