@@ -79,7 +79,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			// If it's the candidate from the Optimization Tool
 			} else if(request.getRequestor().toString().startsWith("optimization")) {
 				try { 
-					System.out.println("Compiling the package");
+					System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
 					Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
 					System.out.println("Compilation launched");
 					int result = proc.waitFor();
