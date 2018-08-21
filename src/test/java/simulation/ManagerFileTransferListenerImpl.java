@@ -1,9 +1,17 @@
 package simulation;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,6 +32,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private String optimizationId = null;
 	private DummyManager parent = null;
 	private EntityBareJid orchestrator = null;
+	private ArrayList<NavigableMap<Integer,Double>> logs;
 	
 	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator, final String optimizationId) {
 		this.dataFolder = dataFolder;
@@ -77,12 +86,19 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					System.out.println("Compilation finished, "+result);
 					if(result == 0) {
 						System.out.println("Launching the simulation for package: "+optimizationId);
-						proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" gazebo.launch"+(parent.getGuiEnabled().booleanValue()?"":" gui:=false"));
+						proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
+						boolean value = false;
+						value = proc.waitFor(40, TimeUnit.SECONDS);
+						if(value) {
+							if(!calcFitness()) {
+								return;
+							}
+						} 
 						System.out.println("done");
 					} else {
 						System.out.println("Error");
 					}
-				} catch (IOException e) {
+				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				} 
 			}
@@ -124,5 +140,75 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			return false;
 		}	
 		return true;
+	}
+	
+	
+	/**
+	 * Read the log files produced by ROS.
+	 * It assumes log files with two columns, separated by tabulator.
+	 * The first column must be an integer, the second a double value.
+	 * @return ArrayList<NavigableMap<Integer,Double>>: An array with one map entry for each log file.
+	 */
+	private boolean readLogs() {
+		// container for data of all log files
+		logs = new ArrayList<NavigableMap<Integer,Double>>();
+		
+		// path to log directory
+	    File logPath = new File(catkinWS + "/src/" + optimizationId + "/log/");
+	    
+	    // iterate through all log files
+	    String[] logFiles = logPath.list();
+	    for ( int i=0; i<logFiles.length; i++ ) {
+	    	// container for data of one log file
+	    	NavigableMap<Integer,Double> log = new TreeMap<Integer, Double>();
+	    	
+	    	// read log file
+	    	Path logFile = Paths.get(logPath + "/" + logFiles[i]);
+	    	try {
+	    		BufferedReader logReader = Files.newBufferedReader(logFile);
+	    		
+	    		// store every line
+		    	String line;
+				while ((line = logReader.readLine()) != null) {
+					if ( line.length() <= 1 || line.startsWith("#") )
+						continue;
+					
+					log.put(Integer.parseInt(line.split("\t")[0]), Double.parseDouble(line.split("\t")[1]));
+				}
+			}
+	    	catch (IOException e) {
+				e.printStackTrace();
+			}
+	    	
+	    	// store contents of log file
+	    	logs.add(log);
+	    }
+	    return true;
+	}
+	
+	/**
+	 * Calculate the fitness score of the last simulation run.
+	 * @return boolean: result of the method.
+	 */
+	private boolean calcFitness() {
+
+		if(!readLogs()) {
+			return false;
+		}
+		
+		// fitness score is negative sum of all distances
+		double dist = 0;
+		
+		// iterate all log files
+        for (NavigableMap<Integer,Double> log : logs) {
+        	if (log.size() > 0)
+	            // take last line of log file
+	            dist = dist + log.lastEntry().getValue();
+        }
+
+        // publish negative distance as fitness
+        parent.publishFitness(-dist);
+        
+        return true;
 	}
 }

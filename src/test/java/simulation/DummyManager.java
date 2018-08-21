@@ -10,9 +10,11 @@ import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
+import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.Roster.SubscriptionMode;
@@ -34,6 +36,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
+import messages.result.OptimizationResult;
 import messages.server.Server;
 
 import javax.net.ssl.SSLContext;
@@ -263,14 +266,14 @@ public class DummyManager {
 			group = roster
 				.getGroup("optimization");
 			if (group != null) {
-				if (!group.contains(JidCreate.bareFrom("optimization@"
+				if (!group.contains(JidCreate.bareFrom("optimization_test@"
 						+ serverName))) {
-					roster.createEntry(JidCreate.bareFrom("optimization@"
+					roster.createEntry(JidCreate.bareFrom("optimization_test@"
 							+ serverName),
 							"optimization", groups2);
 				} 
 			} else {
-				roster.createEntry(JidCreate.bareFrom("optimization@"
+				roster.createEntry(JidCreate.bareFrom("optimization_test@"
 						+ serverName),
 						"optimization", groups2);
 			}			
@@ -313,12 +316,25 @@ public class DummyManager {
 		return true;
 	};
 	
-	/*
-	public MqttClient getMqttClient() {
-		return mqttClient;
+	public boolean publishFitness(final Double value) {
+		Gson gson = new Gson();
+		OptimizationResult result =  new OptimizationResult();
+		result.setFitnessValue(value);
+		result.setID(optimizationId);
+		try {
+			ChatManager chatManager = ChatManager.getInstanceFor(this.getConnection());
+			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_test@"+this.serverName));
+			Message message = new Message();
+			message.setBody(gson.toJson(result));
+			chat.send(message);
+			System.out.println("fitness score: "+ value + " sent");
+		} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
+			System.out.println("Error sending the result of the simulation: "+gson.toJson(result));
+			e.printStackTrace();
+			return false;
+		} 
+		return true;
 	}
-	*/
-
 	
 	public boolean isStarted() {
 		return started;
