@@ -1,5 +1,8 @@
 package simulation;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.junit.Assert;
@@ -30,6 +33,30 @@ public class AppTest extends TestCase{
 	private String optimizationId = System.getProperty("optimization_id");
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	
+	
+	@Test
+	public void testCompilation() {
+		String catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
+		try { 
+			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
+			Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
+			System.out.println("Compilation launched");
+			int result = proc.waitFor();
+			System.out.println("Compilation finished, "+result);
+			if(result == 0) {
+				System.out.println("Launching the simulation for package: "+optimizationId);
+				proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
+				boolean value = false;
+				value = proc.waitFor(40, TimeUnit.SECONDS);
+				System.out.println("done");
+			} else {
+				System.out.println("Error");
+			}
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		} 
+	}
+	/*
 	@Test
 	public void testCreation() {
 		try {
@@ -80,7 +107,8 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}  
 	}
-
+	*/
+	
 	/*
    @Test
    public void testMessageArrived() {
