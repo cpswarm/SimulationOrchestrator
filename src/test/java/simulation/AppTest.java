@@ -57,9 +57,7 @@ public class AppTest extends TestCase{
 				proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
 				boolean value = false;
 				value = proc.waitFor(40, TimeUnit.SECONDS);
-				if(value) {
-					calcFitness();
-				}
+				calcFitness();
 				System.out.println("done");
 			} else {
 				System.out.println("Error");
@@ -79,6 +77,7 @@ public class AppTest extends TestCase{
 		// container for data of all log files
 		logs = new ArrayList<NavigableMap<Integer,Double>>();
 		
+	
 		// path to log directory
 	    File logPath = new File(catkinWS + "/src/" + optimizationId + "/log/");
 	    
