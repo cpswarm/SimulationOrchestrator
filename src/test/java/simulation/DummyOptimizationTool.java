@@ -35,7 +35,6 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import com.google.gson.Gson;
 
 import messages.server.Server;
-import simulation.xmpp.MessageEventCoordinatorImpl;
 
 import javax.net.ssl.SSLContext;
 
@@ -59,8 +58,9 @@ public class DummyOptimizationTool {
 	private String simulationID = null;
 	private Boolean guiEnabled = false;
 	
-	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder) {
+	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
 		clientID = "optimization_test";
+		this.simulationID = optimizationId;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 			dataFolder+="\\";

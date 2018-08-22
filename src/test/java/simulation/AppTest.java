@@ -179,7 +179,7 @@ public class AppTest extends TestCase{
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
 			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
-			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
