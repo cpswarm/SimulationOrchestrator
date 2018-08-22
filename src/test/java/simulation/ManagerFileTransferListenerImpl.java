@@ -89,11 +89,9 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 						proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
 						boolean value = false;
 						value = proc.waitFor(40, TimeUnit.SECONDS);
-						if(value) {
-							if(!calcFitness()) {
-								return;
-							}
-						} 
+						if(!calcFitness()) {
+							return;
+						}
 						System.out.println("done");
 					} else {
 						System.out.println("Error");
@@ -153,6 +151,8 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 		// container for data of all log files
 		logs = new ArrayList<NavigableMap<Integer,Double>>();
 		
+		System.out.println("Reading logs from :"+catkinWS + "/src/" + optimizationId + "/log/");
+		
 		// path to log directory
 	    File logPath = new File(catkinWS + "/src/" + optimizationId + "/log/");
 	    
@@ -193,6 +193,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private boolean calcFitness() {
 
 		if(!readLogs()) {
+			System.out.println("Error reading logs");
 			return false;
 		}
 		
@@ -205,7 +206,9 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	            // take last line of log file
 	            dist = dist + log.lastEntry().getValue();
         }
-
+        
+        System.out.println("Fitness score calculated: "+(-dist)+", ready to be sent");
+        
         // publish negative distance as fitness
         parent.publishFitness(-dist);
         

@@ -321,11 +321,13 @@ public class DummyManager {
 		OptimizationResult result =  new OptimizationResult();
 		result.setFitnessValue(value);
 		result.setID(optimizationId);
+		String body = gson.toJson(result);
 		try {
+			System.out.println("Ready to send "+body);
 			ChatManager chatManager = ChatManager.getInstanceFor(this.getConnection());
 			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_test@"+this.serverName));
 			Message message = new Message();
-			message.setBody(gson.toJson(result));
+			message.setBody(body);
 			chat.send(message);
 			System.out.println("fitness score: "+ value + " sent");
 		} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
