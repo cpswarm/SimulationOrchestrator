@@ -13,7 +13,7 @@ public class OptimizationResult {
 	 */
 	@SerializedName("title")
 	@Expose
-	private String title = "";
+	private String title = "OptimizationResult";
 	/**
 	 * The Id Schema
 	 * <p>
