@@ -349,6 +349,7 @@ public class DummyManager {
 
 
 	public void setOptimizationID(final String optimizationId) {
+		System.out.println("Setting Optimization ID to "+optimizationId);
 		this.optimizationId = optimizationId;
 	}
 
