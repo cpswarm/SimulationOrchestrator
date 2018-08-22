@@ -139,7 +139,6 @@ public class AppTest extends TestCase{
 	}
 	
 	
-	/*
 	@Test
 	public void testCreation() {
 		try {
@@ -190,7 +189,6 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}  
 	}
-	*/
 	
 	/*
    @Test
