@@ -77,7 +77,8 @@ public class AppTest extends TestCase{
 		// container for data of all log files
 		logs = new ArrayList<NavigableMap<Integer,Double>>();
 		
-	
+		System.out.println("Reading logs from "+catkinWS + "/src/" + optimizationId + "/log/");
+		
 		// path to log directory
 	    File logPath = new File(catkinWS + "/src/" + optimizationId + "/log/");
 	    
