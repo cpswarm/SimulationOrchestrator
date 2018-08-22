@@ -45,7 +45,7 @@ public class AppTest extends TestCase{
 	
 	@Test
 	public void testCompilation() {
-		String catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
+		catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
 		try { 
 			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
 			Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
