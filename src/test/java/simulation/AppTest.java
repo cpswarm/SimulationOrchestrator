@@ -142,72 +142,7 @@ public class AppTest extends TestCase{
         
         return true;
 	}
-	
-	
-	@Test
-	public void testCreation() {
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testCreation test---------------------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled);
-			Assert.assertNotNull(orchestrator);
-			do {
-				Thread.sleep(1000);
-			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
-			Assert.assertNotNull(manager);
-			Thread.sleep(10000);
-			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
-			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_test@"+serverName));
-			Assert.assertNotNull(entry);
-			orchestrator.getConnection().disconnect();
-			manager.getConnection().disconnect();
-		} catch (Exception e) {
-			Assert.fail();
-		}  
-	}
 
-	@Test
-	public void testConfiguration() {
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testConfiguration test----------------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			Gson gson = new Gson();
-			Server server = gson.fromJson("{\r\n" + 
-					"	\"server\": 1,\r\n" + 
-					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					"	\"simulations\": [\"stage\"],\r\n" + 
-					"	\"capabilities\": {\r\n" + 
-					"		\"dimensions\": 2\r\n" + 
-					"	}\r\n" + 
-					"}\r\n" + 
-					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled);
-			Assert.assertNotNull(orchestrator);
-			do {
-				Thread.sleep(10000);
-			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
-			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
-			Thread.sleep(1000);
-			
-			orchestrator.evaluateSimulationManagers(server);
-			while(manager.isSimulationDone()==null) {
-				Thread.sleep(1000);
-			}
-			Assert.assertTrue(manager.isSimulationDone());
-			orchestrator.getConnection().disconnect();
-			manager.getConnection().disconnect();
-			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail();
-		}  
-	}
-	
 	
 	@Test
 	public void testMultiConfiguration() {
