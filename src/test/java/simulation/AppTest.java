@@ -153,7 +153,7 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
+			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
@@ -187,7 +187,7 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
+			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
 			Thread.sleep(1000);
 			
@@ -224,8 +224,8 @@ public class AppTest extends TestCase{
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
-			DummyManager manager2 = new DummyManager(serverIP, serverName, "server", managerDataFolder+"2", rosFolder+"2", optimizationId);
+			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
+			DummyManager manager2 = new DummyManager("manager_test2", serverIP, serverName, "server", managerDataFolder+"2", rosFolder+"2", optimizationId);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
 			Thread.sleep(1000);
 			
