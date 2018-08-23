@@ -196,6 +196,9 @@ public class AppTest extends TestCase{
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(manager.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			optimizationTool.getConnection().disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -230,10 +233,15 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(manager.isSimulationDone()==null) {
+			while(manager.isSimulationDone()==null || manager2.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(manager.isSimulationDone());
+			Assert.assertTrue(manager2.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			manager2.getConnection().disconnect();
+			optimizationTool.getConnection().disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
