@@ -33,6 +33,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		if(msg.getBody().contains("Start")) {
 			StartOptimization start = gson.fromJson(msg.getBody(), StartOptimization.class);
 			parent.setGuiEnabled(start.getGui());
+			parent.setManagers(start.getSimulationManagers());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
 			OptimizationReply reply = new OptimizationReply();
 			reply.setID(start.getID());

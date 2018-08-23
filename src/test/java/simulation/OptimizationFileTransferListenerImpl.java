@@ -29,13 +29,12 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 	private String dataFolder = null;
 	private DummyOptimizationTool parent = null;
 	private EntityBareJid orchestrator = null;
-	private EntityFullJid maanger = null;
-	
-	public OptimizationFileTransferListenerImpl(final DummyOptimizationTool optimizationTool, final String dataFolder, final EntityBareJid orchestrator, final EntityFullJid manager) {
+			
+	public OptimizationFileTransferListenerImpl(final DummyOptimizationTool optimizationTool, final String dataFolder, final EntityBareJid orchestrator) {
+		this.parent = optimizationTool;
 		this.dataFolder = dataFolder;
 		this.parent = optimizationTool;
 		this.orchestrator = orchestrator;
-		this.maanger = manager;
 	}
 	
 	@Override
@@ -56,12 +55,14 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 			runSimulation.setID(parent.getSimulationID());
 			runSimulation.setGui(parent.getGuiEnabled());
 			runSimulation.setParams("");
-			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-			Chat chat = chatManager.chatWith(this.maanger.asEntityBareJid());
-			Gson gson = new Gson();
-			chat.send(gson.toJson(runSimulation));
-			// It transfers the candidate to the manager
-			this.transferFile(this.maanger, this.dataFolder+"candidate.c", "candidate");
+			for(EntityFullJid manager : parent.getManagers()) {
+				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
+				Chat chat = chatManager.chatWith(manager.asEntityBareJid());
+				Gson gson = new Gson();
+				chat.send(gson.toJson(runSimulation));
+				// It transfers the candidate to the managers
+				this.transferFile(manager, this.dataFolder+"candidate.c", "candidate");
+			}
 			Thread.sleep(1000);
 		} catch (final SmackException | IOException | InterruptedException e) {
 			e.printStackTrace();

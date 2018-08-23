@@ -1,7 +1,8 @@
 package simulation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.List;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
@@ -26,6 +27,7 @@ import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.LeafNode;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
+import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
@@ -57,6 +59,7 @@ public class DummyOptimizationTool {
 	private String clientID = null;
 	private String simulationID = null;
 	private Boolean guiEnabled = false;
+	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
 	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
 		clientID = "optimization_test";
@@ -91,12 +94,8 @@ public class DummyOptimizationTool {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new OptimizationFileTransferListenerImpl(this, dataFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE), JidCreate.entityFullFrom("manager_test@"+serverName+"/"+RESOURCE)));
+			manager.addFileTransferListener(new OptimizationFileTransferListenerImpl(this, dataFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
 			
-			//rosterListener = new RosterListenerImpl(this);
-			// Adds a roster listener
-			//addRosterListener(rosterListener);
-
 			// Adds the packet listener, used to catch the requests
 			// of adding this client to the roster
 			final StanzaFilter presenceFilter = new StanzaTypeFilter(
@@ -301,5 +300,21 @@ public class DummyOptimizationTool {
 
 	public void setGuiEnabled(Boolean guiEnabled) {
 		this.guiEnabled = guiEnabled;
+	}
+
+
+	public List<EntityFullJid> getManagers() {
+		return managers;
+	}
+
+
+	public void setManagers(List<String> managers) {
+		for(String manager : managers) {
+			try {
+				this.managers.add(JidCreate.entityFullFrom(manager));
+			} catch (XmppStringprepException e) {
+				System.out.println("Invalid username for the manager: "+manager);
+			}
+		}
 	}
 }

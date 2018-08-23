@@ -464,6 +464,11 @@ public class SimulationOrchestrator {
 		start.setID(this.optimizationId);
 		start.setGui(guiEnabled);
 		start.setParams(params);
+		List<String> managersJid = new ArrayList<String>();
+		for(EntityFullJid availableManager : this.availableManagers) {
+			managersJid.add(availableManager.toString());
+		}
+		start.setSimulationManagers(managersJid);
 		System.out.println("Sending StartOptimization message: "+gson.toJson(start));
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
