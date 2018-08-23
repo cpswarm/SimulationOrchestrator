@@ -183,7 +183,10 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(true) {}
+			while(manager.isSimulationDone()==null) {
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(manager.isSimulationDone());
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();

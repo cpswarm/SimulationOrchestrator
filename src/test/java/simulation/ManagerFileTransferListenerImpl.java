@@ -89,8 +89,11 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 						proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
 						proc.waitFor(40, TimeUnit.SECONDS);
 						if(!calcFitness()) {
+							parent.setSimulationDone(false);
+							System.out.println("Error");
 							return;
 						}
+						parent.setSimulationDone(true);
 						System.out.println("done");
 					} else {
 						System.out.println("Error");

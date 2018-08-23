@@ -60,6 +60,7 @@ public class DummyManager {
 	private String optimizationId = null;
 	private Boolean guiEnabled = false;
 	private String params = null;
+	private Boolean simulationDone = null;
 	
 	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
 		clientID = "manager_test";
@@ -382,4 +383,12 @@ public class DummyManager {
 		this.params = params;
 	}
 
+
+	public Boolean isSimulationDone() {
+		return simulationDone;
+	}
+
+	public void setSimulationDone(boolean simulationDone) {
+		this.simulationDone = simulationDone;
+	}	
 }
