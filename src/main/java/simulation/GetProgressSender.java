@@ -24,7 +24,9 @@ public class GetProgressSender implements Runnable {
 	@Override
 	public void run() {
 		while(canRun) {
-			parent.sendGetProgress();
+			if(!parent.sendGetProgress()) {
+				canRun = false;
+			}
 			try {
 				Thread.sleep(TIME_TO_SLEEP);
 			} catch (InterruptedException e) {
