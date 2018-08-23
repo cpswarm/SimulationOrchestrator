@@ -311,6 +311,13 @@ public class SimulationOrchestrator {
     			availableManagers.add(account); 
     		}
     	}
+    	//It deletes the zip file
+    	File file = new File(fileName);
+		if(file.delete()){
+			System.out.println(file.getName() + " is deleted!");
+		}else{
+			System.out.println("Delete operation is failed.");
+		}
     }
 	
 	/**
