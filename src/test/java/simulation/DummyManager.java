@@ -63,7 +63,7 @@ public class DummyManager {
 	private Boolean simulationDone = null;
 	
 	public DummyManager(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
-		clientID = "manager_test";
+		clientID = "manager_test2";
 		this.optimizationId = optimizationId;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {

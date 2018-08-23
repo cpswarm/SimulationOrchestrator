@@ -132,29 +132,13 @@ public class DummyOptimizationTool {
 				.getInstance(connection);
 		final HashMap<String, String> props = new HashMap<String, String>();
 		// The description will be the property name of the account
-		props.put("name", "server");
+		props.put("name", "optimization tool");
 		Localpart part;
 		try {
 			part = Localpart.from(clientID);
 			connection.connect();
 			accountManager.createAccount(part, password, props);
 			connection.login(clientID, password, Resourcepart.from(RESOURCE));
-			Thread.sleep(2000);
-			final Presence presence = new Presence(Presence.Type.available);
-			presence.setStatus("{\r\n" + 
-					"	\"server\": 1,\r\n" + 
-					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					"	\"simulations\": [\"minisim\"],\r\n" + 
-					"	\"capabilities\": {\r\n" + 
-					"		\"dimensions\": 2\r\n" + 
-					"	}\r\n" + 
-					"}\r\n" + 
-					"");
-			try {
-				connection.sendStanza(presence);
-			} catch (final NotConnectedException | InterruptedException e) {
-				e.printStackTrace();
-			}
 		} catch (InterruptedException | SmackException | IOException | XMPPException me) {
             System.out.println("msg "+me.getMessage());
             System.out.println("loc "+me.getLocalizedMessage());
