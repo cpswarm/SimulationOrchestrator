@@ -45,6 +45,9 @@ public class AppTest extends TestCase{
 	
 	@Test
 	public void testCompilation() {
+		System.out.println("-----------------------------------------------------------------------------------------");
+		System.out.println("--------------------Starting the testCompilation test------------------------------------");
+		System.out.println("-----------------------------------------------------------------------------------------");
 		catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
 		try { 
 			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
@@ -142,6 +145,9 @@ public class AppTest extends TestCase{
 	@Test
 	public void testCreation() {
 		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testCreation test---------------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled);
 			Assert.assertNotNull(orchestrator);
 			do {
@@ -163,6 +169,9 @@ public class AppTest extends TestCase{
 	@Test
 	public void testConfiguration() {
 		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testConfiguration test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
 					"	\"server\": 1,\r\n" + 
