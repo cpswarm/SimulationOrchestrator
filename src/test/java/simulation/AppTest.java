@@ -136,7 +136,7 @@ public class AppTest extends TestCase{
         }
 
         // publish negative distance as fitness
-        System.out.println("Distance: "+dist);
+        System.out.println("Distance: "+(-dist));
         
         return true;
 	}
@@ -171,6 +171,44 @@ public class AppTest extends TestCase{
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testConfiguration test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			Gson gson = new Gson();
+			Server server = gson.fromJson("{\r\n" + 
+					"	\"server\": 1,\r\n" + 
+					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					"	\"simulations\": [\"stage\"],\r\n" + 
+					"	\"capabilities\": {\r\n" + 
+					"		\"dimensions\": 2\r\n" + 
+					"	}\r\n" + 
+					"}\r\n" + 
+					"", Server.class);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager(serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
+			DummyManager manager2 = new DummyManager(serverIP, serverName, "server", managerDataFolder+"2", rosFolder+"2", optimizationId);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
+			Thread.sleep(1000);
+			
+			orchestrator.evaluateSimulationManagers(server);
+			while(manager.isSimulationDone()==null) {
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(manager.isSimulationDone());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+	
+	
+	@Test
+	public void testMultiConfiguration() {
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testMultiConfiguration test-----------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
