@@ -33,9 +33,11 @@ public class AppTest extends TestCase{
 	private String orchestratorInputDataFolder = System.getProperty("test_orchestrator_input_data_folder");
 	private String orchestratorOutputDataFolder = System.getProperty("test_orchestrator_output_data_folder");
 	private String managerDataFolder = System.getProperty("test_manager_data_folder");
+	private String manager2DataFolder = System.getProperty("test_manager2_data_folder");
 	private String optimizationUser = System.getProperty("optimization_user");
 	private String otDataFolder = System.getProperty("ot_data_folder");
 	private String rosFolder = System.getProperty("ros_folder");
+	private String ros2Folder = System.getProperty("ros2_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
 	private String optimizationId = System.getProperty("optimization_id");
@@ -228,7 +230,7 @@ public class AppTest extends TestCase{
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
 			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
-			DummyManager manager2 = new DummyManager("manager_test2", serverIP, serverName, "server", managerDataFolder+"2", rosFolder+"2", optimizationId);
+			DummyManager manager2 = new DummyManager("manager_test2", serverIP, serverName, "server", manager2DataFolder, ros2Folder, optimizationId);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
 			Thread.sleep(1000);
 			
@@ -247,78 +249,4 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}  
 	}
-	
-	/*
-   @Test
-   public void testMessageArrived() {
-	   DummyManager manager = new DummyManager(serverIP, serverName, serverPassword);
-	   try {
-		   Server serverInfo = new Server();
-
-		   serverInfo.setServer(Long.valueOf(37));
-
-		   // define name of this simulation
-		   List<String> simulations = new ArrayList<String>();
-		   simulations.add("minisim");
-		   serverInfo.setSimulations(simulations);
-
-		   // define capabilities of this simulation
-		   Capabilities caps = new Capabilities();
-		   caps.setDimensions(Long.valueOf(2));
-		   caps.setMaxAgents(Long.valueOf(3));
-		   serverInfo.setCapabilities(caps);
-
-		   // set server info
-		   manager.setServerInfo(serverInfo);
-
-
-		   ////////////////////////////////
-		   //                            // 
-		   // Test of control message    //
-		   //                            //
-		   ////////////////////////////////
-		   /*
-		   message = new MqttMessage();
-		   message.setPayload("{\"server\":37,\"simulation_hash\":\"e28f2\",\"visual\":false,\"run\":true}".getBytes());
-		   wrapper.messageArrived("control", message);
-		   Assert.assertTrue(wrapper.isStarted());
-		   Assert.assertTrue(wrapper.isControlReceived());
-
-
-	   } catch (Exception ex) {
-		   Assert.fail();
-	   }
-   }
-
-
-
-   public void testPublishServer() {
-	   DummyManager manager = new DummyManager(serverIP, serverName, serverPassword);
-	   Server serverInfo = new Server();
-
-	   serverInfo.setServer(Long.valueOf(37));
-
-	   // define name of this simulation
-	   List<String> simulations = new ArrayList<String>();
-	   simulations.add("minisim");
-	   serverInfo.setSimulations(simulations);
-
-	   // define capabilities of this simulation
-	   Capabilities caps = new Capabilities();
-	   caps.setDimensions(Long.valueOf(2));
-	   caps.setMaxAgents(Long.valueOf(3));
-	   serverInfo.setCapabilities(caps);
-
-	   manager.setServerInfo(serverInfo);
-
-	   Assert.assertTrue(manager.publishServer("efgcfgfc5"));
-   }
-
-   public void testPublishFitness() {
-	   DummyManager wrapper = new DummyManager(serverIP, serverName, serverPassword);
-	   Fitness fitness = new Fitness();
-	   fitness.setFitness(-2.0);
-	   Assert.assertTrue(wrapper.publishFitness(fitness));
-   }
-	 */
 }
