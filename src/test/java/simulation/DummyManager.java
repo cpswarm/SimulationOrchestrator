@@ -113,7 +113,9 @@ public class DummyManager {
 			ChatManager.getInstanceFor(connection).addIncomingListener(new ManagerMessageEventCoordinatorImpl(this));
 			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
-			Thread.sleep(2000);
+			do {
+				Thread.sleep(1000);
+			}while(!connection.isConnected());
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 				   "	\"server\": 1,\r\n" + 
@@ -140,7 +142,6 @@ public class DummyManager {
 			System.out.println("excep "+me);
 			me.printStackTrace();
 		}
-		
 		addOrchestratorAndOptimizationToTheRoster();
 	}
 
