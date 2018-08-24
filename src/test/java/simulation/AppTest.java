@@ -267,6 +267,7 @@ public class AppTest extends TestCase{
 			manager.getConnection().disconnect();
 			manager2.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
+			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
