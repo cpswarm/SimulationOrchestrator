@@ -158,7 +158,9 @@ public class DummyManager {
 			connection.connect();
 			accountManager.createAccount(part, password, props);
 			connection.login(clientID, password, Resourcepart.from(RESOURCE));
-			Thread.sleep(2000);
+			do {
+				Thread.sleep(1000);
+			}while(!connection.isConnected() || !connection.isAuthenticated());
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 					"	\"server\": 1,\r\n" + 
