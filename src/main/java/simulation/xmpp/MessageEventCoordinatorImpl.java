@@ -31,7 +31,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		// The message is sent from a manager
 		if(sender.toString().startsWith("manager")) {
 			if(!msg.getBody().equals("error")) {
-				System.out.print("Received configuration ACK from "+sender.toString());
+				System.out.println("Received configuration ACK from "+sender.toString());
 				parent.addManagerConfigured();
 			}
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
