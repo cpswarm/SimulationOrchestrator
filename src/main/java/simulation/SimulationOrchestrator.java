@@ -233,7 +233,9 @@ public class SimulationOrchestrator {
 			// Adds the listener for the incoming messages
 			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
 			
-			Thread.sleep(2000);
+			do {
+				Thread.sleep(1000);
+			}while(!connection.isConnected() || !connection.isAuthenticated());
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("Pronto");
 			try {
