@@ -115,7 +115,7 @@ public class DummyManager {
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			do {
 				Thread.sleep(1000);
-			}while(!connection.isConnected());
+			}while(!connection.isConnected() || !connection.isAuthenticated());
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 				   "	\"server\": 1,\r\n" + 
