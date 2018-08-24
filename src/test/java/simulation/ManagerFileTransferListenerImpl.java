@@ -97,6 +97,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 						System.out.println("done");
 					} else {
 						System.out.println("Error");
+						parent.setSimulationDone(false);
 					}
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
