@@ -307,10 +307,12 @@ public class SimulationOrchestrator {
     	availableManagers = new ArrayList<EntityFullJid>();
     	for(EntityFullJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
-    			this.transferFile(account, fileName, optimizationId);
     			if(!availableManagers.contains(account))
     				availableManagers.add(account); 
     		}
+    	}
+    	for (EntityFullJid availableManager : availableManagers) {
+    		this.transferFile(availableManager, fileName, optimizationId);
     	}
     	//It deletes the zip file
     	File file = new File(fileName);
