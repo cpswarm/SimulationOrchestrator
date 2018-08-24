@@ -392,6 +392,7 @@ public class DummyManager {
 	}
 
 	public void setSimulationDone(boolean simulationDone) {
+		System.out.println("Set simulation done");
 		this.simulationDone = simulationDone;
 	}	
 }
