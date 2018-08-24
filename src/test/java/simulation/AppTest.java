@@ -165,7 +165,7 @@ public class AppTest extends TestCase{
         return true;
 	}
 	
-	
+	/*
 	@Test
 	public void testCreation() {
 		try {
@@ -229,7 +229,7 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}  
 	}
-	
+	*/
 	
 	@Test
 	public void testMultiConfiguration() {
