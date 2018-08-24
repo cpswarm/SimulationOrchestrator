@@ -264,12 +264,19 @@ public class SimulationOrchestrator {
 				connection.disconnect();
 				createAccount(serverPassword);
 			}
+			System.out.println("msg "+e.getMessage());
+			System.out.println("loc "+e.getLocalizedMessage());
+			System.out.println("cause "+e.getCause());
+			System.out.println("excep "+e);
+			e.printStackTrace();
+			return;
 		} catch(Exception me) {
 			System.out.println("msg "+me.getMessage());
 			System.out.println("loc "+me.getLocalizedMessage());
 			System.out.println("cause "+me.getCause());
 			System.out.println("excep "+me);
 			me.printStackTrace();
+			return;
 		}
 		
 		addOptimizationToTheRoster();

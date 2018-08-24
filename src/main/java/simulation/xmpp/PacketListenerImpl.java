@@ -106,7 +106,7 @@ public class PacketListenerImpl implements StanzaListener {
 			} else {
 				System.out.println(
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
-				if(presence.getFrom().toString().startsWith("manager")) {
+				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					parent.removeSimulationManager(presence.getFrom());
 				}
 			}
