@@ -87,7 +87,7 @@ public class AppTest extends TestCase{
 				System.out.println("done");
 			} else {
 				System.out.println("Error");
-				return;
+				Assert.fail();
 			}
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
