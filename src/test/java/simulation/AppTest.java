@@ -77,17 +77,17 @@ public class AppTest extends TestCase{
 			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
 			Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
 			System.out.println("Compilation launched");
-			int result = proc.waitFor();
+			boolean result = proc.waitFor(2, TimeUnit.MINUTES);
 			System.out.println("Compilation finished, "+result);
-			if(result == 0) {
+			if(result) {
 				System.out.println("Launching the simulation for package: "+optimizationId);
 				proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
-				boolean value = false;
-				value = proc.waitFor(40, TimeUnit.SECONDS);
+				proc.waitFor(40, TimeUnit.SECONDS);
 				calcFitness();
 				System.out.println("done");
 			} else {
 				System.out.println("Error");
+				return;
 			}
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
