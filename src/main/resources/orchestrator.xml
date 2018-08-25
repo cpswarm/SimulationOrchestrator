@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
-	<serverURI>127.0.0.1</serverURI>
-	<serverName>desktop-akqg1ea</serverName>
+	<serverURI>130.192.86.237</serverURI>
+	<serverName>pert-demoenergy-virtus.ismb.polito.it</serverName>
 	<serverPassword>orchestrator</serverPassword>
 	<optimizationUser>optimization</optimizationUser>
 	<monitoring>true</monitoring>
