@@ -82,9 +82,9 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
 					Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
 					System.out.println("Compilation launched");
-					int result = proc.waitFor();
+					boolean result = proc.waitFor(2, TimeUnit.MINUTES);
 					System.out.println("Compilation finished, "+result);
-					if(result == 0) {
+					if(result) {
 						System.out.println("Launching the simulation for package: "+optimizationId);
 						proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
 						proc.waitFor(40, TimeUnit.SECONDS);
