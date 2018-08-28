@@ -22,7 +22,8 @@ import org.jxmpp.jid.EntityFullJid;
 
 import com.google.gson.Gson;
 
-import messages.simulation.RunSimulation;
+import eu.cpswarm.optimization.messages.RunSimulationMessage;
+
 
 public class OptimizationFileTransferListenerImpl implements FileTransferListener {
 
@@ -51,8 +52,8 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 				Thread.sleep(1000);
 			}
 			System.out.println("Optimization Tool "+fileToReceive+" received");
-			RunSimulation runSimulation = new RunSimulation();
-			runSimulation.setID(parent.getSimulationID());
+			RunSimulationMessage runSimulation = new RunSimulationMessage();
+			runSimulation.setId(parent.getSimulationID());
 			runSimulation.setGui(parent.getGuiEnabled());
 			runSimulation.setParams("");
 			for(EntityFullJid manager : parent.getManagers()) {

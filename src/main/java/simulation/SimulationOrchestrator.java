@@ -49,10 +49,10 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.Gson;
 
+import eu.cpswarm.optimization.messages.GetProgressMessage;
+import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
-import messages.progress.GetProgress;
 import messages.server.Server;
-import messages.start.StartOptimization;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.MessageEventCoordinatorImpl;
@@ -457,8 +457,8 @@ public class SimulationOrchestrator {
 	
 	public boolean sendGetProgress() {
 		Gson gson = new Gson();
-		GetProgress getProgress = new GetProgress();
-		getProgress.setID(this.optimizationId);
+		GetProgressMessage getProgress = new GetProgressMessage();
+		getProgress.setId(optimizationId);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
@@ -476,9 +476,9 @@ public class SimulationOrchestrator {
 	
 	private boolean sendStartOptimization(final String params) {
 		Gson gson = new Gson();
-		StartOptimization start = new StartOptimization();
+		StartOptimizationMessage start = new StartOptimizationMessage();
 		start.setThreads(availableManagers.size());
-		start.setID(this.optimizationId);
+		start.setId(this.optimizationId);
 		start.setGui(guiEnabled);
 		start.setParams(params);
 		List<String> managersJid = new ArrayList<String>();

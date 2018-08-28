@@ -4,9 +4,8 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
-import com.google.gson.Gson;
-
-import messages.simulation.RunSimulation;
+import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.RunSimulationMessage;
 
 /**
  *
@@ -24,11 +23,11 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 	@Override
 	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
 		if(sender.toString().startsWith("optimization")) {
-			Gson gson = new Gson();
-			RunSimulation runSimulation = gson.fromJson(msg.getBody(), RunSimulation.class);
-			System.out.println("Run simulation received "+runSimulation.getID()+ " gui enabled: "+runSimulation.getGui()+ " params: "+runSimulation.getParams());
-			parent.setOptimizationID(runSimulation.getID());
-			parent.setGuiEnabled(runSimulation.getGui());
+			MessageSerializer serializer = new MessageSerializer();
+			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
+			System.out.println("Run simulation received "+runSimulation.getId()+ " gui enabled: "+runSimulation.isGui()+ " params: "+runSimulation.getParams());
+			parent.setOptimizationID(runSimulation.getId());
+			parent.setGuiEnabled(runSimulation.isGui());
 			parent.setParams(runSimulation.getParams());
 		}
 	}

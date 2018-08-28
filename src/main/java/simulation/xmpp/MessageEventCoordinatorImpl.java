@@ -6,7 +6,8 @@ import org.jxmpp.jid.EntityBareJid;
 
 import com.google.gson.Gson;
 
-import messages.progress.OptimizationProgress;
+import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
 import messages.reply.OptimizationReply;
 import simulation.GetProgressSender;
 import simulation.SimulationOrchestrator;
@@ -37,8 +38,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
 			Gson gson = new Gson();
 			if(msg.getBody().contains("Progress")) {
-				OptimizationProgress progress = gson.fromJson(msg.getBody(), OptimizationProgress.class);
-				System.out.println("Optimization "+progress.getID()+ ", progress:" + progress.getOperationStatus() + " " +progress.getUom());
+				MessageSerializer serializer = new  MessageSerializer();
+				OptimizationProgressMessage progress = serializer.fromJson(msg.getBody());
+				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getOperationStatus() + " " +progress.getUom());
 				if(parent.isMonitoring()) {
 					parent.getMqttClient().publish("/cpswarm/progress", gson.toJson(progress).getBytes());
 				}				

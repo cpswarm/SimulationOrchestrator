@@ -7,10 +7,11 @@ import org.jxmpp.jid.EntityBareJid;
 
 import com.google.gson.Gson;
 
-import messages.progress.GetProgress;
-import messages.progress.OptimizationProgress;
+import eu.cpswarm.optimization.messages.GetProgressMessage;
+import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
+import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import messages.reply.OptimizationReply;
-import messages.start.StartOptimization;
 
 /**
  *
@@ -30,13 +31,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	public void newIncomingMessage(EntityBareJid jid, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
 		Gson gson = new Gson();
 		Message message = new Message();
+		MessageSerializer serializer = new MessageSerializer();
 		if(msg.getBody().contains("Start")) {
-			StartOptimization start = gson.fromJson(msg.getBody(), StartOptimization.class);
-			parent.setGuiEnabled(start.getGui());
+			StartOptimizationMessage start = serializer.fromJson(msg.getBody());
+			parent.setGuiEnabled(start.isGui());
 			parent.setManagers(start.getSimulationManagers());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
 			OptimizationReply reply = new OptimizationReply();
-			reply.setID(start.getID());
+			reply.setID(start.getId());
 			reply.setTitle(OptimizationReply.OPTIMIZATION_STARTED);
 			reply.setOperationStatus("OK");
 			message.setBody(gson.toJson(reply));
@@ -48,10 +50,10 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				e.printStackTrace();
 			}
 		} else if(msg.getBody().contains("Get")) {
-			GetProgress getProgress = gson.fromJson(msg.getBody(), GetProgress.class);
+			GetProgressMessage getProgress = serializer.fromJson(msg.getBody());
 			value +=10;
-			OptimizationProgress progress = new OptimizationProgress();
-			progress.setID(getProgress.getID());
+			OptimizationProgressMessage progress = new OptimizationProgressMessage();
+			progress.setId(getProgress.getId());
 			progress.setOperationStatus(String.valueOf(value));
 			progress.setUom("%");
 			message.setBody(gson.toJson(progress));

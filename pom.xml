@@ -86,6 +86,20 @@
                 			<file>${basedir}/lib/it.ismb.pert.cpswarm.mqttLib-1.1.0.jar</file>
             			</configuration>
         			</execution>
+        			<execution>
+            			<phase>initialize</phase>
+            			<goals>
+                			<goal>install-file</goal>
+			            </goals>
+            			<configuration>
+							<groupId>eu.cpswarm</groupId>
+							<artifactId>ptimization-messages</artifactId>
+							<version>0.0.1-SNAPSHOT</version>
+                			<packaging>jar</packaging>
+                			<file>${basedir}/lib/optimization-messages-0.0.1-SNAPSHOT.jar</file>
+            			</configuration>
+        			</execution>
+        			
     			</executions>
 			</plugin>
 		
@@ -182,6 +196,11 @@
 			<groupId>cpswarm</groupId>
 			<artifactId>it.ismb.pert.cpswarm.mqttLib</artifactId>
 			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.cpswarm</groupId>
+			<artifactId>optimization-messages</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
 		<dependency>
