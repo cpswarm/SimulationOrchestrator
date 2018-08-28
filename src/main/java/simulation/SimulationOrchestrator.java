@@ -112,7 +112,7 @@ public class SimulationOrchestrator {
 			output.setRequired(true);
 			options.addOption(output);
 			
-			Option configuration = new Option("c", "configuration", true, "folder with the configuration files");
+			Option configuration = new Option("c", "conf", true, "folder with the configuration files");
 			output.setRequired(true);
 			options.addOption(configuration);
 
