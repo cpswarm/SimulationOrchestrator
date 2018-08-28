@@ -114,7 +114,7 @@ public class SimulationOrchestrator {
 			
 			Option configuration = new Option("c", "configuration", true, "folder with the configuration files");
 			output.setRequired(true);
-			options.addOption(output);
+			options.addOption(configuration);
 
 			Option id = new Option("i", "id", true, "optimization ID");
 			id.setRequired(true);
