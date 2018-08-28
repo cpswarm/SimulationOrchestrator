@@ -75,7 +75,7 @@
     			<executions>
         			<execution>
         				<id>execution1</id>
-            			<phase>initialize</phase>
+            			<phase>validate</phase>
             			<goals>
                 			<goal>install-file</goal>
 			            </goals>
@@ -89,7 +89,7 @@
         			</execution>
         			<execution>
         				<id>execution2</id>
-            			<phase>initialize</phase>
+            			<phase>validate</phase>
             			<goals>
                 			<goal>install-file</goal>
 			            </goals>
