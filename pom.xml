@@ -74,6 +74,7 @@
     			<version>2.5</version>
     			<executions>
         			<execution>
+        				<id>execution1</id>
             			<phase>initialize</phase>
             			<goals>
                 			<goal>install-file</goal>
@@ -87,6 +88,7 @@
             			</configuration>
         			</execution>
         			<execution>
+        				<id>execution2</id>
             			<phase>initialize</phase>
             			<goals>
                 			<goal>install-file</goal>
