@@ -95,7 +95,7 @@
 			            </goals>
             			<configuration>
 							<groupId>eu.cpswarm</groupId>
-							<artifactId>ptimization-messages</artifactId>
+							<artifactId>optimization-messages</artifactId>
 							<version>0.0.1-SNAPSHOT</version>
                 			<packaging>jar</packaging>
                 			<file>${basedir}/lib/optimization-messages-0.0.1-SNAPSHOT.jar</file>
