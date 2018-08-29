@@ -4,11 +4,9 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
-import com.google.gson.Gson;
-
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
-import messages.reply.OptimizationReply;
+import eu.cpswarm.optimization.messages.OptimizationReplyMessage;
 import simulation.GetProgressSender;
 import simulation.SimulationOrchestrator;
 
@@ -36,20 +34,20 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				parent.addManagerConfigured();
 			}
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
-			Gson gson = new Gson();
 			if(msg.getBody().contains("Progress")) {
 				MessageSerializer serializer = new  MessageSerializer();
 				OptimizationProgressMessage progress = serializer.fromJson(msg.getBody());
 				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getOperationStatus() + " " +progress.getUom());
 				if(parent.isMonitoring()) {
-					parent.getMqttClient().publish("/cpswarm/progress", gson.toJson(progress).getBytes());
+					parent.getMqttClient().publish("/cpswarm/progress", serializer.toString(progress).getBytes());
 				}				
 			} else {
-				OptimizationReply reply = gson.fromJson(msg.getBody(), OptimizationReply.class);
+				MessageSerializer serializer = new MessageSerializer();
+				OptimizationReplyMessage reply = serializer.fromJson(msg.getBody());
 				System.out.println("Reply received: "+msg.getBody());
-				switch(reply.getTitle()) {
-				case OptimizationReply.OPTIMIZATION_STARTED:
-					if(reply.getOperationStatus().equals("OK") && reply.getID().equals(parent.getSimulationId())) {
+				switch(reply.getType()) {
+				case "OptimizationReply":
+					if(reply.getOperationStatus().equals("OK") && reply.getId().equals(parent.getSimulationId())) {
 						System.out.println("Transfering the configuration file to the manager");
 						parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
 						getProgressSender = new GetProgressSender(parent);
@@ -61,7 +59,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 						senderThread.start();
 					}
 					break;
-				case OptimizationReply.OPTIMIZATION_CANCELLED:
+				case "OptimizationCancelled":
 					break;
 				}
 			}

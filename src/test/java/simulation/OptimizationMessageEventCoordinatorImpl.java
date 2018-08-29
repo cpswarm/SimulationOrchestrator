@@ -10,8 +10,9 @@ import com.google.gson.Gson;
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
+import eu.cpswarm.optimization.messages.OptimizationReplyMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import messages.reply.OptimizationReply;
+
 
 /**
  *
@@ -29,7 +30,6 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	
 	@Override
 	public void newIncomingMessage(EntityBareJid jid, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
-		Gson gson = new Gson();
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
 		if(msg.getBody().contains("Start")) {
@@ -37,12 +37,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			parent.setGuiEnabled(start.isGui());
 			parent.setManagers(start.getSimulationManagers());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-			OptimizationReply reply = new OptimizationReply();
-			reply.setID(start.getId());
-			reply.setTitle(OptimizationReply.OPTIMIZATION_STARTED);
+			OptimizationReplyMessage reply = new OptimizationReplyMessage();
+			reply.setId(start.getId());
 			reply.setOperationStatus("OK");
-			message.setBody(gson.toJson(reply));
-			System.out.println("Sending reply to the StartOptimization: "+gson.toJson(reply));
+			message.setBody(serializer.toString(reply));
+			System.out.println("Sending reply to the StartOptimization: "+serializer.toString(reply));
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {
@@ -56,7 +55,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			progress.setId(getProgress.getId());
 			progress.setOperationStatus(String.valueOf(value));
 			progress.setUom("%");
-			message.setBody(gson.toJson(progress));
+			message.setBody(serializer.toString(progress));
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {

@@ -47,9 +47,8 @@ import org.jxmpp.jid.parts.Resourcepart;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.google.gson.Gson;
-
 import eu.cpswarm.optimization.messages.GetProgressMessage;
+import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.server.Server;
@@ -456,13 +455,13 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendGetProgress() {
-		Gson gson = new Gson();
 		GetProgressMessage getProgress = new GetProgressMessage();
 		getProgress.setId(optimizationId);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
-		message.setBody(gson.toJson(getProgress));
+		MessageSerializer serializer = new MessageSerializer();
+		message.setBody(serializer.toString(getProgress));
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
@@ -475,7 +474,6 @@ public class SimulationOrchestrator {
 
 	
 	private boolean sendStartOptimization(final String params) {
-		Gson gson = new Gson();
 		StartOptimizationMessage start = new StartOptimizationMessage();
 		start.setThreads(availableManagers.size());
 		start.setId(this.optimizationId);
@@ -486,11 +484,12 @@ public class SimulationOrchestrator {
 			managersJid.add(availableManager.toString());
 		}
 		start.setSimulationManagers(managersJid);
-		System.out.println("Sending StartOptimization message: "+gson.toJson(start));
+		MessageSerializer serializer = new MessageSerializer();
+		System.out.println("Sending StartOptimization message: "+serializer.toString(start));
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
-		message.setBody(gson.toJson(start));
+		message.setBody(serializer.toString(start));
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {

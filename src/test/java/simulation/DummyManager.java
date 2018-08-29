@@ -36,7 +36,8 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
-import messages.result.OptimizationResult;
+import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.OptimizationCompleteMessage;
 import messages.server.Server;
 
 import javax.net.ssl.SSLContext;
@@ -322,11 +323,11 @@ public class DummyManager {
 	};
 	
 	public boolean publishFitness(final Double value) {
-		Gson gson = new Gson();
-		OptimizationResult result =  new OptimizationResult();
+		OptimizationCompleteMessage result =  new OptimizationCompleteMessage();
 		result.setFitnessValue(value);
-		result.setID(optimizationId);
-		String body = gson.toJson(result);
+		result.setId(optimizationId);
+		MessageSerializer serializer = new MessageSerializer();
+		String body = serializer.toString(result);
 		try {
 			System.out.println("Ready to send "+body);
 			ChatManager chatManager = ChatManager.getInstanceFor(this.getConnection());
@@ -336,7 +337,7 @@ public class DummyManager {
 			chat.send(message);
 			System.out.println("fitness score: "+ value + " sent");
 		} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
-			System.out.println("Error sending the result of the simulation: "+gson.toJson(result));
+			System.out.println("Error sending the result of the simulation: "+serializer.toString(result));
 			e.printStackTrace();
 			return false;
 		} 
