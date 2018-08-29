@@ -54,8 +54,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			progress.setId(getProgress.getId());
 			progress.setOperationStatus(String.valueOf(value));
 			progress.setUom("%");
-			message.setBody(serializer.toString(progress));
-			System.out.println("OptimizationTool sending progress "+serializer.toString(progress));
+			String messageToSend = serializer.toString(progress);
+			message.setBody(messageToSend);
+			System.out.println("OptimizationTool sending progress "+messageToSend);
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {

@@ -461,8 +461,9 @@ public class SimulationOrchestrator {
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
-		message.setBody(serializer.toString(getProgress));
-		System.out.println("Sending getProgress "+serializer.toString(getProgress));
+		String messageToSend = serializer.toString(getProgress);
+		message.setBody(messageToSend);
+		System.out.println("Sending getProgress "+messageToSend);
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
