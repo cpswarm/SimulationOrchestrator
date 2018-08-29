@@ -49,11 +49,13 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		} else if(msg.getBody().contains("Get")) {
 			GetProgressMessage getProgress = serializer.fromJson(msg.getBody());
 			value +=10;
+			System.out.println("OptimizationTool received GetProgress: "+msg.getBody());
 			OptimizationProgressMessage progress = new OptimizationProgressMessage();
 			progress.setId(getProgress.getId());
 			progress.setOperationStatus(String.valueOf(value));
 			progress.setUom("%");
 			message.setBody(serializer.toString(progress));
+			System.out.println("OptimizationTool sending progress "+serializer.toString(progress));
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {

@@ -462,6 +462,7 @@ public class SimulationOrchestrator {
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
 		message.setBody(serializer.toString(getProgress));
+		System.out.println("Sending getProgress "+serializer.toString(getProgress));
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
