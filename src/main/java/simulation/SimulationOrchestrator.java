@@ -139,7 +139,7 @@ public class SimulationOrchestrator {
 
 			inputDataFolder = cmd.getOptionValue("src");
 			outputDataFolder = cmd.getOptionValue("target");
-			optimizationId = cmd.getOptionValue("id");
+			optimizationId = cmd.getOptionValue("id")+"&"+UUID.randomUUID();
 			if(cmd.getOptionValue("gui")!=null) {
 				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
 			}
