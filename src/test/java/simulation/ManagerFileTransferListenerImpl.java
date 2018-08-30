@@ -30,6 +30,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private String rosFolder = null;
 	private String catkinWS = null;
 	private String optimizationId = null;
+	private String packageName = null;
 	private DummyManager parent = null;
 	private EntityBareJid orchestrator = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
@@ -85,7 +86,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					boolean result = proc.waitFor(2, TimeUnit.MINUTES);
 					System.out.println("Compilation finished, "+result);
 					if(result) {
-						String packageName = optimizationId.substring(0, optimizationId.indexOf(":"));
+						packageName = optimizationId.substring(0, optimizationId.indexOf(":"));
 						System.out.println("Launching the simulation for package: "+packageName);
 						proc = Runtime.getRuntime().exec("roslaunch "+packageName+" stage.launch");
 						proc.waitFor(40, TimeUnit.SECONDS);
@@ -156,10 +157,10 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 		// container for data of all log files
 		logs = new ArrayList<NavigableMap<Integer,Double>>();
 		
-		System.out.println("Reading logs from :"+catkinWS + "/src/" + optimizationId + "/log/");
+		System.out.println("Reading logs from :"+catkinWS + "/src/" + packageName + "/log/");
 		
 		// path to log directory
-	    File logPath = new File(catkinWS + "/src/" + optimizationId + "/log/");
+	    File logPath = new File(catkinWS + "/src/" + packageName + "/log/");
 	    
 	    // iterate through all log files
 	    String[] logFiles = logPath.list();
