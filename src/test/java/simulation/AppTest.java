@@ -64,7 +64,7 @@ public class AppTest extends TestCase{
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
 	private String packageName = System.getProperty("optimization_id");
-	private String optimizationId = System.getProperty("optimization_id") + "&" + UUID.randomUUID();
+	private String optimizationId = System.getProperty("optimization_id") + ":" + UUID.randomUUID();
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
