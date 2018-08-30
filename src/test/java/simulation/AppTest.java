@@ -63,6 +63,7 @@ public class AppTest extends TestCase{
 	private String ros2Folder = System.getProperty("ros2_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
+	private String packageName = System.getProperty("optimization_id");
 	private String optimizationId = System.getProperty("optimization_id") + "&" + UUID.randomUUID();
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String catkinWS = null;
@@ -81,8 +82,8 @@ public class AppTest extends TestCase{
 			boolean result = proc.waitFor(2, TimeUnit.MINUTES);
 			System.out.println("Compilation finished, "+result);
 			if(result) {
-				System.out.println("Launching the simulation for package: "+optimizationId);
-				proc = Runtime.getRuntime().exec("roslaunch "+optimizationId+" stage.launch");
+				System.out.println("Launching the simulation for package: "+packageName);
+				proc = Runtime.getRuntime().exec("roslaunch "+packageName+" stage.launch");
 				proc.waitFor(40, TimeUnit.SECONDS);
 				calcFitness();
 				System.out.println("done");
@@ -105,10 +106,10 @@ public class AppTest extends TestCase{
 		// container for data of all log files
 		logs = new ArrayList<NavigableMap<Integer,Double>>();
 		
-		System.out.println("Reading logs from "+catkinWS + "/src/" + optimizationId + "/log/");
+		System.out.println("Reading logs from "+catkinWS + "/src/" + packageName + "/log/");
 		
 		// path to log directory
-	    File logPath = new File(catkinWS + "/src/" + optimizationId + "/log/");
+	    File logPath = new File(catkinWS + "/src/" + packageName + "/log/");
 	    
 	    // iterate through all log files
 	    String[] logFiles = logPath.list();
