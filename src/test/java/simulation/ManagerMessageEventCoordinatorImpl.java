@@ -25,7 +25,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 		if(sender.toString().startsWith("optimization")) {
 			MessageSerializer serializer = new MessageSerializer();
 			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
-			System.out.println("Run simulation received "+runSimulation.getId()+ " gui enabled: "+runSimulation.isGui()+ " params: "+runSimulation.getParams());
+			System.out.println(msg.getBody());
 			parent.setOptimizationID(runSimulation.getId());
 			parent.setSimulationId(runSimulation.getSid());
 			parent.setGuiEnabled(runSimulation.isGui());
