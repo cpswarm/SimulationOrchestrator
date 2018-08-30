@@ -37,9 +37,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(msg.getBody().contains("Progress")) {
 				MessageSerializer serializer = new  MessageSerializer();
 				OptimizationProgressMessage progress = serializer.fromJson(msg.getBody());
-				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getOperationStatus() + " " +progress.getUom());
+				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%");
 				if(parent.isMonitoring()) {
-					parent.getMqttClient().publish("/cpswarm/progress", serializer.toString(progress).getBytes());
+					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
 				}				
 			} else {
 				MessageSerializer serializer = new MessageSerializer();

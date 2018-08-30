@@ -10,6 +10,8 @@ import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
 import eu.cpswarm.optimization.messages.OptimizationReplyMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
+import eu.cpswarm.optimization.messages.OptimizationReplyMessage.Status;
+import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 
 
 /**
@@ -35,11 +37,10 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			parent.setGuiEnabled(start.isGui());
 			parent.setManagers(start.getSimulationManagers());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-			OptimizationReplyMessage reply = new OptimizationReplyMessage();
-			reply.setId(start.getId());
-			reply.setOperationStatus("OK");
-			message.setBody(serializer.toString(reply));
-			System.out.println("Sending reply to the StartOptimization: "+serializer.toString(reply));
+			OptimizationStartedMessage reply = new OptimizationStartedMessage(start.getId(), Status.OK);
+			String messageToSend = serializer.toJson(reply); 
+			message.setBody(messageToSend);
+			System.out.println("Sending reply to the StartOptimization: "+messageToSend);
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {
@@ -50,11 +51,8 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			GetProgressMessage getProgress = serializer.fromJson(msg.getBody());
 			value +=10;
 			System.out.println("OptimizationTool received GetProgress: "+msg.getBody());
-			OptimizationProgressMessage progress = new OptimizationProgressMessage();
-			progress.setId(getProgress.getId());
-			progress.setOperationStatus(String.valueOf(value));
-			progress.setUom("%");
-			String messageToSend = serializer.toString(progress);
+			OptimizationProgressMessage progress = new OptimizationProgressMessage(getProgress.getId(), Status.OK, value, -1-24);
+			String messageToSend = serializer.toJson(progress);
 			message.setBody(messageToSend);
 			System.out.println("OptimizationTool sending progress "+messageToSend);
 			try {

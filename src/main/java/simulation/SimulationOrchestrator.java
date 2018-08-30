@@ -455,13 +455,12 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendGetProgress() {
-		GetProgressMessage getProgress = new GetProgressMessage();
-		getProgress.setId(optimizationId);
+		GetProgressMessage getProgress = new GetProgressMessage(optimizationId);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
-		String messageToSend = serializer.toString(getProgress);
+		String messageToSend = serializer.toJson(getProgress);
 		message.setBody(messageToSend);
 		System.out.println("Sending getProgress "+messageToSend);
 		try {
@@ -476,22 +475,18 @@ public class SimulationOrchestrator {
 
 	
 	private boolean sendStartOptimization(final String params) {
-		StartOptimizationMessage start = new StartOptimizationMessage();
-		start.setThreads(availableManagers.size());
-		start.setId(this.optimizationId);
-		start.setGui(guiEnabled);
-		start.setParams(params);
 		List<String> managersJid = new ArrayList<String>();
 		for(EntityFullJid availableManager : this.availableManagers) {
 			managersJid.add(availableManager.toString());
 		}
-		start.setSimulationManagers(managersJid);
+		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, availableManagers.size(), guiEnabled, params, managersJid);
 		MessageSerializer serializer = new MessageSerializer();
-		System.out.println("Sending StartOptimization message: "+serializer.toString(start));
+		String messageToSend = serializer.toJson(start);
+		System.out.println("Sending StartOptimization message: "+messageToSend);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
-		message.setBody(serializer.toString(start));
+		message.setBody(messageToSend);
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {

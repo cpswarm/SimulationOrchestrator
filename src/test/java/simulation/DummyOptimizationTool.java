@@ -57,13 +57,14 @@ public class DummyOptimizationTool {
 	private Jid clientJID = null;
 	private String serverName = null;
 	private String clientID = null;
+	private String optimizationID = null;
 	private String simulationID = null;
 	private Boolean guiEnabled = false;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
 	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
 		clientID = "optimization_test";
-		this.simulationID = optimizationId;
+		this.optimizationID = optimizationId;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
 			dataFolder+="\\";
@@ -269,6 +270,16 @@ public class DummyOptimizationTool {
 	public boolean isStarted() {
 		return started;
 	}
+	
+	public String getOptimizationID() {
+		return optimizationID;
+	}
+
+
+	public void setOptimizationID(String optimizationID) {
+		this.optimizationID = optimizationID;
+	}
+
 
 	public String getSimulationID() {
 		return simulationID;

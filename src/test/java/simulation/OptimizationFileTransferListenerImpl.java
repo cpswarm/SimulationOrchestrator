@@ -2,6 +2,7 @@ package simulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
@@ -52,10 +53,9 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 				Thread.sleep(1000);
 			}
 			System.out.println("Optimization Tool "+fileToReceive+" received");
-			RunSimulationMessage runSimulation = new RunSimulationMessage();
-			runSimulation.setId(parent.getSimulationID());
-			runSimulation.setGui(parent.getGuiEnabled());
-			runSimulation.setParams("");
+			String simulationID = UUID.randomUUID().toString();
+			parent.setSimulationID(simulationID);
+			RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, parent.getGuiEnabled(), "");
 			for(EntityFullJid manager : parent.getManagers()) {
 				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 				Chat chat = chatManager.chatWith(manager.asEntityBareJid());
