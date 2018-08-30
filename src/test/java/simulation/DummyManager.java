@@ -39,6 +39,7 @@ import com.google.gson.Gson;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationCompleteMessage;
 import eu.cpswarm.optimization.messages.OptimizationReplyMessage.Status;
+import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import messages.server.Server;
 
 import javax.net.ssl.SSLContext;
@@ -60,6 +61,7 @@ public class DummyManager {
 	private String serverName = null;
 	private String clientID = null;
 	private String optimizationId = null;
+	private String simulationId = null;
 	private Boolean guiEnabled = false;
 	private String params = null;
 	private Boolean simulationDone = null;
@@ -324,7 +326,7 @@ public class DummyManager {
 	};
 	
 	public boolean publishFitness(final Double value) {
-		OptimizationCompleteMessage result =  new OptimizationCompleteMessage(optimizationId, Status.OK, value.doubleValue());
+		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, simulationId, value.doubleValue());
 		MessageSerializer serializer = new MessageSerializer();
 		String body = serializer.toJson(result);
 		try {
@@ -394,5 +396,13 @@ public class DummyManager {
 	public void setSimulationDone(boolean simulationDone) {
 		System.out.println("Set simulation done");
 		this.simulationDone = simulationDone;
-	}	
+	}
+
+	public String getSimulationId() {
+		return simulationId;
+	}
+
+	public void setSimulationId(String simulationId) {
+		this.simulationId = simulationId;
+	}
 }
