@@ -6,7 +6,8 @@ import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
-import eu.cpswarm.optimization.messages.OptimizationReplyMessage;
+import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
+import eu.cpswarm.optimization.messages.OptimizationCancelledMessage;
 import simulation.GetProgressSender;
 import simulation.SimulationOrchestrator;
 
@@ -43,10 +44,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				}				
 			} else {
 				MessageSerializer serializer = new MessageSerializer();
-				OptimizationReplyMessage reply = serializer.fromJson(msg.getBody());
 				System.out.println("Reply received: "+msg.getBody());
-				switch(reply.getType()) {
-				case "OptimizationReply":
+				if(msg.getBody().contains("OptimizationStarted")) {
+					OptimizationStartedMessage reply = serializer.fromJson(msg.getBody());
 					if(reply.getOperationStatus().equals("OK") && reply.getId().equals(parent.getSimulationId())) {
 						System.out.println("Transfering the configuration file to the manager");
 						parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
@@ -58,9 +58,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 						// run
 						senderThread.start();
 					}
-					break;
-				case "OptimizationCancelled":
-					break;
+				} else if(msg.getBody().contains("OptimizationStarted")) {
+					OptimizationCancelledMessage reply = serializer.fromJson(msg.getBody());
+					//TODO
 				}
 			}
 		}
