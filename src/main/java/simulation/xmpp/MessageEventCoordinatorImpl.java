@@ -6,6 +6,7 @@ import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
+import eu.cpswarm.optimization.messages.OptimizationReplyMessage.Status;
 import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 import eu.cpswarm.optimization.messages.OptimizationCancelledMessage;
 import simulation.GetProgressSender;
@@ -47,7 +48,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				System.out.println("Reply received: "+msg.getBody());
 				if(msg.getBody().contains("OptimizationStarted")) {
 					OptimizationStartedMessage reply = serializer.fromJson(msg.getBody());
-					if(reply.getOperationStatus().equals("OK") && reply.getId().equals(parent.getSimulationId())) {
+					if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getSimulationId())) {
 						System.out.println("Transfering the configuration file to the manager");
 						parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
 						getProgressSender = new GetProgressSender(parent);
