@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.jivesoftware.smack.roster.Roster;
@@ -62,7 +63,7 @@ public class AppTest extends TestCase{
 	private String ros2Folder = System.getProperty("ros2_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
-	private String optimizationId = System.getProperty("optimization_id");
+	private String optimizationId = System.getProperty("optimization_id") + "&" + UUID.randomUUID();
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
