@@ -3,7 +3,7 @@
 	<serverURI>130.192.86.237</serverURI>
 	<serverName>pert-demoenergy-virtus.ismb.polito.it</serverName>
 	<serverPassword>orchestrator</serverPassword>
-	<optimizationUser>optimization</optimizationUser>
+	<optimizationUser>frevo</optimizationUser>
 	<monitoring>true</monitoring>
 	<mqttBroker>tcp://130.192.86.237:1883</mqttBroker>
 </settings>
