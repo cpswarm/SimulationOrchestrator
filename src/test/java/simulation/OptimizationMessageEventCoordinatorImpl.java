@@ -37,7 +37,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			parent.setGuiEnabled(start.isGui());
 			parent.setManagers(start.getSimulationManagers());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-			OptimizationStartedMessage reply = new OptimizationStartedMessage(start.getId(), Status.OK);
+			OptimizationStartedMessage reply = new OptimizationStartedMessage(start.getId(), "Optimization started", Status.OK);
 			String messageToSend = serializer.toJson(reply); 
 			message.setBody(messageToSend);
 			System.out.println("Sending reply to the StartOptimization: "+messageToSend);
@@ -51,7 +51,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			GetProgressMessage getProgress = serializer.fromJson(msg.getBody());
 			value +=10;
 			System.out.println("OptimizationTool received GetProgress: "+msg.getBody());
-			OptimizationProgressMessage progress = new OptimizationProgressMessage(getProgress.getId(), Status.OK, value, -1-24);
+			OptimizationProgressMessage progress = new OptimizationProgressMessage(getProgress.getId(), "Optimzation progress", Status.OK, value, -1-24);
 			String messageToSend = serializer.toJson(progress);
 			message.setBody(messageToSend);
 			System.out.println("OptimizationTool sending progress "+messageToSend);

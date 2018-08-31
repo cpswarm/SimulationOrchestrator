@@ -455,7 +455,7 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendGetProgress() {
-		GetProgressMessage getProgress = new GetProgressMessage(optimizationId);
+		GetProgressMessage getProgress = new GetProgressMessage(optimizationId, "Get Progress message");
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();
@@ -479,7 +479,7 @@ public class SimulationOrchestrator {
 		for(EntityFullJid availableManager : this.availableManagers) {
 			managersJid.add(availableManager.toString());
 		}
-		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, availableManagers.size(), guiEnabled, params, managersJid);
+		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message", availableManagers.size(), guiEnabled, params, managersJid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
 		System.out.println("Sending StartOptimization message: "+messageToSend);

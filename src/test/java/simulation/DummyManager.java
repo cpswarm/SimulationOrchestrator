@@ -326,7 +326,7 @@ public class DummyManager {
 	};
 	
 	public boolean publishFitness(final Double value) {
-		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, simulationId, value.doubleValue());
+		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, "Simulation finished", simulationId, value.doubleValue());
 		MessageSerializer serializer = new MessageSerializer();
 		String body = serializer.toJson(result);
 		try {

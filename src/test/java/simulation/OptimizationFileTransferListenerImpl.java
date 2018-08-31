@@ -55,7 +55,7 @@ public class OptimizationFileTransferListenerImpl implements FileTransferListene
 			System.out.println("Optimization Tool "+fileToReceive+" received");
 			String simulationID = UUID.randomUUID().toString();
 			parent.setSimulationID(simulationID);
-			RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, parent.getGuiEnabled(), "");
+			RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Simulation finished", simulationID, parent.getGuiEnabled(), "");
 			for(EntityFullJid manager : parent.getManagers()) {
 				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 				Chat chat = chatManager.chatWith(manager.asEntityBareJid());

@@ -6,6 +6,7 @@ import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
+import eu.cpswarm.optimization.messages.OptimizationReplyMessage;
 import eu.cpswarm.optimization.messages.OptimizationReplyMessage.Status;
 import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 import eu.cpswarm.optimization.messages.OptimizationCancelledMessage;
@@ -40,9 +41,11 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				MessageSerializer serializer = new  MessageSerializer();
 				OptimizationProgressMessage progress = serializer.fromJson(msg.getBody());
 				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%");
-				if(parent.isMonitoring()) {
-					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
-				}				
+				if(progress.getOperationStatus().equals(OptimizationReplyMessage.Status.OK)) {
+					if(parent.isMonitoring()) {
+						parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
+					}				
+				}
 			} else {
 				MessageSerializer serializer = new MessageSerializer();
 				System.out.println("Reply received: "+msg.getBody());
