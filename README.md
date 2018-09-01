@@ -45,6 +45,7 @@ required options: s, t, c, i
 usage: utility-name
  -c,--conf <arg>     folder with the configuration files
  -g,--gui <arg>      GUI to be used or not for the simulation
+ -p,--params <arg>  parameters to be used for the simulator
  -i,--id <arg>       optimization ID
  -s,--src <arg>      input folder path
  -t,--target <arg>   output folder path
@@ -61,7 +62,7 @@ java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simul
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Dparameters="" -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -82,6 +83,7 @@ And here with the explaination of the parameters:
 	 -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
 	 -Doptimization_id=emergency_exit (ID of the optimization AKA the name of the package)
+	 -Dparameters="" (indicates the parameters to be used in the simulations)
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```
 

@@ -1,7 +1,6 @@
 package simulation;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
@@ -39,8 +38,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import com.google.gson.Gson;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.OptimizationCompleteMessage;
-import eu.cpswarm.optimization.messages.OptimizationReplyMessage.Status;
+import eu.cpswarm.optimization.messages.ReplyMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import messages.server.Server;
 
@@ -64,8 +62,7 @@ public class DummyManager {
 	private String clientID = null;
 	private String optimizationId = null;
 	private String simulationId = null;
-	private Boolean guiEnabled = false;
-	private String params = null;
+	private String simulationConfiguration = null;
 	private Boolean simulationDone = null;
 	
 	public DummyManager(final String clientID, final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
@@ -105,7 +102,7 @@ public class DummyManager {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE), optimizationId));
+			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener
@@ -120,7 +117,7 @@ public class DummyManager {
 			addAsyncStanzaListener(packetListener, presenceFilter);
 
 			// Adds the listener for the incoming messages
-			ChatManager.getInstanceFor(connection).addIncomingListener(new ManagerMessageEventCoordinatorImpl(this));
+			ChatManager.getInstanceFor(connection).addIncomingListener(new ManagerMessageEventCoordinatorImpl(this, rosFolder, optimizationId));
 			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			do {
@@ -332,7 +329,7 @@ public class DummyManager {
 	};
 	
 	public boolean publishFitness(final Double value) {
-		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, "Simulation finished", simulationId, value.doubleValue());
+		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, "Simulation finished", ReplyMessage.Status.OK, simulationId, value.doubleValue());
 		MessageSerializer serializer = new MessageSerializer();
 		String body = serializer.toJson(result);
 		try {
@@ -378,20 +375,13 @@ public class DummyManager {
 		return clientJID;
 	}
 
-	public Boolean getGuiEnabled() {
-		return guiEnabled;
+	public String getSimulationConfiguration() {
+		return simulationConfiguration;
 	}
 
-	public void setGuiEnabled(Boolean guiEnabled) {
-		this.guiEnabled = guiEnabled;
-	}
 
-	public String getParams() {
-		return params;
-	}
-
-	public void setParams(String params) {
-		this.params = params;
+	public void setSimulationConfiguration(String simulationConfiguration) {
+		this.simulationConfiguration = simulationConfiguration;
 	}
 
 

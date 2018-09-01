@@ -61,7 +61,8 @@ public class DummyOptimizationTool {
 	private String clientID = null;
 	private String optimizationID = null;
 	private String simulationID = null;
-	private Boolean guiEnabled = false;
+	private String optimizationConfiguration = null;
+	private String simulationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
 	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
@@ -97,11 +98,6 @@ public class DummyOptimizationTool {
 			ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
 			reconnectionManager.enableAutomaticReconnection();
 			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
-			
-			final FileTransferManager manager = FileTransferManager
-					.getInstanceFor(connection);
-			
-			manager.addFileTransferListener(new OptimizationFileTransferListenerImpl(this, dataFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
 			
 			// Adds the packet listener, used to catch the requests
 			// of adding this client to the roster
@@ -310,13 +306,20 @@ public class DummyOptimizationTool {
 	}
 
 
-	public Boolean getGuiEnabled() {
-		return guiEnabled;
+	public String getOptimizationConfiguration() {
+		return optimizationConfiguration;
 	}
 
+	public void setOptimizationConfiguration(String optimizationConfiguration) {
+		this.optimizationConfiguration = optimizationConfiguration;
+	}
 
-	public void setGuiEnabled(Boolean guiEnabled) {
-		this.guiEnabled = guiEnabled;
+	public String getSimulationConfiguration() {
+		return simulationConfiguration;
+	}
+
+	public void setSimulationConfiguration(String simulationConfiguration) {
+		this.simulationConfiguration = simulationConfiguration;
 	}
 
 

@@ -87,7 +87,8 @@ public class SimulationOrchestrator {
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
 	private Boolean monitoring = null;
-	private Boolean guiEnabled = false;
+	private String optimizationConfiguration = null;
+	private String simulationConfiguration = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -99,6 +100,7 @@ public class SimulationOrchestrator {
 		String outputDataFolder = "";
 		String optimizationToolUser = "";
 		String optimizationId = "";
+		String parameters = "";
 		Boolean guiEnabled = false;
 		Boolean monitoring = null;
 		String mqttBroker = null;
@@ -126,6 +128,10 @@ public class SimulationOrchestrator {
 			gui.setRequired(false);
 			options.addOption(gui);
 			
+			Option params = new Option("p", "params", true, "Parameters to be passed to the simulator");
+			params.setRequired(false);
+			options.addOption(params);
+			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
 			CommandLine cmd = null;
@@ -145,7 +151,10 @@ public class SimulationOrchestrator {
 			if(cmd.getOptionValue("gui")!=null) {
 				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
 			}
-
+			if(cmd.getOptionValue("params")==null) {
+				parameters = cmd.getOptionValue("params");
+			}
+			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
@@ -170,7 +179,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters);
 		while(true) {}
 	}
 	
@@ -196,15 +205,17 @@ public class SimulationOrchestrator {
 	 * 		ID of the optimization process
 	 * @param guiEnabled
 	 * 		Indicates if the GUI is enabled or not
+	 * @poarams parameters
+	 * 		Parameters to be used for the simulation
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
-		this.guiEnabled = guiEnabled;
+		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters; 
 		try {
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
@@ -485,7 +496,7 @@ public class SimulationOrchestrator {
 		for(EntityFullJid availableManager : this.availableManagers) {
 			managersJid.add(availableManager.toString());
 		}
-		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message", availableManagers.size(), guiEnabled, params, managersJid);
+		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message",  optimizationConfiguration, simulationConfiguration, managersJid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
 		System.out.println("Sending StartOptimization message: "+messageToSend);
