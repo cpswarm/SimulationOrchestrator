@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.filter.StanzaFilter;
@@ -92,6 +94,10 @@ public class DummyOptimizationTool {
 			// Adds a listener for the status of the connection
 			connection.addConnectionListener(connectionListener);
 
+			ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
+			reconnectionManager.enableAutomaticReconnection();
+			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
+			
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			

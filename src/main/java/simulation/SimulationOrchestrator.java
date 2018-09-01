@@ -14,6 +14,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.jivesoftware.smack.ReconnectionManager;
+import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
@@ -233,6 +235,10 @@ public class SimulationOrchestrator {
 			// Adds a listener for the status of the connection
 			connection.addConnectionListener(connectionListener);
 
+			ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
+			reconnectionManager.enableAutomaticReconnection();
+			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
+			
 			// Adds the listener for the incoming messages
 			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
 			

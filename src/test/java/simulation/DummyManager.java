@@ -3,12 +3,14 @@ package simulation;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
@@ -96,6 +98,10 @@ public class DummyManager {
 			// Adds a listener for the status of the connection
 			connection.addConnectionListener(connectionListener);
 
+			ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
+			reconnectionManager.enableAutomaticReconnection();
+			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
+			
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
