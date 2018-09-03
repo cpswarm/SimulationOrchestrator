@@ -260,6 +260,7 @@ public class SimulationOrchestrator {
 			do {
 				Thread.sleep(1000);
 			}while(!connection.isConnected() || !connection.isAuthenticated());
+			
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("Pronto");
 			try {
