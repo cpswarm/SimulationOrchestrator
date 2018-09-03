@@ -354,9 +354,16 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityFullJid availableManager : availableManagers) {
+        	/**
+        	 * TODO to be verified
     		System.out.println("Configuring the simulation manager: "+availableManager);
     		this.transferFile(availableManager, fileName, optimizationId);
+    		*/
+    		this.addManagerConfigured();
     	}
+    	
+    	
+    	
     	//It deletes the zip file
     	File file = new File(fileName);
 		if(file.delete()){

@@ -52,8 +52,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				if(msg.getBody().contains("OptimizationStarted")) {
 					OptimizationStartedMessage reply = serializer.fromJson(msg.getBody());
 					if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getSimulationId())) {
-						System.out.println("Transfering the configuration file to the manager");
-						parent.transferFile(parent.getOptimizationJid().asEntityFullJidIfPossible(), parent.getConfigurationFile(), "configuration");
 						getProgressSender = new GetProgressSender(parent);
 						
 						// create the thread
