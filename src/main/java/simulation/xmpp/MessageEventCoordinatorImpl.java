@@ -40,18 +40,30 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(msg.getBody().contains("Progress")) {
 				MessageSerializer serializer = new  MessageSerializer();
 				OptimizationProgressMessage progress = serializer.fromJson(msg.getBody());
-				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%");
+				System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%, fitness value: "+progress.getFitnessValue());
 				if(progress.getOperationStatus().equals(ReplyMessage.Status.OK)) {
+					if(progress.getProgress()==100.0) {
+						if(senderThread!=null) {
+							stopSenderThread();
+						}
+						System.out.println("Final candidate: "+progress.getCandidate());
+					}
 					if(parent.isMonitoring()) {
 						parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
-					}				
+					}
+				// There is an error in the optimzation, which is stopped
+				} else {
+					if(senderThread!=null) {
+						stopSenderThread();
+					}
+					parent.evaluateSimulationManagers();
 				}
 			} else {
 				MessageSerializer serializer = new MessageSerializer();
 				System.out.println("Reply received: "+msg.getBody());
 				if(msg.getBody().contains("OptimizationStarted")) {
 					OptimizationStartedMessage reply = serializer.fromJson(msg.getBody());
-					if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getSimulationId())) {
+					if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getOptimizationId())) {
 						getProgressSender = new GetProgressSender(parent);
 						
 						// create the thread
@@ -60,11 +72,27 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 						// run
 						senderThread.start();
 					}
-				} else if(msg.getBody().contains("OptimizationStarted")) {
+				} else if(msg.getBody().contains("OptimizationCancelled")) {
 					OptimizationCancelledMessage reply = serializer.fromJson(msg.getBody());
 					//TODO
 				}
 			}
+		}
+	}
+
+	private void stopSenderThread() {
+		getProgressSender.setCanRun(false);
+		try {
+			senderThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		senderThread = null;
+		getProgressSender = null;
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -91,6 +91,8 @@ public class SimulationOrchestrator {
 	private Boolean monitoring = null;
 	private String optimizationConfiguration = null;
 	private String simulationConfiguration = null;
+	private Server server;
+	
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -153,7 +155,7 @@ public class SimulationOrchestrator {
 			if(cmd.getOptionValue("gui")!=null) {
 				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
 			}
-			if(cmd.getOptionValue("params")==null) {
+			if(cmd.getOptionValue("params")!=null) {
 				parameters = cmd.getOptionValue("params");
 			}
 			
@@ -207,7 +209,7 @@ public class SimulationOrchestrator {
 	 * 		ID of the optimization process
 	 * @param guiEnabled
 	 * 		Indicates if the GUI is enabled or not
-	 * @poarams parameters
+	 * @param parameters
 	 * 		Parameters to be used for the simulation
 	 */
 	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters) {
@@ -217,7 +219,7 @@ public class SimulationOrchestrator {
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
-		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters; 
+		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString(); 
 		try {
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
@@ -303,7 +305,7 @@ public class SimulationOrchestrator {
 		
 		addOptimizationToTheRoster();
 		Gson gson = new Gson();
-		Server server = gson.fromJson("{\r\n" + 
+		server = gson.fromJson("{\r\n" + 
 				"	\"server\": 1,\r\n" + 
 				"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
 				"	\"simulations\": [\"stage\"],\r\n" + 
@@ -312,7 +314,7 @@ public class SimulationOrchestrator {
 				"	}\r\n" + 
 				"}\r\n" + 
 				"", Server.class);
-		this.evaluateSimulationManagers(server);
+		this.evaluateSimulationManagers();
 	}
 
     
@@ -335,10 +337,27 @@ public class SimulationOrchestrator {
             System.out.println("excep "+me);
 			return false;
 		}
+		addOptimizationToTheRoster();
+		Gson gson = new Gson();
+		server = gson.fromJson("{\r\n" + 
+				"	\"server\": 1,\r\n" + 
+				"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+				"	\"simulations\": [\"stage\"],\r\n" + 
+				"	\"capabilities\": {\r\n" + 
+				"		\"dimensions\": 2\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"", Server.class);
+		this.evaluateSimulationManagers();
 		return true;
     }
     
+    public void evaluateSimulationManagers() {
+    	this.evaluateSimulationManagers(server);
+    }
+    
     public void evaluateSimulationManagers(Server serverCompare) {
+    	this.managerConfigured=0;
     	Zipper zipper = new Zipper(inputDataFolder);
 		configurationFile = zipper.generateFileList(new File(inputDataFolder));
     	String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
@@ -354,12 +373,9 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityFullJid availableManager : availableManagers) {
-        	/**
-        	 * TODO to be verified
     		System.out.println("Configuring the simulation manager: "+availableManager);
     		this.transferFile(availableManager, fileName, optimizationId);
-    		*/
-    		this.addManagerConfigured();
+    		//this.addManagerConfigured();
     	}
     	
     	
@@ -554,7 +570,7 @@ public class SimulationOrchestrator {
 		return optimizationToolJid;
 	}
 	
-	public String getSimulationId() {
+	public String getOptimizationId() {
 		return optimizationId;
 	}
 	
