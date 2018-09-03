@@ -49,6 +49,8 @@ import org.jxmpp.jid.parts.Resourcepart;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.google.gson.Gson;
+
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
@@ -172,7 +174,7 @@ public class SimulationOrchestrator {
 				inputDataFolder+="/";
 			}
 			if(!new File(inputDataFolder).isDirectory()) {
-				System.out.println("Data folder must be a folder");
+				System.out.println("src must be a folder");
 				return;
 			}
 		} catch (ParserConfigurationException | SAXException | IOException e1) {
@@ -300,6 +302,17 @@ public class SimulationOrchestrator {
 		}
 		
 		addOptimizationToTheRoster();
+		Gson gson = new Gson();
+		Server server = gson.fromJson("{\r\n" + 
+				"	\"server\": 1,\r\n" + 
+				"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+				"	\"simulations\": [\"stage\"],\r\n" + 
+				"	\"capabilities\": {\r\n" + 
+				"		\"dimensions\": 2\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"", Server.class);
+		this.evaluateSimulationManagers(server);
 	}
 
     
