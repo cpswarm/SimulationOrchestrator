@@ -55,7 +55,7 @@ usage: utility-name
 And this is an example of running command
 
 ``` bash
-java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --src /home/cpswarm/launcher_project/Models --target /home/cpswarm/launcher_project/Optimized --conf /home/cpswarm/launcher_project/SimulationConf
+ava -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --dim any --max 3 --src "/home/cpswarm/launcher_project/Models" --target "/home/cpswarm/launcher_project/Optimized" --conf "/home/cpswarm/launcher_project/SimulationConf"
 ```
 
 ## Test configuration
