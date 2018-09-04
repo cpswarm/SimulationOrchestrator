@@ -46,6 +46,26 @@ public class Capabilities implements Comparable<Capabilities>{
     }
 
     /**
+     * Used to receive the configuration done using the Launcher
+     */
+    public void setDimensions(String dimensions) {
+		Long dims = Long.valueOf(0);
+		switch(dimensions) {
+		case "2D": 
+		case "Any" :
+		{	
+			dims = Long.valueOf(2);
+			break;
+		}
+		case "3D": {
+			dims = Long.valueOf(2);
+			break;
+		}
+		}
+		this.setDimensions(dims);
+    }
+    
+    /**
      * Maximum number of agents supported by the simulator
      * 
      */

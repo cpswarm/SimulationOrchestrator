@@ -316,7 +316,6 @@ public class DummyManager {
 	public boolean publishServer(String simulationHash) {
 		try {
 			Gson gson = new Gson();
-			server.setSimulationHash(simulationHash);
 			String serverString = gson.toJson(server, Server.class); 
 			PubSubManager manager = PubSubManager.getInstance(connection);
         	LeafNode node = manager.getLeafNode("server");

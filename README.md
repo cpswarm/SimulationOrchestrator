@@ -41,15 +41,16 @@ The software contains a configuration file which can be used to change some syst
 These are the parameters to be passed to the software to run
 
 ``` bash
-required options: s, t, c, i
+required options: s, t, c, i, d, m
 usage: utility-name
  -c,--conf <arg>     folder with the configuration files
+ -d,--dim <arg>      Number of dimensions required for simulation
  -g,--gui <arg>      GUI to be used or not for the simulation
- -p,--params <arg>  parameters to be used for the simulator
  -i,--id <arg>       optimization ID
+ -m,--max <arg>      Maximum number of agents required for simulation
+ -p,--params <arg>   Parameters to be passed to the simulator
  -s,--src <arg>      input folder path
- -t,--target <arg>   output folder path
-```
+ -t,--target <arg>   output folder path```
 
 And this is an example of running command
 
@@ -84,6 +85,8 @@ And here with the explaination of the parameters:
 	 -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
 	 -Doptimization_id=emergency_exit (ID of the optimization AKA the name of the package)
 	 -Dparameters="" (indicates the parameters to be used in the simulations)
+	 -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
+	 -DmaxAgents = "8" (indicates the maximum number of agents required for the simulation
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```
 

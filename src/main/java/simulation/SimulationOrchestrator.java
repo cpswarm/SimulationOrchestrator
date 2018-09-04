@@ -55,6 +55,7 @@ import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
+import messages.server.Capabilities;
 import messages.server.Server;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
@@ -105,6 +106,8 @@ public class SimulationOrchestrator {
 		String optimizationToolUser = "";
 		String optimizationId = "";
 		String parameters = "";
+		String dimensions = "";
+		Long maxAgents = null;
 		Boolean guiEnabled = false;
 		Boolean monitoring = null;
 		String mqttBroker = null;
@@ -136,6 +139,14 @@ public class SimulationOrchestrator {
 			params.setRequired(false);
 			options.addOption(params);
 			
+			Option dim = new Option("d", "dim", true, "Number of dimensions required for simulation");
+			params.setRequired(true);
+			options.addOption(dim);
+			
+			Option max = new Option("m", "max", true, "Maximum number of agents required for simulation");
+			max.setRequired(true);
+			options.addOption(max);
+			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
 			CommandLine cmd = null;
@@ -152,6 +163,8 @@ public class SimulationOrchestrator {
 			inputDataFolder = cmd.getOptionValue("src");
 			outputDataFolder = cmd.getOptionValue("target");
 			optimizationId = cmd.getOptionValue("id")+":"+UUID.randomUUID();
+			dimensions = cmd.getOptionValue("dim");
+			maxAgents = Long.parseLong(cmd.getOptionValue("max"));
 			if(cmd.getOptionValue("gui")!=null) {
 				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
 			}
@@ -183,7 +196,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents);
 		while(true) {}
 	}
 	
@@ -211,15 +224,25 @@ public class SimulationOrchestrator {
 	 * 		Indicates if the GUI is enabled or not
 	 * @param parameters
 	 * 		Parameters to be used for the simulation
+	 * @param dimensions
+	 * 		Number of dimensions required for the simulation
+	 * @param maxAgents
+	 * 		Maximum number of agents required for the simulation
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.simulationManagers = new HashMap<EntityFullJid, Server>();
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
-		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString(); 
+		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
+		server = new Server();
+		server.setServer("Orchestrator");
+		Capabilities caps = new Capabilities();
+		caps.setDimensions(dimensions);
+		caps.setMaxAgents(maxAgents);
+		server.setCapabilities(caps);
 		try {
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 

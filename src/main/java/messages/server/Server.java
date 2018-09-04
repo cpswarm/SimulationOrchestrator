@@ -22,15 +22,7 @@ public class Server implements Comparable<Server> {
      */
     @SerializedName("server")
     @Expose
-    private Long server;
-    /**
-     * Hash of the simulation
-     * (Required)
-     * 
-     */
-    @SerializedName("simulation_hash")
-    @Expose
-    private String simulationHash;
+    private String server;
     /**
      * A list of all the simulations that can be performed at this server
      * (Required)
@@ -53,7 +45,7 @@ public class Server implements Comparable<Server> {
      * (Required)
      * 
      */
-    public Long getServer() {
+    public String getServer() {
         return server;
     }
 
@@ -62,26 +54,8 @@ public class Server implements Comparable<Server> {
      * (Required)
      * 
      */
-    public void setServer(Long server) {
+    public void setServer(String server) {
         this.server = server;
-    }
-
-    /**
-     * Hash of the simulation
-     * (Required)
-     * 
-     */
-    public String getSimulationHash() {
-        return simulationHash;
-    }
-
-    /**
-     * Hash of the simulation
-     * (Required)
-     * 
-     */
-    public void setSimulationHash(String simulationHash) {
-        this.simulationHash = simulationHash;
     }
 
     /**
