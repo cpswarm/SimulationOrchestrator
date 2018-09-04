@@ -374,9 +374,9 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityFullJid availableManager : availableManagers) {
-    		System.out.println("Configuring the simulation manager: "+availableManager);
-    		this.transferFile(availableManager, fileName, optimizationId);
-    		//this.addManagerConfigured();
+    		//System.out.println("Configuring the simulation manager: "+availableManager);
+    		//this.transferFile(availableManager, fileName, optimizationId);
+    		this.addManagerConfigured();
     	}
     	
     	
