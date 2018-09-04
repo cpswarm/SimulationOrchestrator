@@ -41,6 +41,7 @@ import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
@@ -81,11 +82,11 @@ public class SimulationOrchestrator {
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
-	private Map<EntityFullJid, Server> simulationManagers = null;
+	private Map<EntityBareJid, Server> simulationManagers = null;
 	private String inputDataFolder = null;
 	private String outputDataFolder = null;
 	private int managerConfigured = 0;
-	private List<EntityFullJid> availableManagers = null;
+	private List<EntityBareJid> availableManagers = null;
 	private String configurationFile = null;
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
@@ -233,7 +234,7 @@ public class SimulationOrchestrator {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
-		this.simulationManagers = new HashMap<EntityFullJid, Server>();
+		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
@@ -389,14 +390,14 @@ public class SimulationOrchestrator {
 		Date date = new Date();
 		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     	zipper.zipIt(fileName);
-    	availableManagers = new ArrayList<EntityFullJid>();
-    	for(EntityFullJid account : simulationManagers.keySet()) {
+    	availableManagers = new ArrayList<EntityBareJid>();
+    	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
     			if(!availableManagers.contains(account))
     				availableManagers.add(account); 
     		}
     	}
-    	for (EntityFullJid availableManager : availableManagers) {
+    	for (EntityBareJid availableManager : availableManagers) {
     		//System.out.println("Configuring the simulation manager: "+availableManager);
     		//this.transferFile(availableManager, fileName, optimizationId);
     		this.addManagerConfigured();
@@ -553,7 +554,7 @@ public class SimulationOrchestrator {
 	
 	private boolean sendStartOptimization(final String params) {
 		List<String> managersJid = new ArrayList<String>();
-		for(EntityFullJid availableManager : this.availableManagers) {
+		for(EntityBareJid availableManager : this.availableManagers) {
 			managersJid.add(availableManager.toString());
 		}
 		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message",  optimizationConfiguration, simulationConfiguration, managersJid);
@@ -582,7 +583,7 @@ public class SimulationOrchestrator {
 		return connection;
 	}
 	
-	public void putSimulationManager(EntityFullJid jid, Server server) {
+	public void putSimulationManager(EntityBareJid jid, Server server) {
 		simulationManagers.put(jid,server);
 	}	
 

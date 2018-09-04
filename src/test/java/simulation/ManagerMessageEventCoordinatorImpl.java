@@ -167,7 +167,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
         System.out.println("Fitness score calculated: "+(-dist)+", ready to be sent");
         
         // publish negative distance as fitness
-        parent.publishFitness(-dist);
+        parent.publishFitness(100-dist);
         
         return true;
 	}
