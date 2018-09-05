@@ -194,7 +194,7 @@ public class AppTest extends TestCase{
         return true;
 	}
 	
-	/*
+
 	@Test
 	public void testCreation() {
 		try {
@@ -301,5 +301,5 @@ public class AppTest extends TestCase{
 			e.printStackTrace();
 			Assert.fail();
 		}  
-	}*/
+	}
 }
