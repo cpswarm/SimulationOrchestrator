@@ -14,7 +14,7 @@ public class GetProgressSender implements Runnable {
 	
 	private SimulationOrchestrator parent = null;
 	private boolean canRun = true;
-	private final static int TIME_TO_SLEEP = 5*1000;
+	private final static int TIME_TO_SLEEP = 60*1000;
 	
 	
 	public GetProgressSender(final SimulationOrchestrator parent) {
