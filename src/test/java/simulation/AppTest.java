@@ -3,6 +3,7 @@ package simulation;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,7 +50,7 @@ public class AppTest extends TestCase{
 	 * -Doptimization_id=emergency_exit (ID of the optimization AKA the name of the package)
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
-	 * -DmaxAgents = "8" (indicates the maximum number of agents required for the simulation)
+	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
@@ -85,7 +86,21 @@ public class AppTest extends TestCase{
 			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
 			Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
 			System.out.println("Compilation launched");
-			boolean result = proc.waitFor(2, TimeUnit.MINUTES);
+			boolean result = true;
+			String line = "";
+			try {
+				BufferedReader input =  
+						new BufferedReader  
+						(new InputStreamReader(proc.getInputStream()));  
+				while ((line = input.readLine()) != null) {  
+					System.out.println(line);  
+				}  
+				input.close();  
+			}  
+			catch (Exception err) {
+				result = false;
+				err.printStackTrace();  
+			}  
 			System.out.println("Compilation finished, "+result);
 			if(result) {
 				System.out.println("Launching the simulation for package: "+packageName);
@@ -173,7 +188,7 @@ public class AppTest extends TestCase{
         return true;
 	}
 	
-	
+	/*
 	@Test
 	public void testCreation() {
 		try {
@@ -280,5 +295,5 @@ public class AppTest extends TestCase{
 			e.printStackTrace();
 			Assert.fail();
 		}  
-	}
+	}*/
 }
