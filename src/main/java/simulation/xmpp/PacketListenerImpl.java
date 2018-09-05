@@ -93,8 +93,15 @@ public class PacketListenerImpl implements StanzaListener {
 				try {
 					if(presence.getFrom().toString().startsWith("manager")) {
 						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));	
+					} else if(presence.getFrom().toString().startsWith("orchestrator") && presence.getType().equals(Presence.Type.unavailable)) {
+						if(parent.getConnection().isConnected()) {
+							System.out.println("Sending the avialable presence");
+							Presence presenceToSend = new Presence(Presence.Type.available);
+							parent.getConnection().sendStanza(presenceToSend);
+						}
 					}
-				} catch (JsonSyntaxException | XmppStringprepException e) {
+					
+				} catch (JsonSyntaxException | XmppStringprepException | NotConnectedException | InterruptedException e) {
 					System.out.println(
 							"error adding the user: " + presence.getFrom());
 					System.out.println("msg "+e.getMessage());

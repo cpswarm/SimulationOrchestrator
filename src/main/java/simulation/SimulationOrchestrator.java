@@ -253,8 +253,7 @@ public class SimulationOrchestrator {
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
 					.builder().setHost(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
-					.setCompressionEnabled(false).setCustomSSLContext(sc)
-					.setDebuggerEnabled(true).build();
+					.setCompressionEnabled(false).setCustomSSLContext(sc).build();
 			connection = new XMPPTCPConnection(connectionConfig);
 			
 			final StanzaFilter presenceFilter = new StanzaTypeFilter(
