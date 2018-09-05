@@ -102,6 +102,8 @@ public class AppTest extends TestCase{
 				result = false;
 				err.printStackTrace();  
 			}  
+			proc.destroy();
+			proc = null;
 			System.out.println("Compilation finished, "+result);
 			if(result) {
 				System.out.println("Launching the simulation for package: "+packageName);
