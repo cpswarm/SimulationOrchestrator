@@ -30,7 +30,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 	private String optimizationId = null;
 	private String packageName = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
-	private static final Double BAD_FITNESS = -1000.0;
+	private static final Double BAD_FITNESS = 0.0;
 	
 	public ManagerMessageEventCoordinatorImpl(final DummyManager manager, final String rosFolder, final String optimizationId) {
 		this.parent = manager;
