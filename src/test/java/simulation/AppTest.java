@@ -83,6 +83,7 @@ public class AppTest extends TestCase{
 		System.out.println("-----------------------------------------------------------------------------------------");
 		catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
 		try { 
+			do {
 			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
 			Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
 			System.out.println("Compilation launched");
@@ -112,6 +113,7 @@ public class AppTest extends TestCase{
 				System.out.println("Error");
 				Assert.fail();
 			}
+			} while(true);
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		} 
