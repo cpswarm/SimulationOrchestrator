@@ -63,7 +63,7 @@ ava -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simula
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Dparameters="" -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Dparameters="" -Ddimensions="2D" -DmaxAgents=3 -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
