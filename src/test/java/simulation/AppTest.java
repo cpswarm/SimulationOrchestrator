@@ -109,6 +109,8 @@ public class AppTest extends TestCase{
 				System.out.println("Launching the simulation for package: "+packageName);
 				proc = Runtime.getRuntime().exec("roslaunch "+packageName+" stage.launch");
 				proc.waitFor(40, TimeUnit.SECONDS);
+				proc.destroy();
+				proc = null;
 				calcFitness();
 				System.out.println("done");
 			} else {
