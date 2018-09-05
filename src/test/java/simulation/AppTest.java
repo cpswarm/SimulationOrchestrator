@@ -168,7 +168,7 @@ public class AppTest extends TestCase{
         }
 
         // publish negative distance as fitness
-        System.out.println("Distance: "+(-dist));
+        System.out.println("Distance: "+(100-dist));
         
         return true;
 	}
