@@ -487,9 +487,9 @@ public class SimulationOrchestrator {
 			if (status == Status.cancelled) {
 				System.out.println("Transfer cancelled");
 			} else if (status == Status.error) {
-				System.out.println("Error in file transfer");
+				System.out.println("Error in file transfer" + transfer.getError());
 			} else if (status == Status.complete) {
-				System.out.println("File transferred");
+				System.out.println("File transfered");
 			}
 		}
 	}
