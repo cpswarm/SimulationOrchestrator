@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
-	<serverURI>130.192.86.237</serverURI> <!--  URI of the XMPP server  -->
-	<serverName>pert-demoenergy-virtus.ismb.polito.it</serverName> <!--  name of the XMPP server  -->
+ <!-- 	<serverURI>130.192.86.237</serverURI> URI of the XMPP server  -->
+<!--	<serverName>pert-demoenergy-virtus.ismb.polito.it</serverName>   name of the XMPP server  -->
+	<serverURI>127.0.0.1</serverURI> <!-- URI of the XMPP server  -->
+	<serverName>ubuntu</serverName>  <!--  name of the XMPP server  -->
 	<serverPassword>orchestrator</serverPassword> <!--  password to be used from the orchestator to connect to the XMPP server  -->
 	<optimizationUser>frevo</optimizationUser> <!--  XMPP username of the Optimization Tool  --> 
 	<monitoring>false</monitoring> <!--  indication if the monitoring GUI has to be used or not  -->
