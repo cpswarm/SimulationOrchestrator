@@ -626,6 +626,10 @@ public class SimulationOrchestrator {
 		return client;
 	}
 
+	public Boolean getMonitoring() {
+		return monitoring;
+	}
+
 	public void reconnect() {
 		try {
 			connection.disconnect();

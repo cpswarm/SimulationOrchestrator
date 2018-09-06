@@ -63,7 +63,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				System.out.println("Reply received: "+msg.getBody());
 				if(msg.getBody().contains("OptimizationStarted")) {
 					OptimizationStartedMessage reply = serializer.fromJson(msg.getBody());
-					if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getOptimizationId())) {
+					if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getOptimizationId()) && parent.getMonitoring().booleanValue()) {
 						getProgressSender = new GetProgressSender(parent);
 						
 						// create the thread
