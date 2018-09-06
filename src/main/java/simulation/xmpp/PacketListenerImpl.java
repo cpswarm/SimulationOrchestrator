@@ -109,7 +109,7 @@ public class PacketListenerImpl implements StanzaListener {
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
 				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					parent.removeSimulationManager(presence.getFrom());
-				} else if(presence.getFrom().toString().startsWith("orchestrator") && presence.getType().equals(Presence.Type.unavailable)) {
+				} else if(presence.getFrom().toString().startsWith("orchestrator") || presence.getFrom().toString().startsWith(parent.getOptimizationJid().toString())) {
 						System.out.println("The connection is disconnected, reconnect");
 						parent.reconnect();
 				}
