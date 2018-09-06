@@ -110,20 +110,8 @@ public class PacketListenerImpl implements StanzaListener {
 				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					parent.removeSimulationManager(presence.getFrom());
 				} else if(presence.getFrom().toString().startsWith("orchestrator") && presence.getType().equals(Presence.Type.unavailable)) {
-					if(parent.getConnection().isConnected()) {
-						System.out.println("Sending the avialable presence");
-						Presence presenceToSend = new Presence(Presence.Type.available);
-						try {
-							parent.getConnection().sendStanza(presenceToSend);
-						} catch (NotConnectedException | InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					} else {
-						//Needs to reconnect
 						System.out.println("The connection is disconnected, reconnect");
 						parent.reconnect();
-					}
 				}
 			}
 		}

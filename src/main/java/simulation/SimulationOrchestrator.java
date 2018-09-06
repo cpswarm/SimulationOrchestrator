@@ -628,6 +628,8 @@ public class SimulationOrchestrator {
 
 	public void reconnect() {
 		try {
+			connection.disconnect();
+			Thread.sleep(1000);
 			connection.connect();
 
 			connection.login("orchestrator", serverPassword , Resourcepart.from(RESOURCE));
