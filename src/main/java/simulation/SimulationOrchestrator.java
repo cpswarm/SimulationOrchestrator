@@ -540,6 +540,18 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendGetProgress() {
+		if(!connection.isConnected()) {
+			//the connection need to be reconnected
+			this.reconnect();
+			do {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} while(connection.isConnected());
+		}
 		GetProgressMessage getProgress = new GetProgressMessage(optimizationId, "Get Progress message");
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
