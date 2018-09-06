@@ -95,7 +95,7 @@ public class SimulationOrchestrator {
 	private String optimizationConfiguration = null;
 	private String simulationConfiguration = null;
 	private Server server;
-	
+	private String serverPassword = "";
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -235,6 +235,7 @@ public class SimulationOrchestrator {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
+		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
@@ -611,5 +612,18 @@ public class SimulationOrchestrator {
 	
 	public MqttAsyncDispatcher getMqttClient() {
 		return client;
+	}
+
+	public void reconnect() {
+		try {
+			connection.connect();
+
+			connection.login("orchestrator", serverPassword , Resourcepart.from(RESOURCE));
+			System.out.println("Connected to server");
+		
+		} catch (SmackException | IOException | XMPPException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

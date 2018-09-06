@@ -98,6 +98,10 @@ public class PacketListenerImpl implements StanzaListener {
 							System.out.println("Sending the avialable presence");
 							Presence presenceToSend = new Presence(Presence.Type.available);
 							parent.getConnection().sendStanza(presenceToSend);
+						} else {
+							//Needs to reconnect
+							System.out.println("The connection is disconnected, reconnect");
+							parent.reconnect();
 						}
 					}
 					
