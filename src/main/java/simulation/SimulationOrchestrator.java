@@ -47,6 +47,7 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -397,9 +398,14 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityBareJid availableManager : availableManagers) {
-    		//System.out.println("Configuring the simulation manager: "+availableManager);
-    		//this.transferFile(availableManager, fileName, optimizationId);
-    		this.addManagerConfigured();
+    		System.out.println("Configuring the simulation manager: "+availableManager);
+    		try {
+				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, optimizationId);
+			} catch (XmppStringprepException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		//this.addManagerConfigured();
     	}
     	
     	
