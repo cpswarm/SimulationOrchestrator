@@ -93,19 +93,9 @@ public class PacketListenerImpl implements StanzaListener {
 				try {
 					if(presence.getFrom().toString().startsWith("manager")) {
 						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));	
-					} else if(presence.getFrom().toString().startsWith("orchestrator") && presence.getType().equals(Presence.Type.unavailable)) {
-						if(parent.getConnection().isConnected()) {
-							System.out.println("Sending the avialable presence");
-							Presence presenceToSend = new Presence(Presence.Type.available);
-							parent.getConnection().sendStanza(presenceToSend);
-						} else {
-							//Needs to reconnect
-							System.out.println("The connection is disconnected, reconnect");
-							parent.reconnect();
-						}
-					}
+					} 
 					
-				} catch (JsonSyntaxException | XmppStringprepException | NotConnectedException | InterruptedException e) {
+				} catch (JsonSyntaxException | XmppStringprepException e) {
 					System.out.println(
 							"error adding the user: " + presence.getFrom());
 					System.out.println("msg "+e.getMessage());
@@ -119,6 +109,21 @@ public class PacketListenerImpl implements StanzaListener {
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
 				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					parent.removeSimulationManager(presence.getFrom());
+				} else if(presence.getFrom().toString().startsWith("orchestrator") && presence.getType().equals(Presence.Type.unavailable)) {
+					if(parent.getConnection().isConnected()) {
+						System.out.println("Sending the avialable presence");
+						Presence presenceToSend = new Presence(Presence.Type.available);
+						try {
+							parent.getConnection().sendStanza(presenceToSend);
+						} catch (NotConnectedException | InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} else {
+						//Needs to reconnect
+						System.out.println("The connection is disconnected, reconnect");
+						parent.reconnect();
+					}
 				}
 			}
 		}
