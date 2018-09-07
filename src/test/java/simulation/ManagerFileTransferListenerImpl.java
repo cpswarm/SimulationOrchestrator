@@ -39,7 +39,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 			fileToReceive = dataFolder+request.getFileName();
 		} 
 		try {
-			transfer.recieveFile(new File(fileToReceive));
+			transfer.receiveFile(new File(fileToReceive));
 
 			while (!transfer.isDone()) {
 				if (transfer.getStatus() == Status.refused) {

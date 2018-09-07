@@ -85,7 +85,7 @@ public class DummyOptimizationTool {
 					.builder().setHost(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
 					.setCompressionEnabled(false).setCustomSSLContext(sc)
-					.setDebuggerEnabled(true).build();
+					.build();
 			connection = new XMPPTCPConnection(connectionConfig);
 			connection.connect();
 

@@ -44,27 +44,6 @@ public final class ManagerConnectionListenerImpl implements ConnectionListener {
 	}
 
 	@Override
-	public void reconnectingIn(final int arg0) {
-		System.out.println(
-				"XMPPClient the connection will retry to reconnect in " + arg0
-						+ " seconds.");
-	}
-
-	@Override
-	public void reconnectionFailed(final Exception arg0) {
-		System.out.println(
-				"XMPPClient an attempt to connect to the server has failed.");
-	}
-
-	@Override
-	public void reconnectionSuccessful() {
-		System.out.println(
-				"The connection has reconnected successfully to the server.");
-		// TODO
-		// handle reconnection
-	}
-
-	@Override
 	public void connected(final XMPPConnection arg0) {
 		System.out.println(
 				"The connection has connected successfully to the server.");

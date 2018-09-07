@@ -27,7 +27,7 @@ public abstract class FileTransferListenerImpl implements FileTransferListener {
 		final IncomingFileTransfer transfer = request.accept();
 		final String fileToReceive = dataFolder+request.getFileName();
 		try {
-			transfer.recieveFile(new File(fileToReceive));
+			transfer.receiveFile(new File(fileToReceive));
 
 			while (!transfer.isDone()) {
 				if (transfer.getStatus() == Status.refused) {
