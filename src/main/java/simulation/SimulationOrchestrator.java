@@ -639,6 +639,8 @@ public class SimulationOrchestrator {
 			connection.login("orchestrator", serverPassword , Resourcepart.from(RESOURCE));
 			System.out.println("Connected to server");
 		
+			// Adds the listener for the incoming messages
+			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
 		} catch (SmackException | IOException | XMPPException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
