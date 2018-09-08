@@ -153,7 +153,7 @@ public class SimulationOrchestrator {
 			options.addOption(max);
 			
 			Option optimization = new Option("o", "opt", true, "Indicates if the optimization is required or not");
-			max.setRequired(true);
+			optimization.setRequired(true);
 			options.addOption(optimization);
 			
 			CommandLineParser parser = new DefaultParser();
