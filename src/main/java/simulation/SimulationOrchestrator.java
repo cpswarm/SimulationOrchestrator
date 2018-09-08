@@ -329,7 +329,7 @@ public class SimulationOrchestrator {
 			return;
 		}
 		
-		addOptimizationToTheRoster();
+		//addOptimizationToTheRoster();
 		Gson gson = new Gson();
 		server = gson.fromJson("{\r\n" + 
 				"	\"server\": 1,\r\n" + 
