@@ -51,14 +51,17 @@ public class Capabilities implements Comparable<Capabilities>{
     public void setDimensions(String dimensions) {
 		Long dims = Long.valueOf(0);
 		switch(dimensions) {
-		case "2D": 
-		case "Any" :
+		case "Any" : {
+			dims = Long.valueOf(1);
+			break;
+		}
+		case "2D":
 		{	
 			dims = Long.valueOf(2);
 			break;
 		}
 		case "3D": {
-			dims = Long.valueOf(2);
+			dims = Long.valueOf(3);
 			break;
 		}
 		}
@@ -83,7 +86,7 @@ public class Capabilities implements Comparable<Capabilities>{
 
 	@Override
 	public int compareTo(Capabilities capabilitiesToCompare) {
-		if(this.getDimensions()>=capabilitiesToCompare.getDimensions() &&
+		if((this.getDimensions()==capabilitiesToCompare.getDimensions() || this.getDimensions()==1) &&
 				(this.getMaxAgents()==null || this.getMaxAgents()>=capabilitiesToCompare.getMaxAgents())) {
 			return 1;
 		} else {

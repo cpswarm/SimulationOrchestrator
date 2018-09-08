@@ -51,6 +51,7 @@ public class AppTest extends TestCase{
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
+	 * -optimization_enabled=false (indicates if the optimization is enabled or not)
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
@@ -73,6 +74,7 @@ public class AppTest extends TestCase{
 	private String parameters = System.getProperty("paramereters");
 	private String dimensions = System.getProperty("dimensions");
 	private Long maxAgents = Long.valueOf(System.getProperty("max_agents"));
+	private Boolean optimizationEnabled = Boolean.valueOf(System.getProperty("optimization_enabled"));
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
 	
@@ -201,7 +203,7 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -235,7 +237,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -276,7 +278,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);

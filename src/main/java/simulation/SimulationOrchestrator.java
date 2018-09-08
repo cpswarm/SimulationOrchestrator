@@ -55,6 +55,7 @@ import com.google.gson.Gson;
 
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.server.Capabilities;
@@ -96,6 +97,7 @@ public class SimulationOrchestrator {
 	private String simulationConfiguration = null;
 	private Server server;
 	private String serverPassword = "";
+	private Boolean optimizationEnabled = null; 
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -113,6 +115,7 @@ public class SimulationOrchestrator {
 		Boolean guiEnabled = false;
 		Boolean monitoring = null;
 		String mqttBroker = null;
+		Boolean optimizationEnabled = false;
 		try {
 			Options options = new Options();
 
@@ -149,6 +152,10 @@ public class SimulationOrchestrator {
 			max.setRequired(true);
 			options.addOption(max);
 			
+			Option optimization = new Option("o", "opt", true, "Indicates if the optimization is required or not");
+			max.setRequired(true);
+			options.addOption(optimization);
+			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
 			CommandLine cmd = null;
@@ -167,6 +174,7 @@ public class SimulationOrchestrator {
 			optimizationId = cmd.getOptionValue("id")+":"+UUID.randomUUID();
 			dimensions = cmd.getOptionValue("dim");
 			maxAgents = Long.parseLong(cmd.getOptionValue("max"));
+			optimizationEnabled = Boolean.valueOf(cmd.getOptionValue("opt"));
 			if(cmd.getOptionValue("gui")!=null) {
 				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
 			}
@@ -180,7 +188,7 @@ public class SimulationOrchestrator {
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
-			
+
 			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
 			if(monitoring) {
 				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
@@ -198,7 +206,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
 		while(true) {}
 	}
 	
@@ -230,8 +238,10 @@ public class SimulationOrchestrator {
 	 * 		Number of dimensions required for the simulation
 	 * @param maxAgents
 	 * 		Maximum number of agents required for the simulation
+	 * @param optimization
+	 *      Indicates if the optimization is enabled or not
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
@@ -240,6 +250,7 @@ public class SimulationOrchestrator {
 		this.monitoring = monitoring;
 		this.optimizationId = optimizationId;
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
+		this.optimizationEnabled = optimization;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -329,7 +340,7 @@ public class SimulationOrchestrator {
 			return;
 		}
 		
-		//addOptimizationToTheRoster();
+		addOptimizationToTheRoster();
 		Gson gson = new Gson();
 		server = gson.fromJson("{\r\n" + 
 				"	\"server\": 1,\r\n" + 
@@ -382,6 +393,7 @@ public class SimulationOrchestrator {
     	this.evaluateSimulationManagers(server);
     }
     
+    
     public void evaluateSimulationManagers(Server serverCompare) {
     	this.managerConfigured=0;
     	Zipper zipper = new Zipper(inputDataFolder);
@@ -394,8 +406,13 @@ public class SimulationOrchestrator {
     	availableManagers = new ArrayList<EntityBareJid>();
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
-    			if(!availableManagers.contains(account))
-    				availableManagers.add(account); 
+    			if(!availableManagers.contains(account)) {
+    				availableManagers.add(account);
+    				// If there is not optimization the first simulator available is selected
+    				if(!optimizationEnabled) {
+    					break;
+    				}
+    			}
     		}
     	}
     	for (EntityBareJid availableManager : availableManagers) {
@@ -409,8 +426,6 @@ public class SimulationOrchestrator {
 			}*/
     		this.addManagerConfigured();
     	}
-    	
-    	
     	
     	//It deletes the zip file
     	File file = new File(fileName);
@@ -535,7 +550,11 @@ public class SimulationOrchestrator {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
 		if(managerConfigured==this.availableManagers.size()) {
-			sendStartOptimization("");
+			if(!optimizationEnabled) {
+				sendStartOptimization();
+			} else {
+				sendRunSimulation();
+			}
 		}
 	}
 	
@@ -571,7 +590,7 @@ public class SimulationOrchestrator {
 	}
 
 	
-	private boolean sendStartOptimization(final String params) {
+	private boolean sendStartOptimization() {
 		List<String> managersJid = new ArrayList<String>();
 		for(EntityBareJid availableManager : this.availableManagers) {
 			managersJid.add(availableManager.toString());
@@ -588,6 +607,26 @@ public class SimulationOrchestrator {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
 			System.out.println("Error sending StartOptimization message");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	
+	private boolean sendRunSimulation() {
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "Run simulation message", "1", simulationConfiguration, "");
+		MessageSerializer serializer = new MessageSerializer();
+		String messageToSend = serializer.toJson(run);
+		System.out.println("Sending RunSimulation message: "+messageToSend);
+		ChatManager manager = ChatManager.getInstanceFor(connection);
+		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
+		Message message = new Message();
+		message.setBody(messageToSend);
+		try {
+			chat.send(message);
+		} catch (NotConnectedException | InterruptedException e) {
+			System.out.println("Error sending RunSimulation message");
 			e.printStackTrace();
 			return false;
 		}
@@ -628,6 +667,14 @@ public class SimulationOrchestrator {
 
 	public Boolean getMonitoring() {
 		return monitoring;
+	}
+	
+	public Boolean getOptimizationEnabled() {
+		return optimizationEnabled;
+	}
+
+	public void setOptimizationEnabled(Boolean optimizationEnabled) {
+		this.optimizationEnabled = optimizationEnabled;
 	}
 
 	public void reconnect() {

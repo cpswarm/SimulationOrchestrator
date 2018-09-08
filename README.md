@@ -41,7 +41,7 @@ The software contains a configuration file which can be used to change some syst
 These are the parameters to be passed to the software to run
 
 ``` bash
-required options: s, t, c, i, d, m
+required options: s, t, c, i, d, m, o
 usage: utility-name
  -c,--conf <arg>     folder with the configuration files
  -d,--dim <arg>      Number of dimensions required for simulation
@@ -50,7 +50,9 @@ usage: utility-name
  -m,--max <arg>      Maximum number of agents required for simulation
  -p,--params <arg>   Parameters to be passed to the simulator
  -s,--src <arg>      input folder path
- -t,--target <arg>   output folder path```
+ -t,--target <arg>   output folder path
+ -o --opt <arg>      indicates if the optimization is enabled
+ ```
 
 And this is an example of running command
 
@@ -63,7 +65,7 @@ ava -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simula
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Dparameters="" -Ddimensions="2D" -Dmax_agents=3 -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Dparameters="" -Ddimensions="2D" -Dmax_agents=3 -Doptimization_enabled=false -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -87,6 +89,7 @@ And here with the explaination of the parameters:
 	 -Dparameters="" (indicates the parameters to be used in the simulations)
 	 -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 -DmaxAgents = "8" (indicates the maximum number of agents required for the simulation
+	 -Doptimization_enabled=false
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```
 
