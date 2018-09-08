@@ -550,7 +550,7 @@ public class SimulationOrchestrator {
 		managerConfigured++;
 		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
 		if(managerConfigured==this.availableManagers.size()) {
-			if(!optimizationEnabled) {
+			if(optimizationEnabled) {
 				sendStartOptimization();
 			} else {
 				sendRunSimulation();
