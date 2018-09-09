@@ -47,7 +47,7 @@ public class AppTest extends TestCase{
 	 * -Dmonitoring=true (indicates if the monitoring GUI has to be used, monitoring the evolution of the optimization)
 	 * -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 * -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
-	 * -Doptimization_id=emergency_exit (ID of the optimization AKA the name of the package)
+	 * -Dtask_id=emergency_exit (ID of the task AKA the name of the package)
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
@@ -68,7 +68,7 @@ public class AppTest extends TestCase{
 	private String ros2Folder = System.getProperty("ros2_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
-	private String packageName = System.getProperty("optimization_id");
+	private String packageName = System.getProperty("task_id");
 	private String optimizationId = System.getProperty("optimization_id") + ":" + UUID.randomUUID();
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String parameters = System.getProperty("paramereters");

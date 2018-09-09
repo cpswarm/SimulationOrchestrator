@@ -46,7 +46,7 @@ usage: utility-name
  -c,--conf <arg>     folder with the configuration files
  -d,--dim <arg>      Number of dimensions required for simulation
  -g,--gui <arg>      GUI to be used or not for the simulation
- -i,--id <arg>       optimization ID
+ -i,--id <arg>       task ID
  -m,--max <arg>      Maximum number of agents required for simulation
  -p,--params <arg>   Parameters to be passed to the simulator
  -s,--src <arg>      input folder path
@@ -65,7 +65,7 @@ java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simul
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Doptimization_id=emergency_exit -Dparameters="" -Ddimensions="2D" -Dmax_agents=3 -Doptimization_enabled=false -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Dtask_id=emergency_exit -Dparameters="" -Ddimensions="2D" -Dmax_agents=3 -Doptimization_enabled=false -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -85,7 +85,7 @@ And here with the explaination of the parameters:
 	 -Dmonitoring=true (indicates if the monitoring GUI has to be used, monitoring the evolution of the optimization)
 	 -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
-	 -Doptimization_id=emergency_exit (ID of the optimization AKA the name of the package)
+	 -Dtask_id=emergency_exit (ID of the task AKA the name of the package)
 	 -Dparameters="" (indicates the parameters to be used in the simulations)
 	 -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 -DmaxAgents = "8" (indicates the maximum number of agents required for the simulation

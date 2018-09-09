@@ -91,6 +91,7 @@ public class SimulationOrchestrator {
 	private List<EntityBareJid> availableManagers = null;
 	private String configurationFile = null;
 	private Jid optimizationToolJid = null;
+	private String taskId = null;
 	private String optimizationId = null;
 	private Boolean monitoring = null;
 	private String optimizationConfiguration = null;
@@ -108,7 +109,7 @@ public class SimulationOrchestrator {
 		String inputDataFolder = "";
 		String outputDataFolder = "";
 		String optimizationToolUser = "";
-		String optimizationId = "";
+		String taskId = "";
 		String parameters = "";
 		String dimensions = "";
 		Long maxAgents = null;
@@ -171,7 +172,7 @@ public class SimulationOrchestrator {
 
 			inputDataFolder = cmd.getOptionValue("src");
 			outputDataFolder = cmd.getOptionValue("target");
-			optimizationId = cmd.getOptionValue("id")+":"+UUID.randomUUID();
+			taskId = cmd.getOptionValue("id");
 			dimensions = cmd.getOptionValue("dim");
 			maxAgents = Long.parseLong(cmd.getOptionValue("max"));
 			optimizationEnabled = Boolean.valueOf(cmd.getOptionValue("opt"));
@@ -206,7 +207,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
 		while(true) {}
 	}
 	
@@ -228,8 +229,8 @@ public class SimulationOrchestrator {
 	 * 		Flag to enable or disable the thread which monitor the progress of the optimization process
 	 * @param mqttBroker
 	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
-	 * @param optimizationId
-	 * 		ID of the optimization process
+	 * @param taskId
+	 * 		ID of the task
 	 * @param guiEnabled
 	 * 		Indicates if the GUI is enabled or not
 	 * @param parameters
@@ -241,14 +242,15 @@ public class SimulationOrchestrator {
 	 * @param optimization
 	 *      Indicates if the optimization is enabled or not
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String optimizationId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.monitoring = monitoring;
-		this.optimizationId = optimizationId;
+		this.taskId = taskId;
+		this.optimizationId = taskId+":"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		server = new Server();
@@ -408,7 +410,7 @@ public class SimulationOrchestrator {
     	for (EntityBareJid availableManager : availableManagers) {
     		System.out.println("Configuring the simulation manager: "+availableManager);
     		try {
-				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, optimizationId);
+				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
 			} catch (XmppStringprepException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
