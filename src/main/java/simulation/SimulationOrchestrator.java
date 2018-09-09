@@ -131,7 +131,7 @@ public class SimulationOrchestrator {
 			configuration.setRequired(true);
 			options.addOption(configuration);
 
-			Option id = new Option("i", "id", true, "optimization ID");
+			Option id = new Option("i", "id", true, "Task ID");
 			id.setRequired(true);
 			options.addOption(id);
 			
@@ -341,16 +341,6 @@ public class SimulationOrchestrator {
 		}
 		
 		addOptimizationToTheRoster();
-		Gson gson = new Gson();
-		server = gson.fromJson("{\r\n" + 
-				"	\"server\": 1,\r\n" + 
-				"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-				"	\"simulations\": [\"stage\"],\r\n" + 
-				"	\"capabilities\": {\r\n" + 
-				"		\"dimensions\": 2\r\n" + 
-				"	}\r\n" + 
-				"}\r\n" + 
-				"", Server.class);
 		this.evaluateSimulationManagers();
 	}
 
@@ -620,7 +610,7 @@ public class SimulationOrchestrator {
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
-		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
+		Chat chat = manager.chatWith(availableManagers.get(0));
 		Message message = new Message();
 		message.setBody(messageToSend);
 		try {
