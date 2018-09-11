@@ -19,7 +19,9 @@ public class Zipper
 		fileList = new ArrayList<String>();
 	}
 
-
+	public void updateSourceFolder(final String sourceFolder) {
+		this.sourceFolder = sourceFolder;
+	}
 
 	/**
 	 * Zip it
