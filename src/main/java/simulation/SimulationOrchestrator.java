@@ -607,7 +607,7 @@ public class SimulationOrchestrator {
 	private boolean sendRunSimulation() {
 		String candidateToSend = "";
 		try {
-			candidateToSend = this.readFile("candidate.c", StandardCharsets.UTF_8);
+			candidateToSend = this.readFile(this.simulationConfiguration+"candidate.c", StandardCharsets.UTF_8);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
