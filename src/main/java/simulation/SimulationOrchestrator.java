@@ -72,6 +72,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -174,8 +178,10 @@ public class SimulationOrchestrator {
 			taskId = cmd.getOptionValue("id");
 			dimensions = cmd.getOptionValue("dim");
 			maxAgents = Long.parseLong(cmd.getOptionValue("max"));
-			optimizationEnabled = cmd.getOptionValue("opt")!=null;
-			guiEnabled = cmd.getOptionValue("gui")!=null;
+			
+			optimizationEnabled = cmd.hasOption("opt");
+			
+			guiEnabled = cmd.hasOption("gui");
 			
 			if(cmd.getOptionValue("params")!=null) {
 				parameters = cmd.getOptionValue("params");
@@ -592,8 +598,21 @@ public class SimulationOrchestrator {
 	}
 	
 	
+	private String readFile(String path, Charset encoding) 
+			throws IOException {
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return new String(encoded, encoding);
+	}
+	
 	private boolean sendRunSimulation() {
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "Run simulation message", "1", simulationConfiguration, "");
+		String candidateToSend = "";
+		try {
+			candidateToSend = this.readFile("candidate.c", StandardCharsets.UTF_8);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "Run simulation message", "1", simulationConfiguration, candidateToSend);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
