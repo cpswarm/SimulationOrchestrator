@@ -51,8 +51,6 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.google.gson.Gson;
-
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
@@ -93,7 +91,6 @@ public class SimulationOrchestrator {
 	private String outputDataFolder = null;
 	private int managerConfigured = 0;
 	private List<EntityBareJid> availableManagers = null;
-	private String configurationFile = null;
 	private Jid optimizationToolJid = null;
 	private String taskId = null;
 	private String optimizationId = null;
@@ -383,7 +380,8 @@ public class SimulationOrchestrator {
     public void evaluateSimulationManagers(Server serverCompare) {
     	this.managerConfigured=0;
     	Zipper zipper = new Zipper(inputDataFolder);
-		configurationFile = zipper.generateFileList(new File(inputDataFolder));
+		zipper.generateFileList(new File(inputDataFolder));
+		zipper.generateFileList(new File(simulationConfiguration));
     	String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
 		Date date = new Date();
@@ -406,7 +404,6 @@ public class SimulationOrchestrator {
     		try {
 				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
 			} catch (XmppStringprepException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	}
@@ -629,10 +626,7 @@ public class SimulationOrchestrator {
 		}
 		return true;
 	}
-	
-	public String getConfigurationFile() {
-		return configurationFile;
-	}
+
 
 	public XMPPTCPConnection getConnection() {
 		return connection;
