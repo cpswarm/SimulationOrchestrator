@@ -19,10 +19,6 @@ public class Zipper
 		fileList = new ArrayList<String>();
 	}
 
-	public void updateSourceFolder(final String sourceFolder) {
-		this.sourceFolder = sourceFolder;
-	}
-
 	/**
 	 * Zip it
 	 * @param zipFile output ZIP file location
@@ -45,7 +41,7 @@ public class Zipper
 				zos.putNextEntry(ze);
 
 				FileInputStream in =
-						new FileInputStream(sourceFolder + File.separator + file);
+						new FileInputStream(file);
 
 				int len;
 				while ((len = in.read(buffer)) > 0) {
@@ -79,7 +75,7 @@ public class Zipper
 		if(node.isFile()){
 			// It excludes from the file list the file zse, which it has to be send to the Optimization Tool
 			if(!node.getAbsoluteFile().toString().endsWith("zse")) {
-				fileList.add(generateZipEntry(node.getAbsoluteFile().toString()));
+				fileList.add(node.getAbsoluteFile().toString());
 			} else {
 				result = node.getAbsoluteFile().toString();
 			}
@@ -95,14 +91,5 @@ public class Zipper
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Format the file path for zip
-	 * @param file file path
-	 * @return Formatted file path
-	 */
-	private String generateZipEntry(String file){
-		return file.substring(sourceFolder.length(), file.length());
 	}
 }

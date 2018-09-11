@@ -388,7 +388,6 @@ public class SimulationOrchestrator {
     	this.managerConfigured=0;
     	Zipper zipper = new Zipper(inputDataFolder);
 		zipper.generateFileList(new File(inputDataFolder));
-		zipper.updateSourceFolder(configurationFolder);
 		zipper.generateFileList(new File(configurationFolder));
     	String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
