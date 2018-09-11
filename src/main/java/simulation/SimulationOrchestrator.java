@@ -154,7 +154,7 @@ public class SimulationOrchestrator {
 			options.addOption(max);
 			
 			Option optimization = new Option("o", "opt", true, "Indicates if the optimization is required or not");
-			optimization.setRequired(true);
+			optimization.setRequired(false);
 			options.addOption(optimization);
 			
 			CommandLineParser parser = new DefaultParser();
@@ -175,10 +175,9 @@ public class SimulationOrchestrator {
 			taskId = cmd.getOptionValue("id");
 			dimensions = cmd.getOptionValue("dim");
 			maxAgents = Long.parseLong(cmd.getOptionValue("max"));
-			optimizationEnabled = Boolean.valueOf(cmd.getOptionValue("opt"));
-			if(cmd.getOptionValue("gui")!=null) {
-				guiEnabled =  Boolean.valueOf(cmd.getOptionValue("gui")); 
-			}
+			optimizationEnabled = cmd.getOptionValue("opt")!=null;
+			guiEnabled = cmd.getOptionValue("gui")!=null;
+			
 			if(cmd.getOptionValue("params")!=null) {
 				parameters = cmd.getOptionValue("params");
 			}
@@ -415,7 +414,6 @@ public class SimulationOrchestrator {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-    		this.addManagerConfigured();
     	}
     	
     	//It deletes the zip file
