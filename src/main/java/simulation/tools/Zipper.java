@@ -11,14 +11,18 @@ import java.util.zip.ZipOutputStream;
 
 public class Zipper
 {
-	List<String> fileList;
+	List<FileListEntry> fileList;
 	private String sourceFolder = "C:\\testzip";
 
 	public Zipper(String source){
 		this.sourceFolder = source;
-		fileList = new ArrayList<String>();
+		fileList = new ArrayList<FileListEntry>();
 	}
 
+	public void updateSourceFolder(final String sourceFolder) {
+		this.sourceFolder = sourceFolder;
+	}
+	
 	/**
 	 * Zip it
 	 * @param zipFile output ZIP file location
@@ -34,14 +38,14 @@ public class Zipper
 
 			System.out.println("Output to Zip : " + zipFile);
 
-			for(String file : this.fileList){
+			for(FileListEntry file : this.fileList){
 
 				System.out.println("File Added : " + file);
-				ZipEntry ze= new ZipEntry(file);
+				ZipEntry ze = new ZipEntry(file.getZipEntry());
 				zos.putNextEntry(ze);
 
 				FileInputStream in =
-						new FileInputStream(file);
+						new FileInputStream(file.getFilePath());
 
 				int len;
 				while ((len = in.read(buffer)) > 0) {
@@ -75,7 +79,7 @@ public class Zipper
 		if(node.isFile()){
 			// It excludes from the file list the file zse, which it has to be send to the Optimization Tool
 			if(!node.getAbsoluteFile().toString().endsWith("zse")) {
-				fileList.add(node.getAbsoluteFile().toString());
+				fileList.add(generateZipEntry(node.getAbsoluteFile().toString()));
 			} else {
 				result = node.getAbsoluteFile().toString();
 			}
@@ -91,5 +95,15 @@ public class Zipper
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Format the file path for zip
+	 * @param file file path
+	 * @return Formatted file path
+	 */
+	private FileListEntry generateZipEntry(String file){
+		FileListEntry entry = new FileListEntry(file.substring(sourceFolder.length(), file.length()), file);
+		return entry;
 	}
 }
