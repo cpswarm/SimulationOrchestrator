@@ -50,8 +50,8 @@ public class Capabilities implements Comparable<Capabilities>{
      */
     public void setDimensions(String dimensions) {
 		Long dims = Long.valueOf(0);
-		switch(dimensions) {
-		case "Any" : {
+		switch(dimensions.toUpperCase()) {
+		case "ANY" : {
 			dims = Long.valueOf(1);
 			break;
 		}

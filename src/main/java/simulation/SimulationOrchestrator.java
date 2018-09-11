@@ -365,16 +365,6 @@ public class SimulationOrchestrator {
 			return false;
 		}
 		addOptimizationToTheRoster();
-		Gson gson = new Gson();
-		server = gson.fromJson("{\r\n" + 
-				"	\"server\": 1,\r\n" + 
-				"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-				"	\"simulations\": [\"stage\"],\r\n" + 
-				"	\"capabilities\": {\r\n" + 
-				"		\"dimensions\": 2\r\n" + 
-				"	}\r\n" + 
-				"}\r\n" + 
-				"", Server.class);
 		this.evaluateSimulationManagers();
 		return true;
     }
