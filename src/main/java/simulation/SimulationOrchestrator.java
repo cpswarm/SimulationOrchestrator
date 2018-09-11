@@ -136,8 +136,7 @@ public class SimulationOrchestrator {
 			id.setRequired(true);
 			options.addOption(id);
 			
-			Option gui = new Option("g", "gui", true, "GUI to be used or not for the simulation");
-			gui.setType(Boolean.class);
+			Option gui = new Option("g", "gui", false, "GUI to be used or not for the simulation");
 			gui.setRequired(false);
 			options.addOption(gui);
 			
@@ -146,14 +145,14 @@ public class SimulationOrchestrator {
 			options.addOption(params);
 			
 			Option dim = new Option("d", "dim", true, "Number of dimensions required for simulation");
-			params.setRequired(true);
+			dim.setRequired(true);
 			options.addOption(dim);
 			
 			Option max = new Option("m", "max", true, "Maximum number of agents required for simulation");
 			max.setRequired(true);
 			options.addOption(max);
 			
-			Option optimization = new Option("o", "opt", true, "Indicates if the optimization is required or not");
+			Option optimization = new Option("o", "opt", false, "Indicates if the optimization is required or not");
 			optimization.setRequired(false);
 			options.addOption(optimization);
 			
