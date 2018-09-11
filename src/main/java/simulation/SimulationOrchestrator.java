@@ -99,7 +99,8 @@ public class SimulationOrchestrator {
 	private String simulationConfiguration = null;
 	private Server server;
 	private String serverPassword = "";
-	private Boolean optimizationEnabled = null; 
+	private Boolean optimizationEnabled = null;
+	private String configurationFolder = null;
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -118,6 +119,7 @@ public class SimulationOrchestrator {
 		Boolean monitoring = null;
 		String mqttBroker = null;
 		Boolean optimizationEnabled = false;
+		String configurationFolder = null;
 		try {
 			Options options = new Options();
 
@@ -170,6 +172,8 @@ public class SimulationOrchestrator {
 				System.exit(1);
 			}
 
+			
+			configurationFolder = cmd.getOptionValue("conf");
 			inputDataFolder = cmd.getOptionValue("src");
 			outputDataFolder = cmd.getOptionValue("target");
 			taskId = cmd.getOptionValue("id");
@@ -208,7 +212,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder);
 		while(true) {}
 	}
 	
@@ -242,8 +246,10 @@ public class SimulationOrchestrator {
 	 * 		Maximum number of agents required for the simulation
 	 * @param optimization
 	 *      Indicates if the optimization is enabled or not
+	 * @param configurationFolder
+	 *      Folder with the configuration files
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, String confiugrationFolder) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
@@ -254,6 +260,7 @@ public class SimulationOrchestrator {
 		this.optimizationId = taskId+":"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
+		this.configurationFolder = configurationFolder;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -381,7 +388,7 @@ public class SimulationOrchestrator {
     	this.managerConfigured=0;
     	Zipper zipper = new Zipper(inputDataFolder);
 		zipper.generateFileList(new File(inputDataFolder));
-		zipper.generateFileList(new File(simulationConfiguration));
+		zipper.generateFileList(new File(configurationFolder));
     	String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
 		Date date = new Date();
