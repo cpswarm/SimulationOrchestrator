@@ -39,11 +39,9 @@ public class AppTest extends TestCase{
 	 * -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ (folder containing the input files)
 	 * -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted)
 	 * -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ (data folder used by the simulation manager) 
-	 * -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ (data folder used by the second simulation manager for multiple simulations test)
 	 * -Doptimization_user=optimization_test (XMPP username used for the Optimization Tool)
 	 * -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool)
 	 * -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation)
-	 * -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ (Folder used for the ROS package to start the second simulation for multiple simulations test)
 	 * -Dmonitoring=true (indicates if the monitoring GUI has to be used, monitoring the evolution of the optimization)
 	 * -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 * -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
@@ -62,11 +60,9 @@ public class AppTest extends TestCase{
 	private String orchestratorInputDataFolder = System.getProperty("test_orchestrator_input_data_folder");
 	private String orchestratorOutputDataFolder = System.getProperty("test_orchestrator_output_data_folder");
 	private String managerDataFolder = System.getProperty("test_manager_data_folder");
-	private String manager2DataFolder = System.getProperty("test_manager2_data_folder");
 	private String optimizationUser = System.getProperty("optimization_user");
 	private String otDataFolder = System.getProperty("ot_data_folder");
 	private String rosFolder = System.getProperty("ros_folder");
-	private String ros2Folder = System.getProperty("ros2_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
 	private String packageName = System.getProperty("task_id");
@@ -255,50 +251,6 @@ public class AppTest extends TestCase{
 			Assert.assertTrue(manager.isSimulationDone());
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
-			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail();
-		}  
-	}
-	
-	
-	@Test
-	public void testMultiConfiguration() {
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testMultiConfiguration test-----------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			Gson gson = new Gson();
-			Server server = gson.fromJson("{\r\n" + 
-					"	\"server\": 1,\r\n" + 
-					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					"	\"simulations\": [\"stage\"],\r\n" + 
-					"	\"capabilities\": {\r\n" + 
-					"		\"dimensions\": 2\r\n" + 
-					"	}\r\n" + 
-					"}\r\n" + 
-					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder);
-			Assert.assertNotNull(orchestrator);
-			do {
-				Thread.sleep(10000);
-			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
-			DummyManager manager2 = new DummyManager("manager_test2", serverIP, serverName, "server", manager2DataFolder, ros2Folder, optimizationId);
-			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIP, serverName, "server", otDataFolder, optimizationId);
-			Thread.sleep(1000);
-			
-			orchestrator.evaluateSimulationManagers(server);
-			while(manager.isSimulationDone()==null || manager2.isSimulationDone()==null) {
-				Thread.sleep(1000);
-			}
-			Assert.assertTrue(manager.isSimulationDone());
-			Assert.assertTrue(manager2.isSimulationDone());
-			orchestrator.getConnection().disconnect();
-			manager.getConnection().disconnect();
-			manager2.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
 			Thread.sleep(5000);
 		} catch (Exception e) {
