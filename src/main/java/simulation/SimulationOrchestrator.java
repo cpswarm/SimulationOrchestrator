@@ -397,7 +397,7 @@ public class SimulationOrchestrator {
     	zipper.zipIt(fileName);
     	availableManagers = new ArrayList<EntityBareJid>();
     	for(EntityBareJid account : simulationManagers.keySet()) {
-    		if(simulationManagers.get(account).compareTo(serverCompare)>0) {
+    		if(simulationManagers.get(account)!=null && simulationManagers.get(account).compareTo(serverCompare)>0) {
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected

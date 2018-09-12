@@ -40,7 +40,7 @@ public class Zipper
 
 			for(FileListEntry file : this.fileList){
 
-				System.out.println("File Added : " + file);
+				System.out.println("File Added : " + file.getZipEntry());
 				ZipEntry ze = new ZipEntry(file.getZipEntry());
 				zos.putNextEntry(ze);
 
