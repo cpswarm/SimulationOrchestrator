@@ -50,7 +50,7 @@ public class AppTest extends TestCase{
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
 	 * -Doptimization_enabled=false (indicates if the optimization is enabled or not)
-	 * -Dconfiguration_folder=folder with the configuration files
+	 * -Dconfiguration_folder=/home/cpswarm/Desktop/configuration/ with the configuration files
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
@@ -68,7 +68,7 @@ public class AppTest extends TestCase{
 	private String packageName = System.getProperty("task_id");
 	private String optimizationId = System.getProperty("optimization_id") + ":" + UUID.randomUUID();
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
-	private String parameters = System.getProperty("paramereters");
+	private String parameters = System.getProperty("parameters");
 	private String dimensions = System.getProperty("dimensions");
 	private Long maxAgents = Long.valueOf(System.getProperty("max_agents"));
 	private Boolean optimizationEnabled = Boolean.valueOf(System.getProperty("optimization_enabled"));
@@ -76,6 +76,7 @@ public class AppTest extends TestCase{
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
 	
+	/*
 	@Test
 	public void testCompilation() {
 		System.out.println("-----------------------------------------------------------------------------------------");
@@ -122,6 +123,7 @@ public class AppTest extends TestCase{
 			e.printStackTrace();
 		} 
 	}
+	*/
 	
 	/**
 	 * Read the log files produced by ROS.
