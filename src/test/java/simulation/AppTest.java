@@ -49,7 +49,6 @@ public class AppTest extends TestCase{
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
-	 * -Doptimization_enabled=false (indicates if the optimization is enabled or not)
 	 * -Dconfiguration_folder=/home/cpswarm/Desktop/configuration/ with the configuration files
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
@@ -71,7 +70,6 @@ public class AppTest extends TestCase{
 	private String parameters = System.getProperty("parameters");
 	private String dimensions = System.getProperty("dimensions");
 	private Long maxAgents = Long.valueOf(System.getProperty("max_agents"));
-	private Boolean optimizationEnabled = Boolean.valueOf(System.getProperty("optimization_enabled"));
 	private String configurationFolder = System.getProperty("conf_folder");
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
@@ -203,7 +201,7 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -222,10 +220,10 @@ public class AppTest extends TestCase{
 	}
 
 	@Test
-	public void testConfiguration() {
+	public void testRunSimulation() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testConfiguration test----------------------------------");
+			System.out.println("--------------------Starting the testRunSimulation test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
@@ -237,7 +235,46 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_test", serverIP, serverName, "server", managerDataFolder, rosFolder, optimizationId);
+			Thread.sleep(1000);
+			
+			orchestrator.evaluateSimulationManagers(server);
+			while(manager.isSimulationDone()==null) {
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(manager.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+	
+	
+	@Test
+	public void testRunOptimization() {	
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testRunOptimization test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			Gson gson = new Gson();
+			Server server = gson.fromJson("{\r\n" + 
+					"	\"server\": 1,\r\n" + 
+					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					"	\"simulations\": [\"stage\"],\r\n" + 
+					"	\"capabilities\": {\r\n" + 
+					"		\"dimensions\": 2\r\n" + 
+					"	}\r\n" + 
+					"}\r\n" + 
+					"", Server.class);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
