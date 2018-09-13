@@ -480,6 +480,7 @@ public class SimulationOrchestrator {
 			// Here the file is actually sent
 			try {
 				transfer.sendFile(new File(filePath), message);
+				System.out.println("File sent, waiting transfer complete");
 				while (!transfer.isDone()) {
 					if (transfer.getStatus() == Status.refused) {
 						System.out.println("Transfer refused");
@@ -497,6 +498,8 @@ public class SimulationOrchestrator {
 			} else if (status == Status.complete) {
 				System.out.println("File transfered");
 			}
+		} else {
+			System.out.println("Error, the Simulation manager: "+receiver+" doesn't support the file transfer");
 		}
 	}
 	
