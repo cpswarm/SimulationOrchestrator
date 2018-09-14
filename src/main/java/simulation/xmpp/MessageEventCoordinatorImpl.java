@@ -40,11 +40,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(!msg.getBody().equals("error")) {
 				System.out.println("Received configuration ACK from "+sender.toString());
 				parent.addManagerConfigured();
-			} else {
-				if(message instanceof SimulationResultMessage) {
-					handleSimulationResultMessage((SimulationResultMessage)message);
-				}
-			}
+			} 
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
 			if(message instanceof OptimizationProgressMessage) {
 				handleOptimizationProgressMessage((OptimizationProgressMessage) message, serializer);
@@ -60,17 +56,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		}
 	}
 
-	private void handleSimulationResultMessage(SimulationResultMessage message) {
-		if(monitoring) {
-			parent.getMqttClient().publish("/cpswarm/fitnessScore", String.valueOf(message.getFitnessValue()).getBytes());
-			String [] values = message.getDescription().split(" ");
-			for(String value : values) {
-				String [] splittedValues = value.split(":");
-				parent.getMqttClient().publish("/cpswarm/"+splittedValues[0], splittedValues[1].getBytes());
-			}
-		}
-	}
-	
 	private void handleOptimizationStartedMessage(OptimizationStartedMessage reply) {
 		if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getOptimizationId()) && parent.getMonitoring().booleanValue()) {
 			getProgressSender = new GetProgressSender(parent);
