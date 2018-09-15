@@ -74,7 +74,6 @@ public class AppTest extends TestCase{
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
 	
-	/*
 	@Test
 	public void testCompilation() {
 		System.out.println("-----------------------------------------------------------------------------------------");
@@ -121,7 +120,6 @@ public class AppTest extends TestCase{
 			e.printStackTrace();
 		} 
 	}
-	*/
 	
 	/**
 	 * Read the log files produced by ROS.
