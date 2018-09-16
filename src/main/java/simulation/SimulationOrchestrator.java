@@ -287,21 +287,7 @@ public class SimulationOrchestrator {
 			if(this.optimizationEnabled && this.localOptimzation) {
 				System.out.println("Launching Optimization Tool");
 				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
-				int result = proc.waitFor();
-				String line = "";
-				try {
-					BufferedReader input =  
-							new BufferedReader  
-							(new InputStreamReader(proc.getErrorStream()));  
-					while ((line = input.readLine()) != null) {  
-						System.out.println(line);  
-					}  
-					input.close();  
-				}  catch (Exception err) {
-					result = 0;
-					err.printStackTrace();  
-				}  
-				proc.destroy();
+				Thread.sleep(2000);
 			}
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
