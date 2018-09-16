@@ -200,7 +200,7 @@ public class SimulationOrchestrator {
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
-			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
+			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("localOptimization").item(0).getTextContent());
 			if(localOptimization) {
 				optimizationToolPath = document.getElementsByTagName("optimizationToolPath").item(0).getTextContent();
 			}
@@ -287,6 +287,7 @@ public class SimulationOrchestrator {
 			if(this.optimizationEnabled && this.localOptimzation) {
 				System.out.println("Launching Optimization Tool");
 				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
+				Runtime.getRuntime().addShutdownHook(new Thread(proc::destroy));
 				Thread.sleep(2000);
 			}
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
