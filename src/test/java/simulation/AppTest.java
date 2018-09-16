@@ -49,7 +49,9 @@ public class AppTest extends TestCase{
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
-	 * -Dconfiguration_folder=/home/cpswarm/Desktop/configuration/ with the configuration files
+	 * -Dconfiguration_folder=/home/cpswarm/Desktop/configuration/ path with the configuration files
+	 * -DlocalOptimization=true Indicates if the Simulation Orhcestator has to launch also the Optimization Tool
+	 * -DoptimizationToolPath=/home/cpswarm/Desktop/ path of the executable of the Optimization Tool
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
@@ -71,6 +73,8 @@ public class AppTest extends TestCase{
 	private String dimensions = System.getProperty("dimensions");
 	private Long maxAgents = Long.valueOf(System.getProperty("max_agents"));
 	private String configurationFolder = System.getProperty("conf_folder");
+	private Boolean localOptimization = Boolean.parseBoolean(System.getProperty("local_optimization"));
+	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
 	private String catkinWS = null;
 	private ArrayList<NavigableMap<Integer,Double>> logs;
 	
@@ -199,7 +203,7 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -233,7 +237,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -272,7 +276,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, optimizationId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);

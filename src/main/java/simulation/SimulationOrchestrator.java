@@ -67,8 +67,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -100,6 +102,8 @@ public class SimulationOrchestrator {
 	private String serverPassword = "";
 	private Boolean optimizationEnabled = null;
 	private String configurationFolder = null;
+	private boolean localOptimzation = false;
+	private String optimizationToolPath = null; 
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -119,6 +123,9 @@ public class SimulationOrchestrator {
 		String mqttBroker = null;
 		Boolean optimizationEnabled = false;
 		String configurationFolder = null;
+		String optimizationToolPath = null;
+		Boolean localOptimization = false;
+		
 		try {
 			Options options = new Options();
 
@@ -193,7 +200,11 @@ public class SimulationOrchestrator {
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
-
+			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
+			if(localOptimization) {
+				optimizationToolPath = document.getElementsByTagName("optimizationToolPath").item(0).getTextContent();
+			}
+			
 			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
 			if(monitoring) {
 				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
@@ -211,7 +222,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath);
 		while(true) {}
 	}
 	
@@ -247,8 +258,12 @@ public class SimulationOrchestrator {
 	 *      Indicates if the optimization is enabled or not
 	 * @param configurationFolder
 	 *      Folder with the configuration files
+	 * @param localOptimization
+	 * 		Indicates if the Optimization Tool has to be launched by the Orchestrator
+	 * @param optimizationToolPath
+	 * 		Path of the Optimization Tool
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
@@ -260,6 +275,8 @@ public class SimulationOrchestrator {
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
+		this.localOptimzation = localOptimization;
+		this.optimizationToolPath = optimizationToolPath;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -267,6 +284,25 @@ public class SimulationOrchestrator {
 		caps.setMaxAgents(maxAgents);
 		server.setCapabilities(caps);
 		try {
+			if(this.optimizationEnabled && this.localOptimzation) {
+				System.out.println("Launching Optimization Tool");
+				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
+				int result = proc.waitFor();
+				String line = "";
+				try {
+					BufferedReader input =  
+							new BufferedReader  
+							(new InputStreamReader(proc.getErrorStream()));  
+					while ((line = input.readLine()) != null) {  
+						System.out.println(line);  
+					}  
+					input.close();  
+				}  catch (Exception err) {
+					result = 0;
+					err.printStackTrace();  
+				}  
+				proc.destroy();
+			}
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
 			final SSLContext sc = SSLContext.getInstance("TLS");
