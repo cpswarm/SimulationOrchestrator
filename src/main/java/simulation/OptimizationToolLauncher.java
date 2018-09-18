@@ -37,7 +37,7 @@ public class OptimizationToolLauncher implements Runnable {
 				String line = "";
 				BufferedReader input =  
 						new BufferedReader  
-						(new InputStreamReader(proc.getErrorStream()));  
+						(new InputStreamReader(proc.getInputStream()));  
 				while ((line = input.readLine()) != null) {  
 					System.out.println(line);  
 				}  
