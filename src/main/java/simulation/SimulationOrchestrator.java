@@ -209,9 +209,9 @@ public class SimulationOrchestrator {
 				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
 			}
 			if(!inputDataFolder.endsWith("\\") && OsUtils.isWindows()) {
-				inputDataFolder+="\\";
+				inputDataFolder+=File.separator;
 			} else if (!inputDataFolder.endsWith("/") && !OsUtils.isWindows()) {
-				inputDataFolder+="/";
+				inputDataFolder+=File.separator;
 			}
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
@@ -636,7 +636,7 @@ public class SimulationOrchestrator {
 	private boolean sendRunSimulation() {
 		String candidateToSend = "";
 		try {
-			candidateToSend = this.readFile(this.configurationFolder+"/candidate.c", StandardCharsets.UTF_8);
+			candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.c", StandardCharsets.UTF_8);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
