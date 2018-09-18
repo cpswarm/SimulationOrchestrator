@@ -208,11 +208,9 @@ public class SimulationOrchestrator {
 			if(monitoring) {
 				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
 			}
-			if(!inputDataFolder.endsWith("\\") && OsUtils.isWindows()) {
+			if(!inputDataFolder.endsWith(File.separator)) {
 				inputDataFolder+=File.separator;
-			} else if (!inputDataFolder.endsWith("/") && !OsUtils.isWindows()) {
-				inputDataFolder+=File.separator;
-			}
+			} 
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
 				return;
