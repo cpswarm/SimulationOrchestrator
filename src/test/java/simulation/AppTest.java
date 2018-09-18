@@ -66,7 +66,6 @@ public class AppTest extends TestCase{
 	private String rosFolder = System.getProperty("ros_folder");
 	private Boolean monitoring = Boolean.parseBoolean(System.getProperty("monitoring"));
 	private String mqttBroker = System.getProperty("mqtt_broker");
-	private String packageName = System.getProperty("task_id");
 	private String optimizationId = System.getProperty("optimization_id") + ":" + UUID.randomUUID();
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String parameters = System.getProperty("parameters");
@@ -75,126 +74,6 @@ public class AppTest extends TestCase{
 	private String configurationFolder = System.getProperty("conf_folder");
 	private Boolean localOptimization = Boolean.parseBoolean(System.getProperty("local_optimization"));
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
-	private String catkinWS = null;
-	private ArrayList<NavigableMap<Integer,Double>> logs;
-	
-	@Test
-	public void testCompilation() {
-		System.out.println("-----------------------------------------------------------------------------------------");
-		System.out.println("--------------------Starting the testCompilation test------------------------------------");
-		System.out.println("-----------------------------------------------------------------------------------------");
-		catkinWS = rosFolder.substring(0,rosFolder.indexOf("src"));
-		try { 
-			do {
-			System.out.println("Compiling the package, using /bin/bash "+catkinWS+"ros.sh");
-			Process proc = Runtime.getRuntime().exec("/bin/bash "+catkinWS+"ros.sh");
-			System.out.println("Compilation launched");
-			boolean result = true;
-			String line = "";
-			try {
-				BufferedReader input =  
-						new BufferedReader  
-						(new InputStreamReader(proc.getInputStream()));  
-				while ((line = input.readLine()) != null) {  
-					System.out.println(line);  
-				}  
-				input.close();  
-			}  
-			catch (Exception err) {
-				result = false;
-				err.printStackTrace();  
-			}  
-			proc.destroy();
-			proc = null;
-			System.out.println("Compilation finished, "+result);
-			if(result) {
-				System.out.println("Launching the simulation for package: "+packageName);
-				proc = Runtime.getRuntime().exec("roslaunch "+packageName+" stage.launch");
-				proc.waitFor(40, TimeUnit.SECONDS);
-				proc.destroy();
-				proc = null;
-				calcFitness();
-				System.out.println("done");
-			} else {
-				System.out.println("Error");
-				Assert.fail();
-			}
-			} while(true);
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		} 
-	}
-	
-	/**
-	 * Read the log files produced by ROS.
-	 * It assumes log files with two columns, separated by tabulator.
-	 * The first column must be an integer, the second a double value.
-	 * @return ArrayList<NavigableMap<Integer,Double>>: An array with one map entry for each log file.
-	 */
-	private boolean readLogs() {
-		// container for data of all log files
-		logs = new ArrayList<NavigableMap<Integer,Double>>();
-		
-		System.out.println("Reading logs from "+catkinWS + "/src/" + packageName + "/log/");
-		
-		// path to log directory
-	    File logPath = new File(catkinWS + "/src/" + packageName + "/log/");
-	    
-	    // iterate through all log files
-	    String[] logFiles = logPath.list();
-	    for ( int i=0; i<logFiles.length; i++ ) {
-	    	// container for data of one log file
-	    	NavigableMap<Integer,Double> log = new TreeMap<Integer, Double>();
-	    	
-	    	// read log file
-	    	Path logFile = Paths.get(logPath + "/" + logFiles[i]);
-	    	try {
-	    		BufferedReader logReader = Files.newBufferedReader(logFile);
-	    		
-	    		// store every line
-		    	String line;
-				while ((line = logReader.readLine()) != null) {
-					if ( line.length() <= 1 || line.startsWith("#") )
-						continue;
-					
-					log.put(Integer.parseInt(line.split("\t")[0]), Double.parseDouble(line.split("\t")[1]));
-				}
-			}
-	    	catch (IOException e) {
-				e.printStackTrace();
-			}
-	    	
-	    	// store contents of log file
-	    	logs.add(log);
-	    }
-	    return true;
-	}
-	
-	/**
-	 * Calculate the fitness score of the last simulation run.
-	 * @return boolean: result of the method.
-	 */
-	private boolean calcFitness() {
-
-		if(!readLogs()) {
-			return false;
-		}
-		
-		// fitness score is negative sum of all distances
-		double dist = 0;
-		
-		// iterate all log files
-        for (NavigableMap<Integer,Double> log : logs) {
-        	if (log.size() > 0)
-	            // take last line of log file
-	            dist = dist + log.lastEntry().getValue();
-        }
-
-        // publish negative distance as fitness
-        System.out.println("Distance: "+(100-dist));
-        
-        return true;
-	}
 	
 
 	@Test
