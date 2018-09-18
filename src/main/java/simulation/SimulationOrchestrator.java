@@ -103,7 +103,6 @@ public class SimulationOrchestrator {
 	private Boolean optimizationEnabled = null;
 	private String configurationFolder = null;
 	private boolean localOptimzation = false;
-	private String optimizationToolPath = null; 
 	
 	public static void main (String args[]) {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -276,7 +275,6 @@ public class SimulationOrchestrator {
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
 		this.localOptimzation = localOptimization;
-		this.optimizationToolPath = optimizationToolPath;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -285,10 +283,9 @@ public class SimulationOrchestrator {
 		server.setCapabilities(caps);
 		try {
 			if(this.optimizationEnabled && this.localOptimzation) {
-				System.out.println("Launching Optimization Tool");
-				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
-				Runtime.getRuntime().addShutdownHook(new Thread(proc::destroy));
-				Thread.sleep(2000);
+				OptimizationToolLauncher launcher = new OptimizationToolLauncher(this,optimizationToolPath);
+				Thread thread = new Thread(launcher);
+				thread.start();
 			}
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
