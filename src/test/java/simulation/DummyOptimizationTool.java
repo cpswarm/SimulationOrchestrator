@@ -42,6 +42,7 @@ import messages.server.Server;
 
 import javax.net.ssl.SSLContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 
@@ -69,12 +70,9 @@ public class DummyOptimizationTool {
 		clientID = "optimization_test";
 		this.optimizationID = optimizationId;
 		this.serverName = serverName;
-		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
-			dataFolder+="\\";
-		} else if (!dataFolder.endsWith("/") && !OsUtils.isWindows()) {
-			dataFolder+="/";
+		if(!dataFolder.endsWith(File.separator)) {
+			dataFolder+=File.separator;
 		}
-		
 		try {
 
 			clientJID = JidCreate.from(clientID+"@"+serverName);

@@ -44,6 +44,7 @@ import messages.server.Server;
 
 import javax.net.ssl.SSLContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 
@@ -69,10 +70,8 @@ public class DummyManager {
 		this.clientID = clientID;
 		this.optimizationId = optimizationId;
 		this.serverName = serverName;
-		if(!dataFolder.endsWith("\\") && OsUtils.isWindows()) {
-			dataFolder+="\\";
-		} else if (!dataFolder.endsWith("/") && !OsUtils.isWindows()) {
-			dataFolder+="/";
+		if(!dataFolder.endsWith(File.separator)) {
+			dataFolder+=File.separator;
 		}
 			
 		try {

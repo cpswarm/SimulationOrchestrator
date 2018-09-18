@@ -28,25 +28,23 @@ public class OptimizationToolLauncher implements Runnable {
 	
 	@Override
 	public void run() {
-		while(canRun) {
-			try {
-				System.out.println("Launching Optimization Tool");
-				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
+		try {
+			System.out.println("Launching Optimization Tool");
+			Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
 
-				Runtime.getRuntime().addShutdownHook(new Thread(proc::destroy));
-				String line = "";
-				BufferedReader input =  
-						new BufferedReader  
-						(new InputStreamReader(proc.getInputStream()));  
-				while ((line = input.readLine()) != null) {  
-					System.out.println(line);  
-				}  
-				input.close();  
-				Thread.sleep(2000);
-			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Runtime.getRuntime().addShutdownHook(new Thread(proc::destroy));
+			String line = "";
+			BufferedReader input =  
+					new BufferedReader  
+					(new InputStreamReader(proc.getInputStream()));  
+			while ((line = input.readLine()) != null && this.canRun) {  
+				System.out.println(line);  
+			}  
+			input.close();  
+			Thread.sleep(2000);
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 		
