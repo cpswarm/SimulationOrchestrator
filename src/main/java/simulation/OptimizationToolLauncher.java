@@ -16,13 +16,13 @@ import java.io.InputStreamReader;
 public class OptimizationToolLauncher implements Runnable {
 
 	
-	private SimulationOrchestrator parent = null;
 	private boolean canRun = true;
 	private String optimizationToolPath = null;
+	private String optimizationToolParameters = null;
 	
-	public OptimizationToolLauncher(final SimulationOrchestrator parent, final String optimizationToolPath) {
-		this.parent = parent;
+	public OptimizationToolLauncher(final String optimizationToolPath, final String optimizationToolParameters) {
 		this.optimizationToolPath = optimizationToolPath;
+		this.optimizationToolParameters = optimizationToolParameters;
 	}
 	
 	@Override
@@ -30,7 +30,7 @@ public class OptimizationToolLauncher implements Runnable {
 		while(canRun) {
 			try {
 				System.out.println("Launching Optimization Tool");
-				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath);
+				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath + " "+optimizationToolParameters);
 
 				Runtime.getRuntime().addShutdownHook(new Thread(proc::destroy));
 				String line = "";

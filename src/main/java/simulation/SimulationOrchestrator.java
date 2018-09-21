@@ -124,6 +124,7 @@ public class SimulationOrchestrator {
 		String configurationFolder = null;
 		String optimizationToolPath = null;
 		Boolean localOptimization = false;
+		String optimizationToolPassword = "";
 		
 		try {
 			Options options = new Options();
@@ -200,6 +201,7 @@ public class SimulationOrchestrator {
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("localOptimization").item(0).getTextContent());
+			optimizationToolPassword = document.getElementsByTagName("optimizationToolPassword").item(0).getTextContent();
 			if(localOptimization) {
 				optimizationToolPath = document.getElementsByTagName("optimizationToolPath").item(0).getTextContent();
 			}
@@ -219,7 +221,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath);
+		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
 		while(true) {}
 	}
 	
@@ -259,8 +261,10 @@ public class SimulationOrchestrator {
 	 * 		Indicates if the Optimization Tool has to be launched by the Orchestrator
 	 * @param optimizationToolPath
 	 * 		Path of the Optimization Tool
+	 * @param optimizationToolPassword
+	 *     To be used to start the optimization tool directly from the orchestrator (localOptimization = true)
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword) {
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
@@ -281,7 +285,8 @@ public class SimulationOrchestrator {
 		server.setCapabilities(caps);
 		try {
 			if(this.optimizationEnabled && this.localOptimzation) {
-				OptimizationToolLauncher launcher = new OptimizationToolLauncher(this,optimizationToolPath);
+				String optimizationToolParameters = "-n "+ this.serverName + " -ip " + serverIP + " -p 5222 -r "+RESOURCE +" -cid "+optimizationToolUser+ " -cp "+optimizationToolPassword + " -c "+this.outputDataFolder+"candidate";
+				OptimizationToolLauncher launcher = new OptimizationToolLauncher(optimizationToolPath, optimizationToolParameters);
 				Thread thread = new Thread(launcher);
 				thread.start();
 			}
