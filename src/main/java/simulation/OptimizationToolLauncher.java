@@ -10,8 +10,7 @@ import java.io.InputStreamReader;
 
 
 /**
- * A Runnable class for monitoring the progess of the optimization process
- * 
+ * A Runnable class used to launch automatically the Optimization Tool
  *
  */
 public class OptimizationToolLauncher implements Runnable {
