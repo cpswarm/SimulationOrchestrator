@@ -29,7 +29,7 @@ public class OptimizationToolLauncher implements Runnable {
 	public void run() {
 		while(canRun) {
 			try {
-				System.out.println("Launching Optimization Tool");
+				System.out.println("Launching Optimization Tool with the following parameters: "+optimizationToolParameters) ;
 				Process proc = Runtime.getRuntime().exec("java -jar "+optimizationToolPath + " "+optimizationToolParameters);
 
 				Runtime.getRuntime().addShutdownHook(new Thread(proc::destroy));
