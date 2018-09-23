@@ -213,6 +213,12 @@ public class SimulationOrchestrator {
 			if(!inputDataFolder.endsWith(File.separator)) {
 				inputDataFolder+=File.separator;
 			} 
+			if(!outputDataFolder.endsWith(File.separator)) {
+				outputDataFolder+=File.separator;
+			}
+			if(!configurationFolder.endsWith(File.separator)) {
+				configurationFolder+=File.separator;
+			}
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
 				return;
