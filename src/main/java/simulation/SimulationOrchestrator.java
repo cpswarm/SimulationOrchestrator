@@ -272,7 +272,7 @@ public class SimulationOrchestrator {
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.monitoring = monitoring;
 		this.taskId = taskId;
-		this.optimizationId = taskId+":"+UUID.randomUUID();
+		this.optimizationId = taskId+"!"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
