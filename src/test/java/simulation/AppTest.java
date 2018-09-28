@@ -23,12 +23,12 @@ public class AppTest extends TestCase{
 	 * -Dtest_server_ip=130.192.86.237 (IP of the XMPP server) 
 	 * -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it (name of the XMPP server) 
 	 * -Dtest_server_password=orchestrator (Password to be used by the orchestrator to authenticate in the XMPP server)
-	 * -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ (folder containing the input files)
-	 * -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted)
-	 * -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ (data folder used by the simulation manager) 
+	 * -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ (folder containing the input files) -- Optional
+	 * -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted) -- Optional
+	 * -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ (data folder used by the simulation manager) -- Optional
 	 * -Doptimization_user=optimization_test (XMPP username used for the Optimization Tool)
-	 * -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool)
-	 * -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation)
+	 * -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool) -- Optional
+	 * -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) -- Optional
 	 * -Dmonitoring=true (indicates if the monitoring GUI has to be used, monitoring the evolution of the optimization)
 	 * -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 * -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
@@ -36,10 +36,10 @@ public class AppTest extends TestCase{
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
-	 * -Dconfiguration_folder=/home/cpswarm/Desktop/configuration/ path with the configuration files
-	 * -Dlocal_optimization=true Indicates if the Simulation Orhcestator has to launch also the Optimization Tool
-	 * -optimization_tool_path=/home/cpswarm/Desktop/ path of the executable of the Optimization Tool
-	 * -Doptimization_tool_password = blah  To be used to launch the optimization tool from the orchestrator (localOptimization = true)
+	 * -Dconfiguration_folder=/home/cpswarm/Desktop/configuration/ (path with the configuration files) -- Optional
+	 * -Dlocal_optimization=true (Indicates if the Simulation Orchestator has to launch also the Optimization Tool)
+	 * -optimization_tool_path=/home/cpswarm/Desktop/ (path of the executable of the Optimization Tool)
+	 * -Doptimization_tool_password = blah  (To be used to launch the optimization tool from the orchestrator)
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */

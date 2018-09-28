@@ -419,15 +419,21 @@ public class SimulationOrchestrator {
     
     public void evaluateSimulationManagers(Server serverCompare) {
     	this.managerConfigured=0;
-    	Zipper zipper = new Zipper(inputDataFolder);
-		zipper.generateFileList(new File(inputDataFolder));
-		zipper.updateSourceFolder(configurationFolder);
-		zipper.generateFileList(new File(configurationFolder));
-    	String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
-		Date date = new Date();
-		String fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
-    	zipper.zipIt(fileName);
+    	String fileName = null;
+    	if(TEST && (inputDataFolder == null || configurationFolder==null)) {
+    		File file = new File("resources/file.xsd");
+    		fileName = file.getAbsolutePath();
+    	} else {
+    		Zipper zipper = new Zipper(inputDataFolder);
+    		zipper.generateFileList(new File(inputDataFolder));
+    		zipper.updateSourceFolder(configurationFolder);
+    		zipper.generateFileList(new File(configurationFolder));
+    		String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
+    		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
+    		Date date = new Date();
+    		fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
+    		zipper.zipIt(fileName);
+    	}
     	availableManagers = new ArrayList<EntityBareJid>();
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && simulationManagers.get(account).compareTo(serverCompare)>0) {
