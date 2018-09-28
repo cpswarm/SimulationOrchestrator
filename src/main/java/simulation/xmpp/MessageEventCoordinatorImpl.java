@@ -8,6 +8,7 @@ import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
 import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
+import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
 import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 import eu.cpswarm.optimization.messages.ReplyMessage;
 import eu.cpswarm.optimization.messages.OptimizationCancelledMessage;
@@ -37,9 +38,20 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		MessageSerializer serializer = new MessageSerializer();
 		eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
 		if(sender.toString().startsWith("manager")) {
+			if(message instanceof SimulatorConfiguredMessage) {
+				if(((SimulatorConfiguredMessage) message).getOperationStatus().equals(Status.OK)) {
+					System.out.println("Received configuration ACK from "+sender.toString());
+					parent.addManagerConfigured();	
+				}
+			} else if(message instanceof SimulationResultMessage) {
+				if(((SimulationResultMessage) message).getOperationStatus().equals(Status.OK)) {
+					System.out.println("Received simulation result from "+sender.toString());
+					parent.setSimulationDone(true);	
+				}
+			}
 			if(!msg.getBody().equals("error")) {
-				System.out.println("Received configuration ACK from "+sender.toString());
-				parent.addManagerConfigured();
+				
+				
 			} 
 		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
 			if(message instanceof OptimizationProgressMessage) {

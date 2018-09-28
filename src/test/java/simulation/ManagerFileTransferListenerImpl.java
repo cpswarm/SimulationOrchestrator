@@ -16,6 +16,10 @@ import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jxmpp.jid.EntityBareJid;
 
+import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.ReplyMessage;
+import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
+
 public class ManagerFileTransferListenerImpl implements FileTransferListener {
 
 	private String dataFolder = null;
@@ -56,7 +60,9 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				if(unzipFiles(fileToReceive)) {
 					System.out.println("SimulationManager configured for optimization "+request.getDescription());
 					parent.setOptimizationID(request.getDescription());
-					newChat.send("simulator configured");
+					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage("Simulator configured", request.getDescription(), eu.cpswarm.optimization.messages.ReplyMessage.Status.OK);
+					MessageSerializer serializer = new MessageSerializer();
+					newChat.send(serializer.toJson(reply));
 				} else {
 					System.out.println("Error configuring the simulation manager");
 					newChat.send("error");

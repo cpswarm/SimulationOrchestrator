@@ -47,6 +47,7 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -67,10 +68,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -93,18 +92,21 @@ public class SimulationOrchestrator {
 	private int managerConfigured = 0;
 	private List<EntityBareJid> availableManagers = null;
 	private Jid optimizationToolJid = null;
-	private String taskId = null;
 	private String optimizationId = null;
 	private Boolean monitoring = null;
 	private String optimizationConfiguration = null;
 	private String simulationConfiguration = null;
 	private Server server;
+	private String taskId;
 	private String serverPassword = "";
 	private Boolean optimizationEnabled = null;
 	private String configurationFolder = null;
 	private boolean localOptimzation = false;
+	private static boolean TEST = true;
+	private Boolean simulationDone = null;
 	
 	public static void main (String args[]) {
+		TEST = false;
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder;
 		String serverURI = "";
@@ -271,13 +273,13 @@ public class SimulationOrchestrator {
 	 *     To be used to start the optimization tool directly from the orchestrator (localOptimization = true)
 	 */
 	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword) {
+		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.monitoring = monitoring;
-		this.taskId = taskId;
 		this.optimizationId = taskId+"!"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
@@ -379,7 +381,10 @@ public class SimulationOrchestrator {
 		}
 		
 		addOptimizationToTheRoster();
-		this.evaluateSimulationManagers();
+		// In case of test the evaluation is done only after that the dummy manager is started
+		if(!TEST) {
+			this.evaluateSimulationManagers();
+		}
 	}
 
     
@@ -436,15 +441,13 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityBareJid availableManager : availableManagers) {
-    		/*
     		System.out.println("Configuring the simulation manager: "+availableManager);
     		try {
 				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
 			} catch (XmppStringprepException e) {
 				e.printStackTrace();
 			}
-			*/
-    		this.addManagerConfigured();
+    		//this.addManagerConfigured();
     	}
     	
     	//It deletes the zip file
@@ -708,6 +711,15 @@ public class SimulationOrchestrator {
 		this.optimizationEnabled = optimizationEnabled;
 	}
 
+	public Boolean isSimulationDone() {
+		return simulationDone;
+	}
+
+	public void setSimulationDone(boolean simulationDone) {
+		System.out.println("Set simulation done");
+		this.simulationDone = simulationDone;
+	}
+	
 	public void reconnect() {
 		try {
 			connection.disconnect();

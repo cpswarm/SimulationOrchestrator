@@ -10,6 +10,7 @@ import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
@@ -79,7 +80,7 @@ public class DummyManager {
 			clientJID = JidCreate.from(clientID+"@"+serverName);
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
-
+			SmackConfiguration.DEBUG = true;
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
 					.builder().setHost(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
@@ -380,16 +381,6 @@ public class DummyManager {
 
 	public void setSimulationConfiguration(String simulationConfiguration) {
 		this.simulationConfiguration = simulationConfiguration;
-	}
-
-
-	public Boolean isSimulationDone() {
-		return simulationDone;
-	}
-
-	public void setSimulationDone(boolean simulationDone) {
-		System.out.println("Set simulation done");
-		this.simulationDone = simulationDone;
 	}
 
 	public String getSimulationId() {

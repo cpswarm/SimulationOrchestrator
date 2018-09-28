@@ -77,6 +77,7 @@ public class AppTest extends TestCase{
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
 	private String optimizationToolPassword = System.getProperty("optimization_tool_password");
 
+	/*
 	@Test
 	public void testCreation() {
 		try {
@@ -101,6 +102,8 @@ public class AppTest extends TestCase{
 		}  
 	}
 
+	*/
+	
 	@Test
 	public void testRunSimulation() {	
 		try {
@@ -126,10 +129,10 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(manager.isSimulationDone()==null) {
+			while(orchestrator.isSimulationDone()==null) {
 				Thread.sleep(1000);
 			}
-			Assert.assertTrue(manager.isSimulationDone());
+			Assert.assertTrue(orchestrator.isSimulationDone());
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 			Thread.sleep(5000);
@@ -166,10 +169,10 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(manager.isSimulationDone()==null) {
+			while(orchestrator.isSimulationDone()==null) {
 				Thread.sleep(1000);
 			}
-			Assert.assertTrue(manager.isSimulationDone());
+			Assert.assertTrue(orchestrator.isSimulationDone());
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();

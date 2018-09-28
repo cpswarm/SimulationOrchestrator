@@ -11,12 +11,15 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
+import eu.cpswarm.optimization.messages.SimulationResultMessage;
 
 /**
  *
@@ -65,18 +68,29 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 					proc = Runtime.getRuntime().exec("roslaunch "+packageName+" stage.launch");
 					proc.waitFor(40, TimeUnit.SECONDS);
 					if(!calcFitness()) {
-						parent.setSimulationDone(false);
 						System.out.println("Error");
 						return;
 					}
-					parent.setSimulationDone(true);
 					System.out.println("done");
 				} else {
 					System.out.println("Error");
-					parent.setSimulationDone(false);
 					return;
 				}
 			} catch (IOException | InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if(sender.toString().startsWith("orchestrator")) {
+			SimulationResultMessage message = new SimulationResultMessage("test", "simulation result", Status.OK, "1", 100);
+			MessageSerializer serializer = new MessageSerializer();
+			Message messageToSend = new Message();
+			messageToSend.setBody(serializer.toJson(message));
+			try {
+				chat.send(messageToSend);
+			} catch (NotConnectedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
