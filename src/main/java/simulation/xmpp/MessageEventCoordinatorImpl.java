@@ -88,6 +88,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 					stopSenderThread();
 				}
 				System.out.println("Final candidate: "+progress.getCandidate());
+				parent.setSimulationDone(true);
 				if(monitoring) {
 					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
 				}

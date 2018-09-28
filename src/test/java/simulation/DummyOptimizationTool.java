@@ -24,7 +24,6 @@ import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.LeafNode;
@@ -319,6 +318,10 @@ public class DummyOptimizationTool {
 		this.simulationConfiguration = simulationConfiguration;
 	}
 
+	public String getServerName() {
+		return serverName;
+	}
+
 
 	public List<EntityFullJid> getManagers() {
 		return managers;
@@ -328,10 +331,12 @@ public class DummyOptimizationTool {
 	public void setManagers(List<String> managers) {
 		for(String manager : managers) {
 			try {
-				this.managers.add(JidCreate.entityFullFrom(manager));
+				this.managers.add(JidCreate.entityFullFrom(manager+"/"+RESOURCE));
 			} catch (XmppStringprepException e) {
 				System.out.println("Invalid username for the manager: "+manager);
 			}
 		}
 	}
+	
+	
 }

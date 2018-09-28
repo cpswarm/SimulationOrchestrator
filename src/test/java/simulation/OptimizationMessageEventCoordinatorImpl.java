@@ -9,6 +9,8 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
@@ -18,6 +20,7 @@ import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
+import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 
 
@@ -39,8 +42,23 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	public void newIncomingMessage(EntityBareJid jid, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
-		if(msg.getBody().contains("Start")) {
-			StartOptimizationMessage start = serializer.fromJson(msg.getBody());
+		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
+	if(msgReceived instanceof SimulationResultMessage) {
+		SimulationResultMessage result = (SimulationResultMessage) msgReceived; 
+		if(result.getFitnessValue()==100.0) {
+			OptimizationProgressMessage message1 = new OptimizationProgressMessage(parent.getOptimizationID(), "final result", Status.OK, 100.0, 100.0, "candidate");
+			Message msg1 = new Message();
+			msg1.setBody(serializer.toJson(message1));
+			ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
+			try {
+				Chat chatToUse = chatManager.chatWith(JidCreate.entityBareFrom("orchestrator@"+parent.getServerName()));
+				chatToUse.send(msg1);
+			} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
+				e.printStackTrace();
+			}
+		}
+	} else if(msgReceived instanceof StartOptimizationMessage) {
+			StartOptimizationMessage start = (StartOptimizationMessage) msgReceived; 
 			parent.setOptimizationConfiguration(start.getOptimizationConfiguration());
 			parent.setSimulationConfiguration(start.getSimulationConfiguration());
 			parent.setManagers(start.getSimulationManagers());
@@ -58,19 +76,18 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			String simulationID = UUID.randomUUID().toString();
 			parent.setSimulationID(simulationID);
 			for(EntityFullJid manager : parent.getManagers()) {
-				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Simulation finished", simulationID, parent.getSimulationConfiguration(), "");
+				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Run Simulation", simulationID, parent.getSimulationConfiguration(), "");
 				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 				chat = chatManager.chatWith(manager.asEntityBareJid());
 				Gson gson = new Gson();
 				try {
 					chat.send(gson.toJson(runSimulation));
 				} catch (NotConnectedException | InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-		} else if(msg.getBody().contains("Get")) {
-			GetProgressMessage getProgress = serializer.fromJson(msg.getBody());
+		} else if(msgReceived instanceof GetProgressMessage) {
+			GetProgressMessage getProgress = (GetProgressMessage) msgReceived;
 			value +=10;
 			System.out.println("OptimizationTool received GetProgress: "+msg.getBody());
 			OptimizationProgressMessage progress = new OptimizationProgressMessage(getProgress.getId(), "Optimzation progress", Status.OK, value, -1-24, "test");

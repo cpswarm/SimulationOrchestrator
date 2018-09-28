@@ -17,7 +17,6 @@ import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.ReplyMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
 
 public class ManagerFileTransferListenerImpl implements FileTransferListener {
