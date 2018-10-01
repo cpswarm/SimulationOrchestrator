@@ -92,7 +92,7 @@ public final class RosterListenerImpl implements RosterListener {
 		} else if ((presence.getMode() == Presence.Mode.available)
 				|| (presence.getMode() == null)) {
 			System.out.println(
-					"SimulationOrchestrator, " + presence.getFrom() +"is online");
+					"SimulationOrchestrator, " + presence.getFrom() +" is online");
 			//TODO
 			// handle orchestrator online 
 			

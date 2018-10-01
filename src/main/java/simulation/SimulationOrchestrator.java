@@ -421,7 +421,7 @@ public class SimulationOrchestrator {
     	this.managerConfigured=0;
     	String fileName = null;
     	if(TEST && (inputDataFolder == null || configurationFolder==null)) {
-    		File file = new File("resources/file.xsd");
+    		File file = new File("src/main/resources/file.xsd");
     		fileName = file.getAbsolutePath();
     	} else {
     		Zipper zipper = new Zipper(inputDataFolder);
@@ -455,14 +455,15 @@ public class SimulationOrchestrator {
 			}
     		//this.addManagerConfigured();
     	}
-    	
-    	//It deletes the zip file
-    	File file = new File(fileName);
-		if(file.delete()){
-			System.out.println(file.getName() + " is deleted!");
-		}else{
-			System.out.println("Delete operation is failed.");
-		}
+    	if(!TEST) {
+    		//It deletes the zip file
+    		File file = new File(fileName);
+    		if(file.delete()){
+    			System.out.println(file.getName() + " is deleted!");
+    		}else{
+    			System.out.println("Delete operation is failed.");
+    		}
+    	}
     }
 	
 	/**
@@ -654,9 +655,14 @@ public class SimulationOrchestrator {
 	private boolean sendRunSimulation() {
 		String candidateToSend = "";
 		try {
-			candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.c", StandardCharsets.UTF_8);
+			if(TEST && this.configurationFolder==null) {
+				candidateToSend = this.readFile(new File("src/main/resources/candidate.c").getAbsolutePath(), StandardCharsets.UTF_8);
+			} else {
+				candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.c", StandardCharsets.UTF_8);
+			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
+			return false;
 		}
 		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "Run simulation message", "1", simulationConfiguration, candidateToSend);
 		MessageSerializer serializer = new MessageSerializer();

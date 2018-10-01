@@ -1,4 +1,4 @@
-#Simulation and Optimization Orchestrator
+# Simulation and Optimization Orchestrator
 
 This is the project for the Simulation and Optimization Orchestrator.
 
@@ -20,7 +20,7 @@ The software contains some tests, which require a setup, if you want to avoid th
 mvn install -DskitTests 
 ```
 
-#Configuration
+# Configuration
 The software contains a configuration file which can be used to change some system parameter, this file is /resources/orchestator.xml
 
 ``` xml
@@ -68,9 +68,7 @@ java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simul
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ -Dtest_manager2_data_folder=/home/cpswarm/Desktop/output2/ -Doptimization_user=optimization_test -Dot_data_folder=/home/cpswarm/Desktop/ot/ -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ -Dros2_folder=/home/cpswarm/Desktop/test2/src/emergency_exit/src/ -Dmonitoring=true -Dmqtt_broker=tcp://130.192.86.237:1883 -Dgui_enabled=false -Dtask_id=emergency_exit -Dparameters="" -Ddimensions="2D" -Dmax_agents=3  -Dconf_folder=/home/cpswarm/Desktop/cpswarm 
--Dlocal_optimzation=false -Doptimization_tool_path=C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar -Djavax.xml.accessExternalDTD=all
--Doptimization_tool_password = "blah"
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder=C:\Users\co_da\OneDrive\Desktop\cpswarm-out\ -Dtest_manager_data_folder=C:\Users\co_da\OneDrive\Desktop\output\ -Doptimization_user=optimization_test -Dot_data_folder=C:\Users\co_da\OneDrive\Desktop\ot\ -Dros_folder=C:\Users\co_da\OneDrive\Desktop\ros\src\test\   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -98,5 +96,3 @@ And here with the explaination of the parameters:
 	-Doptimization_tool_password = blah Password to be used to launch the optimization tool from the orchestrator (if local_optimization = true)
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```
-
-Please, consider that to run the tests, you need to have all the folders indicated in the parameters already created.
