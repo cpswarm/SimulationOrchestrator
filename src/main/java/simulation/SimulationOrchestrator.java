@@ -447,13 +447,16 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityBareJid availableManager : availableManagers) {
-    		System.out.println("Configuring the simulation manager: "+availableManager);
-    		try {
-				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
-			} catch (XmppStringprepException e) {
-				e.printStackTrace();
-			}
-    		//this.addManagerConfigured();
+    		if(!TEST) {
+    			System.out.println("Configuring the simulation manager: "+availableManager);
+    			try {
+    				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
+    			} catch (XmppStringprepException e) {
+    				e.printStackTrace();
+    			}
+    		} else {
+    			this.addManagerConfigured();
+    		}
     	}
     	if(!TEST) {
     		//It deletes the zip file
