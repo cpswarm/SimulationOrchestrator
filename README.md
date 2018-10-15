@@ -90,7 +90,7 @@ This test is used to verify:
  - The ability to receive correctly the result of the optimization, when it is finished
  - The test verifies that the optimization is correctly finished
 
-### Test configuration
+## Test configuration
 
 This is the command to be used to launch tests
 
