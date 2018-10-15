@@ -76,7 +76,7 @@ This test is used to verify:
 ### Test run simulation
 
 This test is used to verify:
- - The start of the SOO with a set of requirements for the the simulation to be run (dimensions, number of agents)
+ - The start of the SOO with a set of requirements for the simulation to be run (dimensions, number of agents)
  - The ability to match the requirements with the features provided by the Dummy Simulation Manager
  - The ability to select the Simulation Manager and to send the Run Simulation message
  - The test verifies that the Dummy Manager receives the correct XMPP message
@@ -84,7 +84,7 @@ This test is used to verify:
 ### Test run optimization
 
 This test is used to verify:
- - The start of the SOO with a set of requirements for the the simulation to be run (dimensions, number of agents) and the request to do optimization.
+ - The start of the SOO with a set of requirements for the simulation to be run (dimensions, number of agents) and the request to do optimization.
  - The ability to match the requirements with the features provided by the Dummy Simulation Manager
  - The ability to send a Start Optimization message to the Dummy Optimization Tool
  - The ability to receive correctly the result of the optimization, when it is finished
@@ -95,7 +95,7 @@ This test is used to verify:
 This is the command to be used to launch tests
 
 ``` bash
-Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
