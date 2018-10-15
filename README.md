@@ -65,7 +65,7 @@ java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simul
 
 ## Test suite
 
-# Test creation
+### Test creation
 
 This test is used to verify:
  - The creation of the XMPP client of the SOO on the XMPP server 
@@ -73,7 +73,7 @@ This test is used to verify:
  - The creation of the rosters of the two components used to receive the presences
  - The test verifies that the manager has been successfully added to the roster of the SOO after been created
 
-# Test run simulation
+### Test run simulation
 
 This test is used to verify:
  - The start of the SOO with a set of requirements for the the simulation to be run (dimensions, number of agents)
@@ -81,7 +81,7 @@ This test is used to verify:
  - The ability to select the Simulation Manager and to send the Run Simulation message
  - The test verifies that the Dummy Manager receives the correct XMPP message
 
-# Test run optimization
+### Test run optimization
 
 This test is used to verify:
  - The start of the SOO with a set of requirements for the the simulation to be run (dimensions, number of agents) and the request to do optimization.
@@ -90,7 +90,7 @@ This test is used to verify:
  - The ability to receive correctly the result of the optimization, when it is finished
  - The test verifies that the optimization is correctly finished
 
-## Test configuration
+### Test configuration
 
 This is the command to be used to launch tests
 
