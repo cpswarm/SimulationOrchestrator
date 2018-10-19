@@ -1,13 +1,54 @@
 package simulation;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.jxmpp.jid.impl.JidCreate;
 
 import com.google.gson.Gson;
 
+import io.kubernetes.client.ApiClient;
+import io.kubernetes.client.ApiException;
+import io.kubernetes.client.Configuration;
+import io.kubernetes.client.apis.AppsV1Api;
+import io.kubernetes.client.apis.AppsV1beta1Api;
+import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.custom.IntOrString;
+import io.kubernetes.client.models.AppsV1beta1Deployment;
+import io.kubernetes.client.models.AppsV1beta1DeploymentCondition;
+import io.kubernetes.client.models.AppsV1beta1DeploymentSpec;
+import io.kubernetes.client.models.AppsV1beta1DeploymentStatus;
+import io.kubernetes.client.models.AppsV1beta1DeploymentStrategy;
+import io.kubernetes.client.models.AppsV1beta1RollingUpdateDeployment;
+import io.kubernetes.client.models.V1Container;
+import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.models.V1DeploymentCondition;
+import io.kubernetes.client.models.V1DeploymentSpec;
+import io.kubernetes.client.models.V1DeploymentStatus;
+import io.kubernetes.client.models.V1DeploymentStrategy;
+import io.kubernetes.client.models.V1LabelSelector;
+import io.kubernetes.client.models.V1LabelSelectorRequirement;
+import io.kubernetes.client.models.V1ObjectMeta;
+import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.models.V1PodList;
+import io.kubernetes.client.models.V1PodSecurityContext;
+import io.kubernetes.client.models.V1PodSpec;
+import io.kubernetes.client.models.V1PodTemplate;
+import io.kubernetes.client.models.V1PodTemplateSpec;
+import io.kubernetes.client.models.V1ResourceRequirements;
+import io.kubernetes.client.models.V1RollingUpdateDeployment;
+import io.kubernetes.client.models.V1SecurityContext;
+import io.kubernetes.client.models.V1Status;
+import io.kubernetes.client.proto.V1beta1Apiextensions.JSON;
+import io.kubernetes.client.util.Config;
 import junit.framework.TestCase;
 import messages.server.Server;
 import simulation.SimulationOrchestrator;
@@ -64,7 +105,114 @@ public class AppTest extends TestCase{
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
 	private String optimizationToolPassword = System.getProperty("optimization_tool_password");
 
-	
+	/*
+	@Test
+	public void testKubernetes() throws IOException, ApiException{
+		ApiClient client = Config.defaultClient();
+		Configuration.setDefaultApiClient(client);
+
+		CoreV1Api api = new CoreV1Api();
+		V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
+		for (V1Pod item : list.getItems()) {
+			System.out.println(item.getMetadata().getName());
+		}
+		AppsV1beta1Api appsApi = new AppsV1beta1Api();
+		AppsV1beta1Deployment deployment = new AppsV1beta1Deployment(); 
+		deployment.setKind("Deployment");
+		deployment.setApiVersion("apps/v1beta1");
+
+		V1ObjectMeta meta = new V1ObjectMeta();
+		meta.setName("test");
+		meta.setNamespace("default");
+		meta.setSelfLink("/apis/extensions/v1beta1/namespaces/default/deployments/test");
+		meta.setUid("8b781241-d324-11e8-ab6c-34e6d7414fa1");
+		meta.setResourceVersion("36621");
+		meta.setGeneration(Long.valueOf(2));
+		meta.setCreationTimestamp(DateTime.parse("2018-10-18T21:12:39Z"));
+		Map<String,String> labelsMap = new HashMap<String,String>();
+		labelsMap.put("k8s-app", "test");
+		meta.setLabels(labelsMap);
+		Map<String,String> annotationsMap = new HashMap<String,String>();
+		annotationsMap.put("deployment.kubernetes.io/revision", "1");
+		meta.setAnnotations(annotationsMap);
+		meta.setResourceVersion(null);
+		deployment.setMetadata(meta);
+		
+		AppsV1beta1DeploymentSpec spec = new AppsV1beta1DeploymentSpec();
+		spec.setReplicas(2);
+		V1LabelSelector labelSelector = new V1LabelSelector();
+		labelSelector.putMatchLabelsItem("k8s-app", "test");
+		spec.setSelector(labelSelector);
+		V1PodTemplateSpec template = new V1PodTemplateSpec();
+		V1ObjectMeta podMeta = new V1ObjectMeta();
+		podMeta.setName("test");
+		podMeta.setCreationTimestamp(null);
+		podMeta.setLabels(labelsMap);
+		template.setMetadata(podMeta);
+		spec.setTemplate(template);
+		V1PodSpec podSpec = new V1PodSpec();
+		List<V1Container> containersList = new ArrayList<V1Container>();
+		V1Container container = new V1Container();
+		container.setName("test");
+		container.setImage("dconzon/gazebo-simulation-manager:1.0.1");
+		//V1ResourceRequirements resources = new V1ResourceRequirements();
+		//container.setResources(resources);
+		container.setTerminationMessagePath("/dev/termination-log");
+		container.setTerminationMessagePolicy("File");
+		container.setImagePullPolicy("IfNotPresent");
+		V1SecurityContext secContext = new V1SecurityContext();
+		secContext.setPrivileged(false);
+		container.setSecurityContext(secContext);
+		containersList.add(container);
+		podSpec.setContainers(containersList);
+		podSpec.setRestartPolicy("Always");
+		podSpec.setTerminationGracePeriodSeconds(Long.valueOf(30));
+		podSpec.setDnsPolicy("ClusterFirst");
+		V1PodSecurityContext podSecContext = new V1PodSecurityContext();
+		podSpec.setSecurityContext(podSecContext);
+		podSpec.setSchedulerName("default-scheduler");
+		template.setSpec(podSpec);
+		AppsV1beta1DeploymentStrategy strategy = new AppsV1beta1DeploymentStrategy();
+		strategy.setType("RollingUpdate");
+		AppsV1beta1RollingUpdateDeployment rollingUpdate = new AppsV1beta1RollingUpdateDeployment();
+		rollingUpdate.setMaxUnavailable(new IntOrString("25%"));
+		rollingUpdate.setMaxSurge(new IntOrString("25%"));
+		strategy.setRollingUpdate(rollingUpdate);
+		spec.setStrategy(strategy);
+		spec.setRevisionHistoryLimit(10);
+		spec.setProgressDeadlineSeconds(600);
+		deployment.setSpec(spec);
+		
+		AppsV1beta1DeploymentStatus status = new AppsV1beta1DeploymentStatus();
+		status.setObservedGeneration(Long.valueOf(2));
+		status.setReplicas(2);
+		status.setUpdatedReplicas(2);
+		status.setReadyReplicas(2);
+		status.setAvailableReplicas(2);
+		AppsV1beta1DeploymentCondition progressingCondition = new AppsV1beta1DeploymentCondition();
+		progressingCondition.setType("Progressing");
+		progressingCondition.setStatus("true");
+		progressingCondition.setLastUpdateTime(DateTime.parse("2018-10-18T21:13:07Z"));
+		progressingCondition.setLastUpdateTime(DateTime.parse("2018-10-18T21:12:39Z"));
+		progressingCondition.setReason("NewReplicaSetAvailable");
+		progressingCondition.setMessage("ReplicaSet \"test-97956575b\" has successfully progressed.");
+		AppsV1beta1DeploymentCondition availableCondition = new AppsV1beta1DeploymentCondition();
+		availableCondition.setType("Available");
+		availableCondition.setStatus("true");
+		availableCondition.setLastUpdateTime(DateTime.parse("2018-10-19T14:59:25Z"));
+		availableCondition.setLastUpdateTime(DateTime.parse("2018-10-19T14:59:25Z"));
+		availableCondition.setReason("MinimumReplicasAvailable");
+		availableCondition.setMessage("Deployment has minimum availability.");
+		List<AppsV1beta1DeploymentCondition> conditions = new ArrayList<AppsV1beta1DeploymentCondition>();
+		conditions.add(progressingCondition);
+		conditions.add(availableCondition);
+		status.setConditions(conditions);
+		deployment.setStatus(status);
+		
+		appsApi.createNamespacedDeployment("default", deployment, "true");
+	}
+	*/
+
 	@Test
 	public void testCreation() {
 		try {
