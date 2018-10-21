@@ -39,6 +39,8 @@ import io.kubernetes.client.models.ExtensionsV1beta1DeploymentSpec;
 import io.kubernetes.client.models.ExtensionsV1beta1DeploymentStatus;
 import io.kubernetes.client.models.ExtensionsV1beta1DeploymentStrategy;
 import io.kubernetes.client.models.ExtensionsV1beta1RollingUpdateDeployment;
+import io.kubernetes.client.models.ExtensionsV1beta1Scale;
+import io.kubernetes.client.models.ExtensionsV1beta1ScaleSpec;
 import io.kubernetes.client.models.V1Container;
 import io.kubernetes.client.models.V1Deployment;
 import io.kubernetes.client.models.V1DeploymentCondition;
@@ -119,7 +121,7 @@ public class AppTest extends TestCase{
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
 	private String optimizationToolPassword = System.getProperty("optimization_tool_password");
 
-	/*
+	/*	
 	@Test
 	public void testKubernetes() throws IOException, ApiException{
 		ApiClient client = Config.defaultClient();
@@ -130,7 +132,8 @@ public class AppTest extends TestCase{
 		for (V1Pod item : list.getItems()) {
 			System.out.println(item.getMetadata().getName());
 		}
-		ExtensionsV1beta1Api extssApi = new ExtensionsV1beta1Api();
+		
+		ExtensionsV1beta1Api extsApi = new ExtensionsV1beta1Api();
 		ExtensionsV1beta1Deployment deployment = new ExtensionsV1beta1Deployment(); 
 		deployment.setKind("Deployment");
 		deployment.setApiVersion("extensions/v1beta1");
@@ -153,7 +156,7 @@ public class AppTest extends TestCase{
 		deployment.setMetadata(meta);
 		
 		ExtensionsV1beta1DeploymentSpec spec = new ExtensionsV1beta1DeploymentSpec();
-		spec.setReplicas(2);
+		spec.setReplicas(1);
 		V1LabelSelector labelSelector = new V1LabelSelector();
 		labelSelector.putMatchLabelsItem("k8s-app", "test");
 		spec.setSelector(labelSelector);
@@ -198,11 +201,11 @@ public class AppTest extends TestCase{
 		deployment.setSpec(spec);
 		
 		ExtensionsV1beta1DeploymentStatus status = new ExtensionsV1beta1DeploymentStatus();
-		status.setObservedGeneration(Long.valueOf(2));
-		status.setReplicas(2);
-		status.setUpdatedReplicas(2);
-		status.setReadyReplicas(2);
-		status.setAvailableReplicas(2);
+		status.setObservedGeneration(Long.valueOf(1));
+		status.setReplicas(1);
+		status.setUpdatedReplicas(1);
+		status.setReadyReplicas(1);
+		status.setAvailableReplicas(1);
 		ExtensionsV1beta1DeploymentCondition progressingCondition = new ExtensionsV1beta1DeploymentCondition();
 		progressingCondition.setType("Progressing");
 		progressingCondition.setStatus("true");
@@ -223,10 +226,31 @@ public class AppTest extends TestCase{
 		status.setConditions(conditions);
 		deployment.setStatus(status);
 		
-		extssApi.createNamespacedDeployment("default", deployment, "true");
+		io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
+		String jsonText1 = json.serialize(deployment);
+		System.out.println(jsonText1);
+		
+		extsApi.createNamespacedDeployment("default", deployment, "true");
+
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ExtensionsV1beta1Scale body = new ExtensionsV1beta1Scale();
+		body.setApiVersion("extensions/v1beta1");
+		body.setKind("Scale");
+		body.setMetadata(deployment.getMetadata());
+		ExtensionsV1beta1ScaleSpec scale = new ExtensionsV1beta1ScaleSpec();
+		scale.setReplicas(2);
+		body.setSpec(scale);
+		extsApi.replaceNamespacedDeploymentScale("test", "default", body, "true");
 	}
 	
-	
+
 	@Test
 	public void testKubernetesYaml() throws IOException, ApiException {	
 		ApiClient client = Config.defaultClient();

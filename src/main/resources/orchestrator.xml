@@ -8,7 +8,7 @@
 	<optimizationUser>frevo</optimizationUser> <!--  XMPP username of the Optimization Tool  --> 
 	<monitoring>false</monitoring> <!--  indication if the monitoring GUI has to be used or not  -->
 	<mqttBroker>tcp://130.192.86.237:1883</mqttBroker> <!--  MQTT broker to be used if the monitoring is set to true  -->
-	<localOptimization>true</localOptimization> <!-- Indicates if the  Optimization Tool has to be launched by the Orchestrator -->
+	<localOptimization>false</localOptimization> <!-- Indicates if the  Optimization Tool has to be launched by the Orchestrator -->
 	<optimizationToolPath>C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</optimizationToolPath> <!-- Path of the optimization tool executable -->
 	<optimizationToolPassword>blah</optimizationToolPassword> <!-- To be used if the Optimization Tool has to be launched from the Orchestrator  -->
 </settings>

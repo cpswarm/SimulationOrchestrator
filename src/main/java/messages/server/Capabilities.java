@@ -86,7 +86,7 @@ public class Capabilities implements Comparable<Capabilities>{
 
 	@Override
 	public int compareTo(Capabilities capabilitiesToCompare) {
-		if((this.getDimensions()==capabilitiesToCompare.getDimensions() || this.getDimensions()==1) &&
+		if((this.getDimensions().equals(capabilitiesToCompare.getDimensions()) || capabilitiesToCompare.getDimensions().equals(Long.valueOf(1))) &&
 				(this.getMaxAgents()==null || this.getMaxAgents()>=capabilitiesToCompare.getMaxAgents())) {
 			return 1;
 		} else {
