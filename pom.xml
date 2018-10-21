@@ -74,7 +74,7 @@
     			<version>2.5</version>
     			<executions>
            			<execution>
-        				<id>execution2</id>
+        				<id>execution</id>
             			<phase>validate</phase>
             			<goals>
                 			<goal>install-file</goal>
@@ -114,9 +114,41 @@
     						<artifactId>client-java</artifactId>
     						<version>3.0.0-beta3-SNAPSHOT</version>
                 			<packaging>jar</packaging>
-                			<file>${basedir}/lib/cient-java-3.0.0-SNAPSHOT.jar</file>
+                			<file>${basedir}/lib/client-java-3.0.0-beta3-SNAPSHOT.jar</file>
+            			</configuration>
+        			</execution>
+        			
+        			<execution>
+        				<id>execution3</id>
+            			<phase>validate</phase>
+            			<goals>
+                			<goal>install-file</goal>
+			            </goals>
+            			<configuration>
+			               	<groupId>io.kubernetes</groupId>
+    						<artifactId>client-java-api</artifactId>
+    						<version>3.0.0-beta3-SNAPSHOT</version>
+                			<packaging>jar</packaging>
+                			<file>${basedir}/lib/client-java-api-3.0.0-beta3-SNAPSHOT.jar</file>
             			</configuration>
         			</execution>	
+
+        			<execution>
+        				<id>execution4</id>
+            			<phase>validate</phase>
+            			<goals>
+                			<goal>install-file</goal>
+			            </goals>
+            			<configuration>
+			               	<groupId>io.kubernetes</groupId>
+    						<artifactId>client-java-proto</artifactId>
+    						<version>3.0.0-beta3-SNAPSHOT</version>
+                			<packaging>jar</packaging>
+                			<file>${basedir}/lib/client-java-proto-3.0.0-beta3-SNAPSHOT.jar</file>
+            			</configuration>
+        			</execution>	
+
+        				
     			</executions>
 			</plugin>
 		
@@ -233,6 +265,18 @@
 		<dependency>
 		    <groupId>io.kubernetes</groupId>
     		<artifactId>client-java</artifactId>
+    		<version>3.0.0-beta3-SNAPSHOT</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.kubernetes</groupId>
+    		<artifactId>client-java-api</artifactId>
+    		<version>3.0.0-beta3-SNAPSHOT</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.kubernetes</groupId>
+    		<artifactId>client-java-proto</artifactId>
     		<version>3.0.0-beta3-SNAPSHOT</version>
 		    <scope>compile</scope>
 		</dependency>
