@@ -101,7 +101,22 @@
                 			<packaging>jar</packaging>
                 			<file>${basedir}/lib/it.ismb.pert.cpswarm.mqttLib-1.1.0.jar</file>
             			</configuration>
-        			</execution>        			
+        			</execution>    
+        			
+        			<execution>
+        				<id>execution2</id>
+            			<phase>validate</phase>
+            			<goals>
+                			<goal>install-file</goal>
+			            </goals>
+            			<configuration>
+			               	<groupId>io.kubernetes</groupId>
+    						<artifactId>client-java</artifactId>
+    						<version>3.0.0-beta3-SNAPSHOT</version>
+                			<packaging>jar</packaging>
+                			<file>${basedir}/lib/cient-java-3.0.0-SNAPSHOT.jar</file>
+            			</configuration>
+        			</execution>	
     			</executions>
 			</plugin>
 		
