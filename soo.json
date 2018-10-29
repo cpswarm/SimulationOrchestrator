@@ -1,0 +1,64 @@
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "soo",
+    "namespace": "default",
+    "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/stage",
+    "uid": "8b781241-d31a-11e8-ab6c-34e6d7414fab",
+    "generation": 1,
+    "creationTimestamp": "2018-10-23T20:30:39Z",
+    "labels": {
+      "k8s-app": "soo"
+    },
+    "annotations": {
+      "deployment.kubernetes.io/revision": "1"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "k8s-app": "soo"
+      }
+    },
+    "template": {
+      "metadata": {
+        "name": "soo",
+        "creationTimestamp": "2018-10-23T20:30:39Z",
+        "labels": {
+          "k8s-app": "soo"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "soo",
+            "image": "dconzon/soo:1.0.0",
+            "resources": {},
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "securityContext": {},
+        "schedulerName": "default-scheduler"
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxUnavailable": "25%",
+        "maxSurge": "25%"
+      }
+    },
+    "revisionHistoryLimit": 10,
+    "progressDeadlineSeconds": 600
+  }
+}
