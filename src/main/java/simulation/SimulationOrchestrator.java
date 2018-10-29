@@ -535,7 +535,8 @@ public class SimulationOrchestrator {
 			try {
 				transfer.sendFile(new File(filePath), message);
 				System.out.println("File sent, waiting transfer complete");
-				while (!transfer.isDone() | transfer.getException()!=null) {
+				while (!transfer.isDone() && transfer.getException()==null) {
+					Exception ex = transfer.getException();
 					if (transfer.getStatus() == Status.refused) {
 						System.out.println("Transfer refused");
 					}
