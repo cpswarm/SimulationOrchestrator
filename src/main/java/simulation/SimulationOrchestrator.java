@@ -1,11 +1,14 @@
 package simulation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -413,12 +416,19 @@ public class SimulationOrchestrator {
     }
     
     public void evaluateSimulationManagers() {
+		try {
+			System.out.println("Wait to collect the managers");
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     	this.evaluateSimulationManagers(server);
     }
     
     
     public void evaluateSimulationManagers(Server serverCompare) {
     	this.managerConfigured=0;
+    	System.out.println("Evalauting available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
     	String fileName = null;
     	if(TEST && (inputDataFolder == null || configurationFolder==null)) {
     		File file = new File("src/main/resources/file.xsd");
@@ -525,7 +535,7 @@ public class SimulationOrchestrator {
 			try {
 				transfer.sendFile(new File(filePath), message);
 				System.out.println("File sent, waiting transfer complete");
-				while (!transfer.isDone()) {
+				while (!transfer.isDone() | transfer.getException()!=null) {
 					if (transfer.getStatus() == Status.refused) {
 						System.out.println("Transfer refused");
 					}
@@ -690,8 +700,10 @@ public class SimulationOrchestrator {
 		return connection;
 	}
 	
-	public void putSimulationManager(EntityBareJid jid, Server server) {
+	public synchronized void putSimulationManager(EntityBareJid jid, Server server) {
+		System.out.println("Adding "+ jid.toString() +" to "+ Arrays.toString(simulationManagers.keySet().toArray()));
 		simulationManagers.put(jid,server);
+		System.out.println("Available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
 	}	
 
 	public void removeSimulationManager(Jid jid) {
