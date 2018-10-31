@@ -326,7 +326,6 @@ public class AppTest extends TestCase{
 		}  
 	}
 	
-	
 	@Test
 	public void testRunOptimization() {	
 		try {
