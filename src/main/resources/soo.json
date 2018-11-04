@@ -4,7 +4,7 @@
   "metadata": {
     "name": "soo",
     "namespace": "default",
-    "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/stage",
+    "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/soo",
     "uid": "8b781241-d31a-11e8-ab6c-34e6d7414fab",
     "generation": 1,
     "creationTimestamp": "2018-10-23T20:30:39Z",
