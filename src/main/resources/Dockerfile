@@ -7,7 +7,9 @@ RUN mkdir Desktop
 
 RUN mkdir Desktop/cpswarm
 
+RUN mkdir Desktop/optimized
 
+RUN mkdir Desktop/conf
 
 RUN mvn -B validate
 
@@ -25,5 +27,8 @@ RUN keytool -noprompt -importcert -trustcacerts \
 # create a virtual display with Xvfb and set DISPLAY before starting java
 # RUN Xvfb :1 -screen 0 1024x768x16 & DISPLAY=:1.0 \
 
-CMD java -jar /home/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar
+
+
+ENTRYPOINT ["java", "-jar", "/home/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar"]
+CMD ["-id emergency_exit --dim 2d --max 8  --opt --src /home/Desktop/cpswarm/ --target /home/Desktop/cpswarm/optimized/ --conf /home/Desktop/conf/"]
 
