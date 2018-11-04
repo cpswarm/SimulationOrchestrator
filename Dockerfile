@@ -30,5 +30,5 @@ RUN keytool -noprompt -importcert -trustcacerts \
 
 
 ENTRYPOINT ["java", "-jar", "/home/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar"]
-CMD ["-id emergency_exit --dim 2d --max 8  --opt --src /home/Desktop/cpswarm/ --target /home/Desktop/cpswarm/optimized/ --conf /home/Desktop/conf/"]
+CMD ["--id", "emergency_exit", "--dim", "2d", "--max", "8", "--opt", "--src", "/home/Desktop/cpswarm/", "--target", "/home/Desktop/cpswarm/optimized/", "--conf", "/home/Desktop/conf/"]
 
