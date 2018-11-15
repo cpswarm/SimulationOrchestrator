@@ -97,7 +97,9 @@ public class SimulationOrchestrator {
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
 	private Boolean monitoring = null;
-	private String optimizationConfiguration = null;
+	// JSon containing the Optimization Configuration 
+	// TODO receive these configurations from the Launcher
+	private String optimizationConfiguration = "{candidateCount:100, repeatCount:1, generationCount:1, simulationTimeoutSeconds:1200, seed:1234}";
 	private String simulationConfiguration = null;
 	private Server server;
 	private String taskId;
@@ -107,6 +109,7 @@ public class SimulationOrchestrator {
 	private boolean localOptimzation = false;
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
+ 
 	
 	public static void main (String args[]) {
 		TEST = false;
