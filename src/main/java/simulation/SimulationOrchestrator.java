@@ -97,7 +97,7 @@ public class SimulationOrchestrator {
 	private Boolean monitoring = null;
 	// JSon containing the Optimization Configuration 
 	// TODO receive these configurations from the Launcher
-	private String optimizationConfiguration = "{candidateCount:100, repeatCount:1, generationCount:1, simulationTimeoutSeconds:1200, seed:1234}";
+	private String optimizationConfiguration = "{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}";
 	private String simulationConfiguration = null;
 	private Server server;
 	private String taskId;
