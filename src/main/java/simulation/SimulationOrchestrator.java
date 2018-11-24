@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -103,6 +101,7 @@ public class SimulationOrchestrator {
 	private String simulationConfiguration = null;
 	private Server server;
 	private String taskId;
+	private String serverUsername = "";
 	private String serverPassword = "";
 	private Boolean optimizationEnabled = null;
 	private String configurationFolder = null;
@@ -117,6 +116,7 @@ public class SimulationOrchestrator {
 		DocumentBuilder documentBuilder;
 		String serverURI = "";
 		String serverName = "";
+		String serverUsername = "";
 		String serverPassword = "";
 		String inputDataFolder = "";
 		String outputDataFolder = "";
@@ -206,6 +206,7 @@ public class SimulationOrchestrator {
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
+			serverUsername = document.getElementsByTagName("username").item(0).getTextContent();
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("localOptimization").item(0).getTextContent());
@@ -235,7 +236,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
 		while(true) {}
 	}
 	
@@ -245,6 +246,8 @@ public class SimulationOrchestrator {
 	 * 		IP of the XMPP server
 	 * @param serverName
 	 * 		Name of the XMPP server
+	 * @param serverUsername
+	 *      Username to be used to connect to the XMPP server
 	 * @param serverPassword
 	 * 		Password to be used to connect to the XMPP server
 	 * @param inputDataFolder
@@ -278,11 +281,12 @@ public class SimulationOrchestrator {
 	 * @param optimizationToolPassword
 	 *     To be used to start the optimization tool directly from the orchestrator (localOptimization = true)
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword) {
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
+		this.serverUsername = serverUsername;
 		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.monitoring = monitoring;
@@ -325,7 +329,7 @@ public class SimulationOrchestrator {
 			
 			connection.connect();
 
-			connection.login("orchestrator", serverPassword , Resourcepart.from(RESOURCE));
+			connection.login(serverUsername, serverPassword , Resourcepart.from(RESOURCE));
 			System.out.println("Connected to server");
 
 			connectionListener = new ConnectionListenerImpl(this);
@@ -402,10 +406,10 @@ public class SimulationOrchestrator {
 		props.put("name", "server");
 		Localpart part;
 		try {
-			part = Localpart.from("orchestrator");
+			part = Localpart.from(serverUsername);
 			connection.connect();
 			accountManager.createAccount(part, password, props);
-			connection.login("orchestrator", password, Resourcepart.from(RESOURCE));
+			connection.login(serverUsername, password, Resourcepart.from(RESOURCE));
 		} catch (InterruptedException | SmackException | IOException | XMPPException me) {
             System.out.println("msg "+me.getMessage());
             System.out.println("loc "+me.getLocalizedMessage());
@@ -757,7 +761,7 @@ public class SimulationOrchestrator {
 			Thread.sleep(1000);
 			connection.connect();
 
-			connection.login("orchestrator", serverPassword , Resourcepart.from(RESOURCE));
+			connection.login(serverUsername, serverPassword , Resourcepart.from(RESOURCE));
 			System.out.println("Connected to server");
 		
 		} catch (SmackException | IOException | XMPPException | InterruptedException e) {

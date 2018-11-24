@@ -79,6 +79,7 @@ public class AppTest extends TestCase{
 	 * mvn test 
 	 * -Dtest_server_ip=130.192.86.237 (IP of the XMPP server) 
 	 * -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it (name of the XMPP server) 
+	 * -Dtest_server_username=orchestrator (Username to be used by the orchestrator to authenticate in the XMPP server)
 	 * -Dtest_server_password=orchestrator (Password to be used by the orchestrator to authenticate in the XMPP server)
 	 * -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ (folder containing the input files) -- Optional
 	 * -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted) -- Optional
@@ -102,6 +103,7 @@ public class AppTest extends TestCase{
 	 */
 	private String serverIP = System.getProperty("test_server_ip");
 	private String serverName = System.getProperty("test_server_name");
+	private String serverUsername = System.getProperty("test_server_username");
 	private String serverPassword = System.getProperty("test_server_password");
 	private String orchestratorInputDataFolder = System.getProperty("test_orchestrator_input_data_folder");
 	private String orchestratorOutputDataFolder = System.getProperty("test_orchestrator_output_data_folder");
@@ -270,7 +272,7 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -304,7 +306,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -342,7 +344,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);

@@ -27,7 +27,8 @@ The software contains a configuration file which can be used to change some syst
 <settings>
 	<serverURI>130.192.86.237</serverURI> <!--  URI of the XMPP server  -->
 	<serverName>pert-demoenergy-virtus.ismb.polito.it</serverName> <!--  name of the XMPP server  -->
-	<serverPassword>orchestrator</serverPassword> <!--  password to be used from the orchestator to connect to the XMPP server  -->
+	<serverUsername>orchestrator</serverUsername> <!-- username to be used by the orchestator to connect to the XMPP server -->
+	<serverPassword>orchestrator</serverPassword> <!--  password to be used by the orchestator to connect to the XMPP server  -->
 	<optimizationUser>frevo</optimizationUser> <!--  XMPP username of the Optimization Tool  --> 
 	<monitoring>true</monitoring> <!--  indication if the monitoring GUI has to be used or not  -->
 	<mqttBroker>tcp://130.192.86.237:1883</mqttBroker> <!--  MQTT broker to be used if the monitoring is set to true  -->
