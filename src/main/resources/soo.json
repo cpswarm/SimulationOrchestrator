@@ -19,7 +19,7 @@
     "replicas": 1,
     "selector": {
       "matchLabels": {
-        "k8s-app": "soo"
+        "soo": true
       }
     },
     "template": {
@@ -44,9 +44,6 @@
             }
           }
         ],
-        "nodeSelector": {
-           "soo": true
-        },
         "restartPolicy": "Always",
         "terminationGracePeriodSeconds": 30,
         "dnsPolicy": "ClusterFirst",
