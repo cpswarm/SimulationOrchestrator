@@ -133,6 +133,7 @@ public class SimulationOrchestrator {
 		String optimizationToolPath = null;
 		Boolean localOptimization = false;
 		String optimizationToolPassword = "";
+		String optConf = "";
 		
 		try {
 			Options options = new Options();
@@ -173,6 +174,14 @@ public class SimulationOrchestrator {
 			optimization.setRequired(false);
 			options.addOption(optimization);
 			
+			Option candidateCount = new Option("cc", "can", true, "Indicates the candidate count");
+			optimization.setRequired(false);
+			options.addOption(candidateCount);
+
+			Option generationCount = new Option("gc", "gen", true, "Indicates the generation count");
+			optimization.setRequired(false);
+			options.addOption(generationCount);
+			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
 			CommandLine cmd = null;
@@ -201,6 +210,16 @@ public class SimulationOrchestrator {
 			if(cmd.getOptionValue("params")!=null) {
 				parameters = cmd.getOptionValue("params");
 			}
+			
+			String can = "100";
+			if(cmd.getOptionValue("can")!=null) {
+				can = cmd.getOptionValue("can");
+			}
+			String gen = "100";
+			if(cmd.getOptionValue("gen")!=null) {
+				gen = cmd.getOptionValue("gen");
+			}
+			optConf = "{candidateCount:"+can+", repeatCount:1, generationCount:"+gen+", simulationTimeoutSeconds:1200, seed:1234}";
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
@@ -236,7 +255,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf);
 		while(true) {}
 	}
 	
@@ -280,8 +299,10 @@ public class SimulationOrchestrator {
 	 * 		Path of the Optimization Tool
 	 * @param optimizationToolPassword
 	 *     To be used to start the optimization tool directly from the orchestrator (localOptimization = true)
+	 * @param optimizationConfiguration
+	 * 	 	Configuration parameters to be sent to the optimization Tool
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final String optConf) {
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
@@ -295,6 +316,7 @@ public class SimulationOrchestrator {
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
 		this.localOptimzation = localOptimization;
+		this.optimizationConfiguration = optConf;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();

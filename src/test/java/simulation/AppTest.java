@@ -122,7 +122,7 @@ public class AppTest extends TestCase{
 	private Boolean localOptimization = Boolean.parseBoolean(System.getProperty("local_optimization"));
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
 	private String optimizationToolPassword = System.getProperty("optimization_tool_password");
-
+	private String optimizationConfiguration = System.getProperty("optimization_configuration");
 	/*	
 	@Test
 	public void testKubernetes() throws IOException, ApiException{
@@ -272,7 +272,7 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optimizationConfiguration);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -306,7 +306,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optimizationConfiguration);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -344,7 +344,7 @@ public class AppTest extends TestCase{
 					"	}\r\n" + 
 					"}\r\n" + 
 					"", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optimizationConfiguration);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
