@@ -45,23 +45,25 @@ The software contains a configuration file which can be used to change some syst
 These are the parameters to be passed to the software to run
 
 ``` bash
-required options: s, t, c, i, d, m, o
+Missing required options: s, t, c, i, d, m
 usage: utility-name
  -c,--conf <arg>     folder with the configuration files
+ -cc,--can <arg>     Indicates the candidate count
  -d,--dim <arg>      Number of dimensions required for simulation
- -g,--gui <arg>      GUI to be used or not for the simulation
- -i,--id <arg>       task ID
+ -g,--gui            GUI to be used or not for the simulation
+ -gc,--gen <arg>     Indicates the generation count
+ -i,--id <arg>       Task ID
  -m,--max <arg>      Maximum number of agents required for simulation
+ -o,--opt            Indicates if the optimization is required or not
  -p,--params <arg>   Parameters to be passed to the simulator
  -s,--src <arg>      input folder path
  -t,--target <arg>   output folder path
- -o --opt <arg>      indicates if the optimization is enabled
  ```
 
 And this is an example of running command
 
 ``` bash
-java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --dim any --max 3 --src "/home/cpswarm/launcher_project/Models" --target "/home/cpswarm/launcher_project/Optimized" --conf "/home/cpswarm/launcher_project/SimulationConf" --opt --gui
+java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --dim any --max 3 --src /home/cpswarm/launcher_project/Models --target /home/cpswarm/launcher_project/Optimized --conf /home/cpswarm/launcher_project/SimulationConf --opt --gui
 ```
 
 ## Test suite
@@ -96,7 +98,7 @@ This test is used to verify:
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -122,5 +124,6 @@ And here with the explaination of the parameters:
 	 -Dlocal_optimzation=false Indicates if the Optimization Tool has to be launched by the Orchestrator
 	-Doptimization_tool_path=C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar (if local_optimization = true)
 	-Doptimization_tool_password = blah Password to be used to launch the optimization tool from the orchestrator (if local_optimization = true)
+	-Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" (value to be passed to the optimization tool)
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```

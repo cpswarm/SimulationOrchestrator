@@ -98,6 +98,7 @@ public class AppTest extends TestCase{
 	 * -Dlocal_optimization=true (Indicates if the Simulation Orchestator has to launch also the Optimization Tool)
 	 * -optimization_tool_path=/home/cpswarm/Desktop/ (path of the executable of the Optimization Tool)
 	 * -Doptimization_tool_password = blah  (To be used to launch the optimization tool from the orchestrator)
+	 * -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" (value to be passed to the optimization tool)
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
