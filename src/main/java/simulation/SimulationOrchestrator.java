@@ -76,6 +76,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -108,7 +109,7 @@ public class SimulationOrchestrator {
 	private boolean localOptimzation = false;
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
- 
+	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	public static void main (String args[]) {
 		TEST = false;
@@ -673,7 +674,8 @@ public class SimulationOrchestrator {
 		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message",  optimizationConfiguration, simulationConfiguration, managersJid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
-		System.out.println("Sending StartOptimization message: "+messageToSend);
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		System.out.println("Sending StartOptimization message: "+messageToSend+" at "+sdf.format(timestamp));
 		ChatManager manager = ChatManager.getInstanceFor(connection);
 		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
 		Message message = new Message();

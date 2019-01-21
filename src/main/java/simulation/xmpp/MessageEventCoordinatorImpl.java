@@ -1,5 +1,7 @@
 package simulation.xmpp;
 
+import java.sql.Timestamp;
+
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
@@ -87,7 +89,8 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				if(senderThread!=null) {
 					stopSenderThread();
 				}
-				System.out.println("Final candidate: "+progress.getCandidate());
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				System.out.println("Final candidate: "+progress.getCandidate()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 				parent.setSimulationDone(true);
 				if(monitoring) {
 					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
