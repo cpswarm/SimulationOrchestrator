@@ -109,7 +109,7 @@ public class SimulationOrchestrator {
 	private boolean localOptimzation = false;
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
-	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	
 	public static void main (String args[]) {
 		TEST = false;
