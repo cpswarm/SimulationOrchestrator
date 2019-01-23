@@ -183,6 +183,14 @@ public class SimulationOrchestrator {
 			optimization.setRequired(false);
 			options.addOption(generationCount);
 			
+			Option simulationTimeout = new Option("st", "sim", true, "Indicates the the simulation timeot for the OT");
+			optimization.setRequired(false);
+			options.addOption(simulationTimeout);
+
+			Option seed = new Option("se", "seed", true, "Indicates the seed to be used in the OT");
+			optimization.setRequired(false);
+			options.addOption(seed);
+			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
 			CommandLine cmd = null;
@@ -220,7 +228,15 @@ public class SimulationOrchestrator {
 			if(cmd.getOptionValue("gen")!=null) {
 				gen = cmd.getOptionValue("gen");
 			}
-			optConf = "{candidateCount:"+can+", repeatCount:1, generationCount:"+gen+", simulationTimeoutSeconds:1200, seed:1234}";
+			String sim = "1200";
+			if(cmd.getOptionValue("sim")!=null) {
+				sim = cmd.getOptionValue("sim");
+			}
+			String se = "1234";
+			if(cmd.getOptionValue("seed")!=null) {
+				se = cmd.getOptionValue("seed");
+			} 
+			optConf = "{candidateCount:"+can+", repeatCount:1, generationCount:"+gen+", simulationTimeoutSeconds:"+sim+", seed:"+se+"}";
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));

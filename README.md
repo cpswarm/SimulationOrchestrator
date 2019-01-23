@@ -45,7 +45,6 @@ The software contains a configuration file which can be used to change some syst
 These are the parameters to be passed to the software to run
 
 ``` bash
-Missing required options: s, t, c, i, d, m
 usage: utility-name
  -c,--conf <arg>     folder with the configuration files
  -cc,--can <arg>     Indicates the candidate count
@@ -57,6 +56,8 @@ usage: utility-name
  -o,--opt            Indicates if the optimization is required or not
  -p,--params <arg>   Parameters to be passed to the simulator
  -s,--src <arg>      input folder path
+ -se,--seed <arg>    Indicates the seed to be used in the OT
+ -st,--sim <arg>     Indicates the the simulation timeot for the OT
  -t,--target <arg>   output folder path
  ```
 
