@@ -38,33 +38,33 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
 		// The message is sent from a manager
 		MessageSerializer serializer = new MessageSerializer();
-		eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
-		if(sender.toString().startsWith("manager")) {
-			if(message instanceof SimulatorConfiguredMessage) {
-				if(((SimulatorConfiguredMessage) message).getOperationStatus().equals(Status.OK)) {
-					System.out.println("Received configuration ACK from "+sender.toString());
-					parent.addManagerConfigured();	
+		if(msg.getBody().equals("error")) {
+			System.out.println("error received from "+msg.getFrom());
+		} else {
+			eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
+			if(sender.toString().startsWith("manager")) {
+				if(message instanceof SimulatorConfiguredMessage) {
+					if(((SimulatorConfiguredMessage) message).getOperationStatus().equals(Status.OK)) {
+						System.out.println("Received configuration ACK from "+sender.toString());
+						parent.addManagerConfigured();	
+					}
+				} else if(message instanceof SimulationResultMessage) {
+					if(((SimulationResultMessage) message).getOperationStatus().equals(Status.OK)) {
+						System.out.println("Received simulation result from "+sender.toString());
+						parent.setSimulationDone(true);	
+					}
 				}
-			} else if(message instanceof SimulationResultMessage) {
-				if(((SimulationResultMessage) message).getOperationStatus().equals(Status.OK)) {
-					System.out.println("Received simulation result from "+sender.toString());
-					parent.setSimulationDone(true);	
-				}
-			}
-			if(!msg.getBody().equals("error")) {
-				
-				
-			} 
-		} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
-			if(message instanceof OptimizationProgressMessage) {
-				handleOptimizationProgressMessage((OptimizationProgressMessage) message, serializer);
-			} else {
-				System.out.println("Reply received: "+msg.getBody());
-				if(message instanceof OptimizationStartedMessage) {
-					handleOptimizationStartedMessage((OptimizationStartedMessage) message);
-				} else if(message instanceof OptimizationCancelledMessage) {
-					OptimizationCancelledMessage reply = serializer.fromJson(msg.getBody());
-					//TODO
+			} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
+				if(message instanceof OptimizationProgressMessage) {
+					handleOptimizationProgressMessage((OptimizationProgressMessage) message, serializer);
+				} else {
+					System.out.println("Reply received: "+msg.getBody());
+					if(message instanceof OptimizationStartedMessage) {
+						handleOptimizationStartedMessage((OptimizationStartedMessage) message);
+					} else if(message instanceof OptimizationCancelledMessage) {
+						OptimizationCancelledMessage reply = serializer.fromJson(msg.getBody());
+						//TODO
+					}
 				}
 			}
 		}
