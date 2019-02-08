@@ -52,6 +52,10 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+
+import config.frevo.FrevoConfiguration;
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
@@ -70,7 +74,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -235,8 +241,15 @@ public class SimulationOrchestrator {
 			String se = "1234";
 			if(cmd.getOptionValue("seed")!=null) {
 				se = cmd.getOptionValue("seed");
-			} 
-			optConf = "{candidateCount:"+can+", repeatCount:1, generationCount:"+gen+", simulationTimeoutSeconds:"+sim+", seed:"+se+"}";
+			}
+			Gson gson = new Gson();
+			JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
+			FrevoConfiguration frevo = gson.fromJson(reader, FrevoConfiguration.class);
+			frevo.setCandidateCount(Integer.parseInt(can));
+			frevo.setGenerationCount(Integer.parseInt(gen));
+			frevo.setSimulationTimeoutSeconds(Integer.parseInt(sim));
+			frevo.setEvaluationSeed(Integer.parseInt(se));
+			optConf = frevo.toString();
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));

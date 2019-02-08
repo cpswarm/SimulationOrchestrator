@@ -1,0 +1,49 @@
+{
+    "simulationTimeoutSeconds": 120,
+
+    "evolutionSeed": 0,
+    "evaluationSeed": 0,
+    "generationCount": 100,
+    "candidateCount": 100,
+    "problemBuilder": {
+        "representationInputCount": 6,
+        "representationOutputCount": 2,
+        "maximumFitness": 100.0
+    },
+    "representationBuilder": {
+        "type": "FullyMeshedNetBuilder",
+        "activationFunction": "RELU",
+        "hiddenNodeCount": 2,
+        "iterationCount": 2,
+        "inputCount": 0,
+        "outputCount": 0
+    },
+    "operatorBuilder": {
+        "type": "FullyMeshedNetOpBuilder",
+        "initialWeightRange": 2.0,
+        "initialBiasRange": 2.0,
+        "initialRandomBiasRange": 0.0,
+        "weightRange": 10.0,
+        "biasRange": 10.0,
+        "randomBiasRange": 10.0,
+        "directMutationProbability": 0.2,
+        "directMutationSeverity": 0.1,
+        "proportionalMutationProbability": 0.1,
+        "proportionalMutationSeverity": 0.1
+    },
+    "methodBuilder": {
+        "type": "NngaMethodBuilder",
+        "skewFactor": 1.0,
+        "eliteWeight": 0.2,
+        "randomWeight": 0.2,
+        "mutatedWeight": 0.2,
+        "crossedWeight": 0.2,
+        "newWeight": 0.2
+    },
+    "executorBuilder": {
+        "type": "PoolExecutorBuilder",
+        "threadCount": 0,
+        "problemVariantCount": 1,
+        "poolType": "ProblemPool"
+    }
+}
