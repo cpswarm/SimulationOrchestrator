@@ -238,7 +238,7 @@ public class SimulationOrchestrator {
 			if(cmd.getOptionValue("sim")!=null) {
 				sim = cmd.getOptionValue("sim");
 			}
-			String se = "1234";
+			String se = "0";
 			if(cmd.getOptionValue("seed")!=null) {
 				se = cmd.getOptionValue("seed");
 			}

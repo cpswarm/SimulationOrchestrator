@@ -1,6 +1,5 @@
 {
     "simulationTimeoutSeconds": 120,
-
     "evolutionSeed": 0,
     "evaluationSeed": 0,
     "generationCount": 100,
@@ -44,6 +43,6 @@
         "type": "PoolExecutorBuilder",
         "threadCount": 0,
         "problemVariantCount": 1,
-        "poolType": "ProblemPool"
+        "poolType": "CandidatePool"
     }
 }
