@@ -249,7 +249,7 @@ public class SimulationOrchestrator {
 			frevo.setGenerationCount(Integer.parseInt(gen));
 			frevo.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 			frevo.setEvaluationSeed(Integer.parseInt(se));
-			optConf = frevo.toString();
+			optConf = gson.toJson(frevo);
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
