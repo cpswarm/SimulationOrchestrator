@@ -288,7 +288,14 @@ public class SimulationOrchestrator {
 			return;
 		} 
 		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf);
-		while(true) {}
+		while(true) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
