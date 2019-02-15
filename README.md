@@ -23,6 +23,15 @@ mvn install -DskitTests
 # Configuration
 The software contains a configuration file which can be used to change some system parameter, this file is /resources/orchestator.xml
 
+The project contains already a configuration file with default values, before to change it setting the values to be used in the real use case, remember to run this command in the project folder
+
+```
+git update-index --skip-worktree src/main/resources/orchestrator.xml
+```
+
+These are the values in the file
+
+
 ``` xml
 <settings>
 	<serverURI>130.192.86.237</serverURI> <!--  URI of the XMPP server  -->

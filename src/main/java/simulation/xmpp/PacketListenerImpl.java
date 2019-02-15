@@ -60,6 +60,7 @@ public class PacketListenerImpl implements StanzaListener {
 					Presence.Type.subscribe);
 			answerPresence.setTo(presence.getFrom());
 			try {
+				SimulationOrchestrator.SEMAPHORE.acquire();
 				parent.getConnection().sendStanza(answerPresence);
 				final Roster roster = Roster.getInstanceFor(parent
 						.getConnection());
@@ -75,6 +76,7 @@ public class PacketListenerImpl implements StanzaListener {
 				roster.createEntry(JidCreate.from(presence.getFrom()).asBareJid(), descriptionToUse, groups);
 				System.out.println(
 						ACCOUNT + presence.getFrom() + SUBSCRIBED);
+				SimulationOrchestrator.SEMAPHORE.release();
 			} catch (final XMPPException | NoResponseException
 					| NotConnectedException | NotLoggedInException | XmppStringprepException | InterruptedException e) {
 				System.out.println(

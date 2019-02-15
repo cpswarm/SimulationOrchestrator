@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -83,6 +84,7 @@ import java.text.SimpleDateFormat;
 
 public class SimulationOrchestrator {
 	private static final String RESOURCE = "cpswarm";
+	public static final Semaphore SEMAPHORE = new Semaphore(1);
 	private XMPPTCPConnection connection;
 	private MqttAsyncDispatcher client;
 	private ConnectionListenerImpl connectionListener;
