@@ -120,7 +120,7 @@ public class SimulationOrchestrator {
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	
 	public static void main (String args[]) {
-		TEST = false;
+		TEST = true;
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder;
 		String serverURI = "";
