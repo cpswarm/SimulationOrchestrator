@@ -109,7 +109,7 @@ This test is used to verify:
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" -Dconfiguration_enabled=true -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -136,5 +136,6 @@ And here with the explaination of the parameters:
 	-Doptimization_tool_path=C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar (if local_optimization = true)
 	-Doptimization_tool_password = blah Password to be used to launch the optimization tool from the orchestrator (if local_optimization = true)
 	-Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" (value to be passed to the optimization tool)
+	-Dconfiguration_enabled = true (indication if the configuration of the simulators has to be done)
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```
