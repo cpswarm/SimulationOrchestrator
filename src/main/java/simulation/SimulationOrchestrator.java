@@ -118,9 +118,10 @@ public class SimulationOrchestrator {
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private Boolean configEnabled = null;
 	
 	public static void main (String args[]) {
-		TEST = true;
+		TEST = false;
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder;
 		String serverURI = "";
@@ -143,6 +144,7 @@ public class SimulationOrchestrator {
 		Boolean localOptimization = false;
 		String optimizationToolPassword = "";
 		String optConf = "";
+		Boolean configEnabled = false;
 		
 		try {
 			Options options = new Options();
@@ -258,6 +260,7 @@ public class SimulationOrchestrator {
 			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverUsername = document.getElementsByTagName("username").item(0).getTextContent();
+			configEnabled = Boolean.parseBoolean(document.getElementsByTagName("configEnabled").item(0).getTextContent());
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("localOptimization").item(0).getTextContent());
@@ -287,7 +290,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf);
+		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf, configEnabled);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -340,8 +343,10 @@ public class SimulationOrchestrator {
 	 *     To be used to start the optimization tool directly from the orchestrator (localOptimization = true)
 	 * @param optimizationConfiguration
 	 * 	 	Configuration parameters to be sent to the optimization Tool
+	 * @param configEnabled
+	 *       Indicates if the configuration of the simulators have to be done or not
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final String optConf) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final String optConf, final Boolean configEnabled) {
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
@@ -356,6 +361,7 @@ public class SimulationOrchestrator {
 		this.configurationFolder = configurationFolder;
 		this.localOptimzation = localOptimization;
 		this.optimizationConfiguration = optConf;
+		this.configEnabled = configEnabled;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -498,7 +504,7 @@ public class SimulationOrchestrator {
     	this.managerConfigured=0;
     	System.out.println("Evalauting available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
     	String fileName = null;
-    	if(TEST && (inputDataFolder == null || configurationFolder==null)) {
+    	if((TEST && (inputDataFolder == null || configurationFolder==null)) || !configEnabled) {
     		File file = new File("src/main/resources/file.xsd");
     		fileName = file.getAbsolutePath();
     	} else {
@@ -525,7 +531,7 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityBareJid availableManager : availableManagers) {
-    		if(!TEST) {
+    		if(!TEST || configEnabled) {
     			System.out.println("Configuring the simulation manager: "+availableManager);
     			try {
     				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
@@ -536,7 +542,7 @@ public class SimulationOrchestrator {
     			this.addManagerConfigured();
     		}
     	}
-    	if(!TEST) {
+    	if(!TEST || configEnabled) {
     		//It deletes the zip file
     		File file = new File(fileName);
     		if(file.delete()){

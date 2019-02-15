@@ -8,6 +8,7 @@
 	<serverPassword>orchestrator</serverPassword> <!--  password to be used from the orchestator to connect to the XMPP server  -->
 	<optimizationUser>frevo</optimizationUser> <!--  XMPP username of the Optimization Tool  --> 
 	<monitoring>false</monitoring> <!--  indication if the monitoring GUI has to be used or not  -->
+	<configEnabled>true</configEnabled> <!-- Indication if the configuration of the simulators has to be done or not -->
 	<mqttBroker>tcp://130.192.86.237:1883</mqttBroker> <!--  MQTT broker to be used if the monitoring is set to true  -->
 	<localOptimization>false</localOptimization> <!-- Indicates if the  Optimization Tool has to be launched by the Orchestrator -->
 	<optimizationToolPath>C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</optimizationToolPath> <!-- Path of the optimization tool executable -->
