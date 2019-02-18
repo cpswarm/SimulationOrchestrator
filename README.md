@@ -41,6 +41,7 @@ These are the values in the file
 	<optimizationUser>frevo</optimizationUser> <!--  XMPP username of the Optimization Tool  --> 
 	<monitoring>true</monitoring> <!--  indication if the monitoring GUI has to be used or not  -->
 	<configEnabled>true</configEnabled> <!-- Indication if the configuration of the simulators has to be done or not -->
+	<startingTimeout>5000</startingTimeout> <!-- Time used to wait new Simulation Managers -->
 	<mqttBroker>tcp://130.192.86.237:1883</mqttBroker> <!--  MQTT broker to be used if the monitoring is set to true  -->
 		<localOptimization>true</localOptimization> <!-- Indicates if the  Optimization Tool has to be launched by the Orchestrator -->
 	<optimizationToolPath>C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</optimizationToolPath> <!-- Path of the optimization tool executable -->
@@ -109,7 +110,7 @@ This test is used to verify:
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=130.192.86.237 -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it -Dtest_server_password=orchestrator  -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dtask_id=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3  -Dlocal_optimzation=false  -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explaination of the parameters:
@@ -136,5 +137,6 @@ And here with the explaination of the parameters:
 	-Doptimization_tool_path=C:\Users\co_da\OneDrive\Desktop\xmpp\frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar (if local_optimization = true)
 	-Doptimization_tool_password = blah Password to be used to launch the optimization tool from the orchestrator (if local_optimization = true)
 	-Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" (value to be passed to the optimization tool)
+	-Dstarting_timeout=5000 (time to wait for the subscription of new Simulation Managers)
 	 -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```

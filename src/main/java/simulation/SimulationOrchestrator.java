@@ -119,6 +119,7 @@ public class SimulationOrchestrator {
 	private Boolean simulationDone = null;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private Boolean configEnabled = null;
+	private int startingTimeout;
 	
 	public static void main (String args[]) {
 		TEST = false;
@@ -145,6 +146,7 @@ public class SimulationOrchestrator {
 		String optimizationToolPassword = "";
 		String optConf = "";
 		Boolean configEnabled = false;
+		int startingTimeout = 5000;
 		
 		try {
 			Options options = new Options();
@@ -261,6 +263,7 @@ public class SimulationOrchestrator {
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverUsername = document.getElementsByTagName("username").item(0).getTextContent();
 			configEnabled = Boolean.parseBoolean(document.getElementsByTagName("configEnabled").item(0).getTextContent());
+			startingTimeout = Integer.parseInt(document.getElementsByTagName("startingTimeout").item(0).getTextContent());
 			serverPassword = document.getElementsByTagName("serverPassword").item(0).getTextContent();
 			optimizationToolUser = document.getElementsByTagName("optimizationUser").item(0).getTextContent();
 			localOptimization = Boolean.parseBoolean(document.getElementsByTagName("localOptimization").item(0).getTextContent());
@@ -290,7 +293,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf, configEnabled);
+		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf, configEnabled, startingTimeout);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -345,8 +348,10 @@ public class SimulationOrchestrator {
 	 * 	 	Configuration parameters to be sent to the optimization Tool
 	 * @param configEnabled
 	 *       Indicates if the configuration of the simulators have to be done or not
+	 * @param startingTimeout
+	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final String optConf, final Boolean configEnabled) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final String optConf, final Boolean configEnabled, int startingTimeout) {
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
@@ -362,6 +367,7 @@ public class SimulationOrchestrator {
 		this.localOptimzation = localOptimization;
 		this.optimizationConfiguration = optConf;
 		this.configEnabled = configEnabled;
+		this.startingTimeout = startingTimeout;
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -492,7 +498,7 @@ public class SimulationOrchestrator {
     public void evaluateSimulationManagers() {
 		try {
 			System.out.println("Wait to collect the managers");
-			Thread.sleep(5000);
+			Thread.sleep(this.startingTimeout);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
