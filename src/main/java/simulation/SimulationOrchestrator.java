@@ -537,7 +537,7 @@ public class SimulationOrchestrator {
     		}
     	}
     	for (EntityBareJid availableManager : availableManagers) {
-    		if(!TEST || configEnabled) {
+    		if(!TEST && configEnabled) {
     			System.out.println("Configuring the simulation manager: "+availableManager);
     			try {
     				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
