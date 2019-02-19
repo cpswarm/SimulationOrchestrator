@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import org.apache.commons.cli.CommandLine;
@@ -68,6 +70,7 @@ import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.MessageEventCoordinatorImpl;
 import simulation.xmpp.PacketListenerImpl;
+import simulation.xmpp.SubscriptionHandler;
 
 import javax.net.ssl.SSLContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -75,7 +78,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -91,6 +93,7 @@ import java.text.SimpleDateFormat;
 public class SimulationOrchestrator {
 	private static final String RESOURCE = "cpswarm";
 	public static final Semaphore SEMAPHORE = new Semaphore(1);
+	private BlockingQueue <Presence> queue;
 	private XMPPTCPConnection connection;
 	private MqttAsyncDispatcher client;
 	private ConnectionListenerImpl connectionListener;
@@ -462,6 +465,10 @@ public class SimulationOrchestrator {
 			me.printStackTrace();
 			return;
 		}
+
+		SubscriptionHandler handler = new SubscriptionHandler(this);
+		Thread thread = new Thread(handler);
+		thread.start();
 		
 		addOptimizationToTheRoster();
 		// In case of test the evaluation is done only after that the dummy manager is started
@@ -841,6 +848,36 @@ public class SimulationOrchestrator {
 		} catch (SmackException | IOException | XMPPException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Add a subscribe request to the queue of the ones avialable
+	 */
+	public void putSubscribeRequest(Presence presence) {
+		if (queue==null) {
+			queue = new LinkedBlockingQueue<Presence>();
+		}
+		try {
+			queue.put(presence);
+		} catch (InterruptedException e) {
+			
+		}
+	}
+	
+	/**
+	 * Take a subscription request from the queue
+	 * 
+	 * @return
+	 */
+	public Presence getSubscriptionRequest () {
+		if (queue==null) {
+			queue = new LinkedBlockingQueue<Presence>();
+		}
+		try {
+			return queue.take();
+		} catch (InterruptedException e) {
+			return null;
 		}
 	}
 }

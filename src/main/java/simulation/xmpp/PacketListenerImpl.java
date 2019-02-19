@@ -25,9 +25,6 @@ import simulation.SimulationOrchestrator;
  *
  */
 public class PacketListenerImpl implements StanzaListener {
-	// Literal constants
-	private static final String SUBSCRIBED = " subscribed";
-	private static final String ACCOUNT = "account ";
 
 	private SimulationOrchestrator parent = null;
 
@@ -51,42 +48,9 @@ public class PacketListenerImpl implements StanzaListener {
 	public void processStanza(final Stanza packet) {
 		final Presence presence = (Presence) packet;
 		// If the presence indicates that another user is trying to add the orchestrator
-		// to its roster, it checks the username that has done the
-		// request and inserts the user in a group
+		// to its roster, it puts the presence in the queue of the ones to be handled
 		if (presence.getType() == Presence.Type.subscribe) {
-			System.out.println(
-					"subscription request received from " + presence.getFrom());
-			final Presence answerPresence = new Presence(
-					Presence.Type.subscribe);
-			answerPresence.setTo(presence.getFrom());
-			try {
-				SimulationOrchestrator.SEMAPHORE.acquire();
-				parent.getConnection().sendStanza(answerPresence);
-				final Roster roster = Roster.getInstanceFor(parent
-						.getConnection());
-
-				String entryType = "simulator";
-				String descriptionToUse = "";
-				RosterGroup group = null;
-				group = roster.getGroup(entryType);
-				if (!(group instanceof RosterGroup)) {
-					group = roster.createGroup(entryType);
-				}
-				final String[] groups = { entryType };
-				roster.createEntry(JidCreate.from(presence.getFrom()).asBareJid(), descriptionToUse, groups);
-				System.out.println(
-						ACCOUNT + presence.getFrom() + SUBSCRIBED);
-				SimulationOrchestrator.SEMAPHORE.release();
-			} catch (final XMPPException | NoResponseException
-					| NotConnectedException | NotLoggedInException | XmppStringprepException | InterruptedException e) {
-				System.out.println(
-						"error adding the user: " + presence.getFrom());
-				System.out.println("msg "+e.getMessage());
-	            System.out.println("loc "+e.getLocalizedMessage());
-	            System.out.println("cause "+e.getCause());
-	            System.out.println("excep "+e);
-				return;
-			}
+			parent.putSubscribeRequest(presence);
 		} else {
 			if(presence.isAvailable()) {
 				Gson gson = new Gson();
@@ -99,13 +63,6 @@ public class PacketListenerImpl implements StanzaListener {
 					} 
 					
 				} catch (JsonSyntaxException | XmppStringprepException e) {
-					System.out.println(
-							"error adding the user: " + presence.getFrom());
-					System.out.println("msg "+e.getMessage());
-		            System.out.println("loc "+e.getLocalizedMessage());
-		            System.out.println("cause "+e.getCause());
-		            System.out.println("excep "+e);
-					return;
 				}
 			} else if(presence.getType().equals(Presence.Type.unavailable)){
 				System.out.println(
