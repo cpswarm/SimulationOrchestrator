@@ -109,7 +109,7 @@ public class SimulationOrchestrator {
 	private Boolean monitoring = null;
 	// JSon containing the Optimization Configuration 
 	// TODO receive these configurations from the Launcher
-	private String optimizationConfiguration = "{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}";
+	private FrevoConfiguration optimizationConfiguration = null;
 	private String simulationConfiguration = null;
 	private Server server;
 	private String taskId;
@@ -147,7 +147,7 @@ public class SimulationOrchestrator {
 		String optimizationToolPath = null;
 		Boolean localOptimization = false;
 		String optimizationToolPassword = "";
-		String optConf = "";
+		FrevoConfiguration optConf = null;
 		Boolean configEnabled = false;
 		int startingTimeout = 5000;
 		
@@ -253,12 +253,11 @@ public class SimulationOrchestrator {
 			}
 			Gson gson = new Gson();
 			JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
-			FrevoConfiguration frevo = gson.fromJson(reader, FrevoConfiguration.class);
-			frevo.setCandidateCount(Integer.parseInt(can));
-			frevo.setGenerationCount(Integer.parseInt(gen));
-			frevo.setSimulationTimeoutSeconds(Integer.parseInt(sim));
-			frevo.setEvaluationSeed(Integer.parseInt(se));
-			optConf = gson.toJson(frevo);
+			optConf = gson.fromJson(reader, FrevoConfiguration.class);
+			optConf.setCandidateCount(Integer.parseInt(can));
+			optConf.setGenerationCount(Integer.parseInt(gen));
+			optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
+			optConf.setEvaluationSeed(Integer.parseInt(se));
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
@@ -354,7 +353,7 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final String optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
@@ -728,7 +727,9 @@ public class SimulationOrchestrator {
 		for(EntityBareJid availableManager : this.availableManagers) {
 			managersJid.add(availableManager.toString());
 		}
-		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message",  optimizationConfiguration, simulationConfiguration, managersJid);
+		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
+		Gson gson = new Gson();
+		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, "Start Optimization message", gson.toJson(optimizationConfiguration), simulationConfiguration, managersJid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());

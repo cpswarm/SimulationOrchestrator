@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,9 @@ import org.junit.Test;
 import org.jxmpp.jid.impl.JidCreate;
 
 import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
+import config.frevo.FrevoConfiguration;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
@@ -98,7 +101,6 @@ public class AppTest extends TestCase{
 	 * -Dlocal_optimization=true (Indicates if the Simulation Orchestator has to launch also the Optimization Tool)
 	 * -optimization_tool_path=/home/cpswarm/Desktop/ (path of the executable of the Optimization Tool)
 	 * -Doptimization_tool_password = blah  (To be used to launch the optimization tool from the orchestrator)
-	 * -Doptimization_configuration="{candidateCount:100, repeatCount:1, generationCount:100, simulationTimeoutSeconds:1200, seed:1234}" (value to be passed to the optimization tool)
 	 * -Dstarting_timeout=5000 (time to wait for the subscription of new Simulation Managers)
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
@@ -124,8 +126,14 @@ public class AppTest extends TestCase{
 	private Boolean localOptimization = Boolean.parseBoolean(System.getProperty("local_optimization"));
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
 	private String optimizationToolPassword = System.getProperty("optimization_tool_password");
-	private String optimizationConfiguration = System.getProperty("optimization_configuration");
-	private int startingTimeout = Integer.parseInt(System.getProperty("starting_timeout")); 
+	private static FrevoConfiguration optimizationConfiguration = null;
+	private int startingTimeout = Integer.parseInt(System.getProperty("starting_timeout"));
+	static {
+		Gson gson = new Gson();
+		JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
+		optimizationConfiguration = gson.fromJson(reader, FrevoConfiguration.class);
+	}
+ 
 	/*	
 	@Test
 	public void testKubernetes() throws IOException, ApiException{
@@ -301,14 +309,14 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
-					"	\"server\": 1,\r\n" + 
-					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					"	\"simulations\": [\"stage\"],\r\n" + 
-					"	\"capabilities\": {\r\n" + 
-					"		\"dimensions\": 2\r\n" + 
-					"	}\r\n" + 
-					"}\r\n" + 
-					"", Server.class);
+					   "	\"server\": 1,\r\n" + 
+					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					   "	\"simulations\": [\"stage\"],\r\n" + 
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n", Server.class);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optimizationConfiguration, Boolean.FALSE, startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
@@ -339,14 +347,14 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
-					"	\"server\": 1,\r\n" + 
-					"	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					"	\"simulations\": [\"stage\"],\r\n" + 
-					"	\"capabilities\": {\r\n" + 
-					"		\"dimensions\": 2\r\n" + 
-					"	}\r\n" + 
-					"}\r\n" + 
-					"", Server.class);
+					   "	\"server\": 1,\r\n" + 
+					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					   "	\"simulations\": [\"stage\"],\r\n" + 
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n", Server.class);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(serverIP, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optimizationConfiguration, Boolean.FALSE, startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
