@@ -47,6 +47,7 @@ import javax.net.ssl.SSLContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.security.SecureRandom;
 
 
@@ -67,7 +68,7 @@ public class DummyManager {
 	private String simulationConfiguration = null;
 	private Boolean simulationDone = null;
 	
-	public DummyManager(final String clientID, final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
+	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
 		this.clientID = clientID;
 		this.optimizationId = optimizationId;
 		this.serverName = serverName;
@@ -82,7 +83,7 @@ public class DummyManager {
 			sc.init(null, null, new SecureRandom());
 			SmackConfiguration.DEBUG = true;
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
-					.builder().setHost(serverIP).setPort(5222)
+					.builder().setHostAddress(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
 					.setCompressionEnabled(false).setCustomSSLContext(sc)
 					.build();

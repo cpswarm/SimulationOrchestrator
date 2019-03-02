@@ -43,6 +43,7 @@ import javax.net.ssl.SSLContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.security.SecureRandom;
 
 
@@ -65,7 +66,7 @@ public class DummyOptimizationTool {
 	private String simulationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
-	public DummyOptimizationTool(final String serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
+	public DummyOptimizationTool(final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
 		clientID = "optimization_test";
 		this.optimizationID = optimizationId;
 		this.serverName = serverName;
@@ -79,7 +80,7 @@ public class DummyOptimizationTool {
 			sc.init(null, null, new SecureRandom());
 
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
-					.builder().setHost(serverIP).setPort(5222)
+					.builder().setHostAddress(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
 					.setCompressionEnabled(false).setCustomSSLContext(sc)
 					.build();

@@ -80,6 +80,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -128,7 +129,7 @@ public class SimulationOrchestrator {
 		TEST = false;
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder;
-		String serverURI = "";
+		InetAddress serverURI = null;
 		String serverName = "";
 		String serverUsername = "";
 		String serverPassword = "";
@@ -261,7 +262,7 @@ public class SimulationOrchestrator {
 			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
-			serverURI = document.getElementsByTagName("serverURI").item(0).getTextContent();
+			serverURI = InetAddress.getByName(document.getElementsByTagName("serverURI").item(0).getTextContent());
 			serverName = document.getElementsByTagName("serverName").item(0).getTextContent();
 			serverUsername = document.getElementsByTagName("username").item(0).getTextContent();
 			configEnabled = Boolean.parseBoolean(document.getElementsByTagName("configEnabled").item(0).getTextContent());
@@ -353,7 +354,7 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final String serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
@@ -389,7 +390,7 @@ public class SimulationOrchestrator {
 			sc.init(null, null, new SecureRandom());
 
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
-					.builder().setHost(serverIP).setPort(5222)
+					.builder().setHostAddress(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
 					.setCompressionEnabled(false).setCustomSSLContext(sc).build();
 			connection = new XMPPTCPConnection(connectionConfig);
