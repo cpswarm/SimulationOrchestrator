@@ -35,7 +35,7 @@ These are the values in the file
 
 ``` xml
 <settings>
- 	<serverURI>123.123.123.123</serverURI> <!-- URI of the XMPP server  -->
+   <serverURI>123.123.123.123</serverURI> <!-- URI of the XMPP server  -->
 	<serverName>pippo.pluto.it</serverName>  <!-- name of the XMPP server  -->
 	<username>orchestrator</username> <!-- username to be used to connect to the XMPP Server -->
 	<serverPassword>orchestrator</serverPassword> <!--  password to be used from the orchestator to connect to the XMPP server (temporary solution) -->
