@@ -34,7 +34,7 @@
         "containers": [
           {
             "name": "soo",
-            "image": "dconzon/soo:1.0.2",
+            "image": "dconzon/soo-runner:1.0.0",
             "resources": {},
             "terminationMessagePath": "/dev/termination-log",
             "terminationMessagePolicy": "File",
