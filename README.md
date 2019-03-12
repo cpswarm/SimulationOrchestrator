@@ -151,7 +151,7 @@ This tutorial assumes that:
 
 ### Steps
 
-Start cloning the project in your environment from **Put CPSwarm github link here**.
+Start cloning the project in your environment from the CPSwarm [github repository](https://github.com/cpswarm/SimulationOrchestrator.git).
 
 
 Then you have to remove the configuration files from the git index, with the following commands.
