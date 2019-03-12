@@ -21,7 +21,7 @@ mvn install -DskitTests
 ```
 
 # Configuration
-The software contains a configuration file which can be used to change some system parameter, this file is /resources/orchestator.xml
+The software contains a configuration file, which can be used to change some system parameter, this file is /resources/orchestator.xml
 
 The project contains already a configuration file with default values, before to change it setting the values to be used in the real use case, remember to run this commands in the project folder
 
