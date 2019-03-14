@@ -5,7 +5,7 @@ package simulation;
 
 
 /**
- * A Runnable class for monitoring the progess of the optimization process
+ * A Runnable class for monitoring the progress of the optimization process
  * 
  *
  */
