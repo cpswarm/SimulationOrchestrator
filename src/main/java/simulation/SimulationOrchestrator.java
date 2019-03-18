@@ -66,6 +66,7 @@ import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.server.Capabilities;
 import messages.server.Server;
+import simulation.tools.ChoiceOption;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.MessageEventCoordinatorImpl;
@@ -155,12 +156,16 @@ public class SimulationOrchestrator {
 		try {
 			Options options = new Options();
 
+			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r");
+			mode.setRequired(true);
+			options.addOption(mode);
+			
 			Option input = new Option("s", "src", true, "input folder path");
-			input.setRequired(true);
+			input.setRequired(false);
 			options.addOption(input);
 
 			Option output = new Option("t", "target", true, "output folder path");
-			output.setRequired(true);
+			output.setRequired(false);
 			options.addOption(output);
 			
 			Option configuration = new Option("c", "conf", true, "folder with the configuration files");
@@ -168,7 +173,7 @@ public class SimulationOrchestrator {
 			options.addOption(configuration);
 
 			Option id = new Option("i", "id", true, "Task ID");
-			id.setRequired(true);
+			id.setRequired(false);
 			options.addOption(id);
 			
 			Option gui = new Option("g", "gui", false, "GUI to be used or not for the simulation");
@@ -180,11 +185,11 @@ public class SimulationOrchestrator {
 			options.addOption(params);
 			
 			Option dim = new Option("d", "dim", true, "Number of dimensions required for simulation");
-			dim.setRequired(true);
+			dim.setRequired(false);
 			options.addOption(dim);
 			
 			Option max = new Option("m", "max", true, "Maximum number of agents required for simulation");
-			max.setRequired(true);
+			max.setRequired(false);
 			options.addOption(max);
 			
 			Option optimization = new Option("o", "opt", false, "Indicates if the optimization is required or not");
@@ -199,7 +204,7 @@ public class SimulationOrchestrator {
 			optimization.setRequired(false);
 			options.addOption(generationCount);
 			
-			Option simulationTimeout = new Option("st", "sim", true, "Indicates the the simulation timeot for the OT");
+			Option simulationTimeout = new Option("st", "sim", true, "Indicates the the simulation timeout for the OT");
 			optimization.setRequired(false);
 			options.addOption(simulationTimeout);
 
