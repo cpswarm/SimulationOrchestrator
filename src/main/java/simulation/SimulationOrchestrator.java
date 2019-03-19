@@ -58,6 +58,8 @@ import org.xml.sax.SAXException;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
+import config.deployment.Deployment;
+import config.deployment.DeploymentConfiguration;
 import config.frevo.FrevoConfiguration;
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
@@ -79,6 +81,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -125,6 +129,24 @@ public class SimulationOrchestrator {
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private Boolean configEnabled = null;
 	private int startingTimeout;
+	public static enum OP_MODE {D,  R, DR;
+		
+		static OP_MODE fromString(String text) {
+			switch(text) {
+			case "D":
+				return OP_MODE.D;
+			case "R":
+				return OP_MODE.R;
+			case "DR":
+				return OP_MODE.DR;
+			default:
+				return null;
+			}
+		}
+	
+	}
+	
+	private OP_MODE opMode;
 	
 	public static void main (String args[]) {
 		TEST = false;
@@ -152,7 +174,8 @@ public class SimulationOrchestrator {
 		FrevoConfiguration optConf = null;
 		Boolean configEnabled = false;
 		int startingTimeout = 5000;
-		
+		OP_MODE opMode = null;
+			
 		try {
 			Options options = new Options();
 
@@ -220,11 +243,13 @@ public class SimulationOrchestrator {
 				cmd = parser.parse(options, args);
 			} catch (ParseException e) {
 				System.out.println(e.getMessage());
-				formatter.printHelp("utility-name", options);
+				formatter.printHelp("java -jar soo.jar", options);
 
 				System.exit(1);
 			}
-
+			
+			opMode = OP_MODE.fromString(cmd.getOptionValue("mode").toUpperCase());
+				
 			
 			configurationFolder = cmd.getOptionValue("conf");
 			inputDataFolder = cmd.getOptionValue("src");
@@ -301,12 +326,11 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf, configEnabled, startingTimeout);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf, configEnabled, startingTimeout);
 		while(true) {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -314,6 +338,8 @@ public class SimulationOrchestrator {
 	
 	/**
 	 * 
+	 * @param mode
+	 *      Operation mode of the SOO
 	 * @param serverIP
 	 * 		IP of the XMPP server
 	 * @param serverName
@@ -359,7 +385,8 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+		this.opMode = opMode;
 		this.taskId = taskId;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
@@ -474,14 +501,22 @@ public class SimulationOrchestrator {
 		SubscriptionHandler handler = new SubscriptionHandler(this);
 		Thread thread = new Thread(handler);
 		thread.start();
-		
+
 		addOptimizationToTheRoster();
-		// In case of test the evaluation is done only after that the dummy manager is started
-		if(!TEST) {
-			this.evaluateSimulationManagers();
+		
+		switch(opMode) {
+		case D:
+			this.deploySimulators();
+			break;
+		case DR:
+			this.deploySimulators();
+		case R:
+			// In case of test the evaluation is done only after that the dummy manager is started
+			if(!TEST) {
+				this.evaluateSimulationManagers();
+			}
 		}
 	}
-
     
     private boolean createAccount(final String password) {
 		final AccountManager accountManager = AccountManager
@@ -570,7 +605,23 @@ public class SimulationOrchestrator {
     		}
     	}
     }
-	
+
+    
+    private void deploySimulators() {
+		Gson gson = new Gson();
+		JsonReader reader;
+		DeploymentConfiguration deployConf = null;
+		try {
+			reader = new JsonReader(new FileReader(this.configurationFolder+"deployment.json"));
+			deployConf = gson.fromJson(reader, DeploymentConfiguration.class);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		for (Deployment deployment: deployConf.getDeployments()) {
+			
+		}
+    }
+    
 	/**
 	 * Method used to add a {@link PacketListener</code> to the connection
 	 *
@@ -578,11 +629,6 @@ public class SimulationOrchestrator {
 	 *            the listener that will receive the notification
 	 *
 	 * @return a <code>boolean</code>: true if all is ok, otherwise false
-	 *
-	 *
-	 * @throws AsserionError
-	 *             if something is wrong
-	 *
 	 *
 	 */
 	private boolean addAsyncStanzaListener(final StanzaListener listener,
