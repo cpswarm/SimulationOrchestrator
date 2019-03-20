@@ -179,7 +179,7 @@ public class SimulationOrchestrator {
 		try {
 			Options options = new Options();
 
-			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r");
+			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r","dr");
 			mode.setRequired(true);
 			options.addOption(mode);
 			

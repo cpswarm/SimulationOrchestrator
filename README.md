@@ -56,26 +56,27 @@ These are the values in the file
 These are the parameters to be passed to the software to run
 
 ``` bash
-usage: utility-name
+usage: java -jar soo.jar
  -c,--conf <arg>     folder with the configuration files
  -cc,--can <arg>     Indicates the candidate count
  -d,--dim <arg>      Number of dimensions required for simulation
  -g,--gui            GUI to be used or not for the simulation
  -gc,--gen <arg>     Indicates the generation count
  -i,--id <arg>       Task ID
+ -M,--mode <arg>     Running mode for the SOO [d, r, dr]
  -m,--max <arg>      Maximum number of agents required for simulation
  -o,--opt            Indicates if the optimization is required or not
  -p,--params <arg>   Parameters to be passed to the simulator
  -s,--src <arg>      input folder path
  -se,--seed <arg>    Indicates the seed to be used in the OT
- -st,--sim <arg>     Indicates the the simulation timeot for the OT
+ -st,--sim <arg>     Indicates the the simulation timeout for the OT
  -t,--target <arg>   output folder path
  ```
 
 And this is an example of running command
 
 ``` bash
-java -jar /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --dim any --max 3 --src /home/cpswarm/launcher_project/Models --target /home/cpswarm/launcher_project/Optimized --conf /home/cpswarm/launcher_project/SimulationConf --opt --gui
+java -jar -M dr /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --dim any --max 3 --src /home/cpswarm/launcher_project/Models --target /home/cpswarm/launcher_project/Optimized --conf /home/cpswarm/launcher_project/SimulationConf --opt --gui
 ```
 
 ## Test suite
@@ -104,6 +105,11 @@ This test is used to verify:
  - The ability to send a Start Optimization message to the Dummy Optimization Tool
  - The ability to receive correctly the result of the optimization, when it is finished
  - The test verifies that the optimization is correctly finished
+
+### Test kubernetes
+
+This test is used to verify:
+ - The possibility to use the Java client to connect to a Kubernetes Master.
 
 ## Test configuration
 
