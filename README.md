@@ -153,6 +153,7 @@ And here with the explanation of the parameters:
 This tutorial assumes that:
 - You have installed on your machine or in the cloud one instance of an XMPP server. This software has been tested with [Openfire](https://www.igniterealtime.org/projects/openfire/) and [Tigase](https://tigase.net/). For a complete list of available XMPP servers see [here](https://xmpp.org/software/servers.html). 
 - You have docker running on your machine.
+- For the deployment of the Simulators, you have access to a [Kubernetes](https://kubernetes.io/) cluster and you have setup the KUBECONFIG environment variable to the path of a valid Kubernetes config file).
 - The SOO is launched using [CPSwarm Launcher](https://github.com/cpswarm/launcher)
 
 ### Steps
