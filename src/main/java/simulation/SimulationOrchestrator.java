@@ -68,6 +68,7 @@ import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.server.Capabilities;
 import messages.server.Server;
+import simulation.kubernetes.KubernetesUtils;
 import simulation.tools.ChoiceOption;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
@@ -618,7 +619,7 @@ public class SimulationOrchestrator {
 			e.printStackTrace();
 		}
 		for (Deployment deployment: deployConf.getDeployments()) {
-			
+			KubernetesUtils.deploy(deployment);
 		}
     }
     
