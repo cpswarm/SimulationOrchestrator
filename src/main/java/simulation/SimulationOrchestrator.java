@@ -130,7 +130,7 @@ public class SimulationOrchestrator {
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private Boolean configEnabled = null;
 	private int startingTimeout;
-	public static enum OP_MODE {D,  R, DR;
+	public static enum OP_MODE {D,  R, RD;
 		
 		static OP_MODE fromString(String text) {
 			switch(text) {
@@ -138,8 +138,8 @@ public class SimulationOrchestrator {
 				return OP_MODE.D;
 			case "R":
 				return OP_MODE.R;
-			case "DR":
-				return OP_MODE.DR;
+			case "RD":
+				return OP_MODE.RD;
 			default:
 				return null;
 			}
@@ -180,7 +180,7 @@ public class SimulationOrchestrator {
 		try {
 			Options options = new Options();
 
-			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r","dr");
+			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r","rd");
 			mode.setRequired(true);
 			options.addOption(mode);
 			
@@ -509,7 +509,7 @@ public class SimulationOrchestrator {
 		case D:
 			this.deploySimulators();
 			break;
-		case DR:
+		case RD:
 			this.deploySimulators();
 		case R:
 			// In case of test the evaluation is done only after that the dummy manager is started
