@@ -1,16 +1,18 @@
 package simulation.kubernetes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-
 import config.deployment.Container;
 import config.deployment.Deployment;
+import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
+import io.kubernetes.client.Configuration;
+import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.models.ExtensionsV1beta1Deployment;
 import io.kubernetes.client.models.ExtensionsV1beta1DeploymentSpec;
@@ -25,6 +27,7 @@ import io.kubernetes.client.models.V1PodSecurityContext;
 import io.kubernetes.client.models.V1PodSpec;
 import io.kubernetes.client.models.V1PodTemplateSpec;
 import io.kubernetes.client.models.V1SecurityContext;
+import io.kubernetes.client.util.Config;
 
 public final class KubernetesUtils {
 	/**
@@ -35,7 +38,6 @@ public final class KubernetesUtils {
 	 * @return true if all is OK, false otherwise
 	 */
 	public static boolean deploy(Deployment deploy) {
-		ExtensionsV1beta1Api extsApi = new ExtensionsV1beta1Api();
 		ExtensionsV1beta1Deployment deployment = new ExtensionsV1beta1Deployment(); 
 		deployment.setKind("Deployment");
 		deployment.setApiVersion("extensions/v1beta1");
@@ -79,6 +81,8 @@ public final class KubernetesUtils {
 			container.setSecurityContext(secContext);
 			containersList.add(container);
 		}
+		Map nodeSelector = new HashMap();
+		podSpec.setNodeSelector(nodeSelector);
 		podSpec.setContainers(containersList);
 		podSpec.setRestartPolicy("Always");
 		podSpec.setTerminationGracePeriodSeconds(Long.valueOf(30));
@@ -127,11 +131,15 @@ public final class KubernetesUtils {
 		*/
 		
 		try {
+			ApiClient client = Config.defaultClient();
+			Configuration.setDefaultApiClient(client);
+
+			ExtensionsV1beta1Api extsApi = new ExtensionsV1beta1Api();
 			ExtensionsV1beta1Deployment result = extsApi.createNamespacedDeployment("default", deployment, "true");
 			io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
 			String resultJson = json.serialize(result);
 			System.out.println(resultJson);
-		} catch (ApiException e) {
+		} catch (ApiException | IOException e) {
 			System.out.println("Error deploying a simulator "+deployment.getMetadata().getName());
 			e.printStackTrace();
 			return false;
@@ -139,7 +147,7 @@ public final class KubernetesUtils {
 		return true;
 	}
 	
-	public static boolean deploy(final V1ObjectMeta metadata, Integer replicas) {
+	public static boolean scale(final V1ObjectMeta metadata, Integer replicas) {
 		ExtensionsV1beta1Api extsApi = new ExtensionsV1beta1Api();
 		
 		ExtensionsV1beta1Scale body = new ExtensionsV1beta1Scale();
@@ -150,11 +158,13 @@ public final class KubernetesUtils {
 		scale.setReplicas(replicas);
 		body.setSpec(scale);
 		try {
+			ApiClient client = Config.defaultClient();
+			Configuration.setDefaultApiClient(client);
 			ExtensionsV1beta1Scale result = extsApi.replaceNamespacedDeploymentScale("test", "default", body, "true");
 			io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
 			String resultJson = json.serialize(result);
 			System.out.println(resultJson);			
-		} catch (ApiException e) {
+		} catch (ApiException | IOException e) {
 			System.out.println("Error scaling the deployment "+metadata.getName());
 			e.printStackTrace();
 		}
