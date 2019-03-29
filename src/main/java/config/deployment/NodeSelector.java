@@ -14,36 +14,36 @@ import com.google.gson.annotations.SerializedName;
 public class NodeSelector {
 
     /**
-     * The Stage Schema
+     * The Component Schema
      * <p>
      * 
      * (Required)
      * 
      */
-    @SerializedName("stage")
+    @SerializedName("component")
     @Expose
-    private String stage = "";
+    private String component = "";
 
     /**
-     * The Stage Schema
+     * The Component Schema
      * <p>
      * 
      * (Required)
      * 
      */
-    public String getStage() {
-        return stage;
+    public String getComponent() {
+        return component;
     }
 
     /**
-     * The Stage Schema
+     * The Component Schema
      * <p>
      * 
      * (Required)
      * 
      */
-    public void setStage(String stage) {
-        this.stage = stage;
+    public void setComponent(String component) {
+        this.component = component;
     }
 
 }
