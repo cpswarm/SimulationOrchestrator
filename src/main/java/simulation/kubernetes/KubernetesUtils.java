@@ -81,7 +81,8 @@ public final class KubernetesUtils {
 			container.setSecurityContext(secContext);
 			containersList.add(container);
 		}
-		Map nodeSelector = new HashMap();
+		Map<String,String> nodeSelector = new HashMap<String,String>();
+		nodeSelector.put("component", deploy.getTemplate().getSpec().getNodeSelector().getComponent());
 		podSpec.setNodeSelector(nodeSelector);
 		podSpec.setContainers(containersList);
 		podSpec.setRestartPolicy("Always");
