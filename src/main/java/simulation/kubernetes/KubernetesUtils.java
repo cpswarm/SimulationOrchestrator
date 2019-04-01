@@ -79,6 +79,9 @@ public final class KubernetesUtils {
 			V1SecurityContext secContext = new V1SecurityContext();
 			secContext.setPrivileged(false);
 			container.setSecurityContext(secContext);
+			if(c.getArgs()!=null) {
+				container.setArgs(c.getArgs());
+			}
 			containersList.add(container);
 		}
 		Map<String,String> nodeSelector = new HashMap<String,String>();
