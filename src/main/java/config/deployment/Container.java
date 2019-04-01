@@ -1,6 +1,7 @@
 
 package config.deployment;
 
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -33,6 +34,16 @@ public class Container {
     @SerializedName("image")
     @Expose
     private String image = "";
+    /**
+     * The Args Schema
+     * <p>
+     * 
+     * (Required)
+     * 
+     */
+    @SerializedName("args")
+    @Expose
+    private List<String> args = null;
 
     /**
      * The Name Schema
@@ -76,6 +87,28 @@ public class Container {
      */
     public void setImage(String image) {
         this.image = image;
+    }
+
+    /**
+     * The Args Schema
+     * <p>
+     * 
+     * (Required)
+     * 
+     */
+    public List<String> getArgs() {
+        return args;
+    }
+
+    /**
+     * The Args Schema
+     * <p>
+     * 
+     * (Required)
+     * 
+     */
+    public void setArgs(List<String> args) {
+        this.args = args;
     }
 
 }
