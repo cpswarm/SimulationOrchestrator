@@ -382,7 +382,7 @@ public class SimulationOrchestrator {
 	 * @param optimizationConfiguration
 	 * 	 	Configuration parameters to be sent to the optimization Tool
 	 * @param configEnabled
-	 *       Indicates if the configuration of the simulators have to be done or not
+	 *       Indicates if the configuration of the simulators must be done or not
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
