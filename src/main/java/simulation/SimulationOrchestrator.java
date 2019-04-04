@@ -251,46 +251,49 @@ public class SimulationOrchestrator {
 			
 			opMode = OP_MODE.fromString(cmd.getOptionValue("mode").toUpperCase());
 				
-			
 			configurationFolder = cmd.getOptionValue("conf");
-			inputDataFolder = cmd.getOptionValue("src");
-			outputDataFolder = cmd.getOptionValue("target");
-			taskId = cmd.getOptionValue("id");
-			dimensions = cmd.getOptionValue("dim");
-			maxAgents = Long.parseLong(cmd.getOptionValue("max"));
 			
-			optimizationEnabled = cmd.hasOption("opt");
-			
-			guiEnabled = cmd.hasOption("gui");
-			
-			if(cmd.getOptionValue("params")!=null) {
-				parameters = cmd.getOptionValue("params");
-			}
-			
-			String can = "100";
-			if(cmd.getOptionValue("can")!=null) {
-				can = cmd.getOptionValue("can");
-			}
-			String gen = "100";
-			if(cmd.getOptionValue("gen")!=null) {
-				gen = cmd.getOptionValue("gen");
-			}
-			String sim = "1200";
-			if(cmd.getOptionValue("sim")!=null) {
-				sim = cmd.getOptionValue("sim");
-			}
-			String se = "0";
-			if(cmd.getOptionValue("seed")!=null) {
-				se = cmd.getOptionValue("seed");
-			}
-			Gson gson = new Gson();
-			JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
-			optConf = gson.fromJson(reader, FrevoConfiguration.class);
-			optConf.setCandidateCount(Integer.parseInt(can));
-			optConf.setGenerationCount(Integer.parseInt(gen));
-			optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
-			optConf.setEvaluationSeed(Integer.parseInt(se));
-			
+			if(!opMode.equals(OP_MODE.D)) {
+				inputDataFolder = cmd.getOptionValue("src");
+				outputDataFolder = cmd.getOptionValue("target");
+				taskId = cmd.getOptionValue("id");
+				dimensions = cmd.getOptionValue("dim");
+
+				maxAgents = Long.parseLong(cmd.getOptionValue("max"));
+
+				optimizationEnabled = cmd.hasOption("opt");
+
+				guiEnabled = cmd.hasOption("gui");
+
+				if(cmd.getOptionValue("params")!=null) {
+					parameters = cmd.getOptionValue("params");
+				}
+
+				String can = "100";
+				if(cmd.getOptionValue("can")!=null) {
+					can = cmd.getOptionValue("can");
+				}
+				String gen = "100";
+				if(cmd.getOptionValue("gen")!=null) {
+					gen = cmd.getOptionValue("gen");
+				}
+				String sim = "1200";
+				if(cmd.getOptionValue("sim")!=null) {
+					sim = cmd.getOptionValue("sim");
+				}
+				String se = "0";
+				if(cmd.getOptionValue("seed")!=null) {
+					se = cmd.getOptionValue("seed");
+				}
+
+				Gson gson = new Gson();
+				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
+				optConf = gson.fromJson(reader, FrevoConfiguration.class);
+				optConf.setCandidateCount(Integer.parseInt(can));
+				optConf.setGenerationCount(Integer.parseInt(gen));
+				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
+				optConf.setEvaluationSeed(Integer.parseInt(se));
+			}			
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = InetAddress.getByName(document.getElementsByTagName("serverURI").item(0).getTextContent());
