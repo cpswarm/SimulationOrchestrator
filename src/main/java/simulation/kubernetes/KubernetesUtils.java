@@ -29,6 +29,7 @@ import io.kubernetes.client.models.V1SecurityContext;
 import io.kubernetes.client.util.Config;
 
 public final class KubernetesUtils {
+	
 	/**
 	 * Method used to deploy a Kubernetes APP
 	 * 
@@ -57,7 +58,8 @@ public final class KubernetesUtils {
 				// but the current number of replica is not equal to the desired one
 				// it scales the current deployment to reach the desired status
 				if(!currentDeployment.getStatus().getAvailableReplicas().equals(deploy.getSpec().getReplicas())) {
-					KubernetesUtils.scale(currentDeployment.getMetadata(), deploy.getSpec().getReplicas());
+					KubernetesUtils.scale(extsApi, currentDeployment.getMetadata(), deploy.getSpec().getReplicas());
+					return true;
 				} else {
 					return true;
 				}
@@ -130,49 +132,33 @@ public final class KubernetesUtils {
 			spec.setProgressDeadlineSeconds(600);
 			deploymentToDo.setSpec(spec);
 
-			/*
-		ExtensionsV1beta1DeploymentStatus status = new ExtensionsV1beta1DeploymentStatus();
-		status.setObservedGeneration(Long.valueOf(1));
-		status.setReplicas(1);
-		status.setUpdatedReplicas(1);
-		status.setReadyReplicas(1);
-		status.setAvailableReplicas(1);
-		ExtensionsV1beta1DeploymentCondition progressingCondition = new ExtensionsV1beta1DeploymentCondition();
-		progressingCondition.setType("Progressing");
-		progressingCondition.setStatus("true");
-		progressingCondition.setLastUpdateTime(DateTime.parse("2018-10-18T21:13:07Z"));
-		progressingCondition.setLastUpdateTime(DateTime.parse("2018-10-18T21:12:39Z"));
-		progressingCondition.setReason("NewReplicaSetAvailable");
-		progressingCondition.setMessage("ReplicaSet \"test-97956575b\" has successfully progressed.");
-		ExtensionsV1beta1DeploymentCondition availableCondition = new ExtensionsV1beta1DeploymentCondition();
-		availableCondition.setType("Available");
-		availableCondition.setStatus("true");
-		availableCondition.setLastUpdateTime(DateTime.parse("2018-10-19T14:59:25Z"));
-		availableCondition.setLastUpdateTime(DateTime.parse("2018-10-19T14:59:25Z"));
-		availableCondition.setReason("MinimumReplicasAvailable");
-		availableCondition.setMessage("Deployment has minimum availability.");
-		List<ExtensionsV1beta1DeploymentCondition> conditions = new ArrayList<ExtensionsV1beta1DeploymentCondition>();
-		conditions.add(progressingCondition);
-		conditions.add(availableCondition);
-		status.setConditions(conditions);
-		deployment.setStatus(status);
-			 */
-
-			ExtensionsV1beta1Deployment result = extsApi.createNamespacedDeployment("default", deploymentToDo, "true");
+			ExtensionsV1beta1Deployment result = extsApi.createNamespacedDeployment(deploy.getMetadata().getNamespace(), deploymentToDo, "true");
 			io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
 			String resultJson = json.serialize(result);
 			System.out.println(resultJson);
-		} catch (ApiException | IOException e) {
+			// Waits until the status is equal to the one desired
+			while(!checkReplicas(extsApi, deploymentToDo.getMetadata(), deploy.getSpec().getReplicas())) {
+				Thread.sleep(10000);
+			}
+		} catch (ApiException | IOException | InterruptedException e) {
 			System.out.println("Error deploying a simulator "+deploymentToDo.getMetadata().getName());
 			e.printStackTrace();
 			return false;
 		}
 		return true;
 	}
-	
-	public static boolean scale(final V1ObjectMeta metadata, Integer replicas) {
-		ExtensionsV1beta1Api extsApi = new ExtensionsV1beta1Api();
-		
+
+	/**
+	 * Method used to scale a Kubernetes deployment
+	 * @param extsApi 
+	 * 	    reference to the extension API
+	 * @param metadata
+	 * 		metadata of the deployment
+	 * @param replicas
+	 *      number of replicas to be deployed
+	 * @return true if all is OK, false otherwise
+	 */
+	private static boolean scale(final ExtensionsV1beta1Api extsApi, final V1ObjectMeta metadata, final Integer replicas) {
 		ExtensionsV1beta1Scale body = new ExtensionsV1beta1Scale();
 		body.setApiVersion("extensions/v1beta1");
 		body.setKind("Scale");
@@ -181,16 +167,40 @@ public final class KubernetesUtils {
 		scale.setReplicas(replicas);
 		body.setSpec(scale);
 		try {
-			ApiClient client = Config.defaultClient();
-			Configuration.setDefaultApiClient(client);
 			ExtensionsV1beta1Scale result = extsApi.replaceNamespacedDeploymentScale(metadata.getName(), metadata.getNamespace(), body, "true");
 			io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
 			String resultJson = json.serialize(result);
 			System.out.println(resultJson);			
-		} catch (ApiException | IOException e) {
+		} catch (ApiException e) {
 			System.out.println("Error scaling the deployment "+metadata.getName());
 			e.printStackTrace();
+			return false;
 		}
-		return true;		
+		// Waits until the status is equal to the one desired
+		while(!checkReplicas(extsApi, metadata, replicas)) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	
+	private static boolean checkReplicas(final ExtensionsV1beta1Api extsApi, final V1ObjectMeta metadata, final Integer replicas) {
+		ExtensionsV1beta1Deployment currentDeployment = null; 
+		try {
+			currentDeployment = extsApi.readNamespacedDeploymentStatus(metadata.getName(), metadata.getNamespace(), "true");
+		} catch(ApiException ex) {
+			System.out.println("Exception checking the current deployment status for "+metadata.getName());
+			return false;
+		}
+		if(currentDeployment.getStatus().getAvailableReplicas()!=null) {
+			return currentDeployment.getStatus().getAvailableReplicas().equals(replicas);
+		} else {
+			return false;
+		}
 	}
 }
