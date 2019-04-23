@@ -44,6 +44,16 @@ public class Container {
     @SerializedName("args")
     @Expose
     private List<String> args = null;
+    /**
+     * The Stdin Schema
+     * <p>
+     * 
+     * (Required)
+     * 
+     */
+    @SerializedName("stdin")
+    @Expose
+    private String stdin = "";
 
     /**
      * The Name Schema
@@ -109,6 +119,28 @@ public class Container {
      */
     public void setArgs(List<String> args) {
         this.args = args;
+    }
+
+    /**
+     * The Stdin Schema
+     * <p>
+     * 
+     * (Required)
+     * 
+     */
+    public String getStdin() {
+        return stdin;
+    }
+
+    /**
+     * The Stdin Schema
+     * <p>
+     * 
+     * (Required)
+     * 
+     */
+    public void setStdin(String stdin) {
+        this.stdin = stdin;
     }
 
 }

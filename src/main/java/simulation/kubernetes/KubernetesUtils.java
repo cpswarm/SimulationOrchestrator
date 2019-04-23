@@ -102,6 +102,7 @@ public final class KubernetesUtils {
 				container.setTerminationMessagePath("/dev/termination-log");
 				container.setTerminationMessagePolicy("File");
 				container.setImagePullPolicy("IfNotPresent");
+				container.setStdin(Boolean.parseBoolean(c.getStdin()));
 				V1SecurityContext secContext = new V1SecurityContext();
 				secContext.setPrivileged(false);
 				container.setSecurityContext(secContext);
