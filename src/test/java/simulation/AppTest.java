@@ -143,10 +143,13 @@ public class AppTest extends TestCase{
 		}
 	}
  
-	
+/*	
 	@Test
 	public void testKubernetes() {
 		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testKubernetes test-------------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
 			ApiClient client = Config.defaultClient();
 			Configuration.setDefaultApiClient(client);
 
@@ -159,7 +162,7 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}
 	}
-	
+*/
 	
 
 	@Test
