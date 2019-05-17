@@ -143,7 +143,6 @@ public class AppTest extends TestCase{
 		}
 	}
  
-/*	
 	@Test
 	public void testKubernetes() {
 		try {
@@ -162,7 +161,7 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}
 	}
-*/
+
 	
 
 	@Test
