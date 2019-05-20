@@ -124,7 +124,7 @@ public class SimulationOrchestrator {
 	private String serverPassword = "";
 	private Boolean optimizationEnabled = null;
 	private String configurationFolder = null;
-	private boolean localOptimzation = false;
+	private boolean localSimulationManager = false;
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -172,6 +172,8 @@ public class SimulationOrchestrator {
 		String optimizationToolPath = null;
 		Boolean localOptimization = false;
 		String optimizationToolPassword = "";
+		Boolean localSimulationManager = false;
+		String simulationManagerPath = null;
 		FrevoConfiguration optConf = null;
 		Boolean configEnabled = false;
 		int startingTimeout = 5000;
@@ -308,7 +310,10 @@ public class SimulationOrchestrator {
 			if(localOptimization) {
 				optimizationToolPath = document.getElementsByTagName("optimizationToolPath").item(0).getTextContent();
 			}
-			
+			localSimulationManager = Boolean.parseBoolean(document.getElementsByTagName("localSimlationManager").item(0).getTextContent());
+			if(localSimulationManager) {
+				simulationManagerPath = document.getElementsByTagName("simulationManagerPath").item(0).getTextContent();
+			}
 			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
 			if(monitoring) {
 				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
@@ -330,7 +335,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, optConf, configEnabled, startingTimeout);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -380,6 +385,10 @@ public class SimulationOrchestrator {
 	 * 		Indicates if the Optimization Tool has to be launched by the Orchestrator
 	 * @param optimizationToolPath
 	 * 		Path of the Optimization Tool
+	 * @param localSimulationManager
+	 * 		Indicates if the Simulation Manager has to be launched by the Orchestrator
+	 * @param simulationManagerPath
+	 * 		Path of the Simulation Manager
 	 * @param optimizationToolPassword
 	 *     To be used to start the optimization tool directly from the orchestrator (localOptimization = true)
 	 * @param optimizationConfiguration
@@ -389,7 +398,7 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
 		this.opMode = opMode;
 		this.taskId = taskId;
 		this.serverName = serverName;
@@ -403,7 +412,7 @@ public class SimulationOrchestrator {
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
-		this.localOptimzation = localOptimization;
+		this.localSimulationManager = localSimulationManager;
 		this.optimizationConfiguration = optConf;
 		this.configEnabled = configEnabled;
 		this.startingTimeout = startingTimeout;
@@ -414,7 +423,7 @@ public class SimulationOrchestrator {
 		caps.setMaxAgents(maxAgents);
 		server.setCapabilities(caps);
 		try {
-			if(this.optimizationEnabled && this.localOptimzation) {
+			if(this.optimizationEnabled && localOptimization) {
 				String optimizationToolParameters = "-n "+ this.serverName + " -ip " + serverIP + " -p 5222 -r "+RESOURCE +" -cid "+optimizationToolUser+ " -cp "+optimizationToolPassword + " -c "+this.outputDataFolder+"candidate";
 				OptimizationToolLauncher launcher = new OptimizationToolLauncher(optimizationToolPath, optimizationToolParameters);
 				Thread thread = new Thread(launcher);
@@ -422,6 +431,12 @@ public class SimulationOrchestrator {
 			}
 			this.optimizationToolJid = JidCreate.from(optimizationToolUser+"@"+serverName+"/"+RESOURCE);
 
+			if(this.localSimulationManager) {
+				SimulationManagerLauncher launcher = new SimulationManagerLauncher(simulationManagerPath, simulationConfiguration);
+				Thread thread = new Thread(launcher);
+				thread.start();				
+			}
+			
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
 
