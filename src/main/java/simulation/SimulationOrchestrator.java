@@ -310,7 +310,7 @@ public class SimulationOrchestrator {
 			if(localOptimization) {
 				optimizationToolPath = document.getElementsByTagName("optimizationToolPath").item(0).getTextContent();
 			}
-			localSimulationManager = Boolean.parseBoolean(document.getElementsByTagName("localSimlationManager").item(0).getTextContent());
+			localSimulationManager = Boolean.parseBoolean(document.getElementsByTagName("localSimulationManager").item(0).getTextContent());
 			if(localSimulationManager) {
 				simulationManagerPath = document.getElementsByTagName("simulationManagerPath").item(0).getTextContent();
 			}
