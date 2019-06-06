@@ -81,7 +81,7 @@ public class DummyManager {
 			clientJID = JidCreate.from(clientID+"@"+serverName);
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
-			SmackConfiguration.DEBUG = true;
+			SmackConfiguration.DEBUG = false;
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
 					.builder().setHostAddress(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
