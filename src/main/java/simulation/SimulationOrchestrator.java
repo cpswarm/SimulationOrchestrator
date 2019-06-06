@@ -130,6 +130,7 @@ public class SimulationOrchestrator {
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private static final int MAX_N_OF_ATTEMPTS = 10;
 	private Boolean configEnabled = null;
 	private int startingTimeout;
 	public static enum OP_MODE {D,  R, RD;
@@ -490,12 +491,19 @@ public class SimulationOrchestrator {
 						null, true, null);
 				// connect the client
 				client.connect();
-				while(!client.isConnected()){
+				int nOfAttempts = 0;
+				System.out.println("Waiting to onntect to the MQTT server");
+				while(!client.isConnected() && nOfAttempts!=MAX_N_OF_ATTEMPTS){
 					try {
 						Thread.sleep(1000);
+						nOfAttempts++;
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+				}
+				if(nOfAttempts==MAX_N_OF_ATTEMPTS) {
+					System.out.println("Impossible conntect to the MQTT server");
+					return;
 				}
 				
 			}
