@@ -1,21 +1,11 @@
 package simulation;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.jxmpp.jid.impl.JidCreate;
@@ -24,52 +14,12 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
 import config.frevo.FrevoConfiguration;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.Configuration;
-import io.kubernetes.client.apis.AppsV1Api;
-import io.kubernetes.client.apis.AppsV1beta1Api;
-import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.apis.ExtensionsV1beta1Api;
-import io.kubernetes.client.custom.IntOrString;
-import io.kubernetes.client.models.AppsV1beta1Deployment;
-import io.kubernetes.client.models.AppsV1beta1DeploymentCondition;
-import io.kubernetes.client.models.AppsV1beta1DeploymentSpec;
-import io.kubernetes.client.models.AppsV1beta1DeploymentStatus;
-import io.kubernetes.client.models.AppsV1beta1DeploymentStrategy;
-import io.kubernetes.client.models.AppsV1beta1RollingUpdateDeployment;
-import io.kubernetes.client.models.ExtensionsV1beta1Deployment;
-import io.kubernetes.client.models.ExtensionsV1beta1DeploymentCondition;
-import io.kubernetes.client.models.ExtensionsV1beta1DeploymentSpec;
-import io.kubernetes.client.models.ExtensionsV1beta1DeploymentStatus;
-import io.kubernetes.client.models.ExtensionsV1beta1DeploymentStrategy;
-import io.kubernetes.client.models.ExtensionsV1beta1RollingUpdateDeployment;
-import io.kubernetes.client.models.ExtensionsV1beta1Scale;
-import io.kubernetes.client.models.ExtensionsV1beta1ScaleSpec;
-import io.kubernetes.client.models.V1Container;
-import io.kubernetes.client.models.V1Deployment;
-import io.kubernetes.client.models.V1DeploymentCondition;
-import io.kubernetes.client.models.V1DeploymentSpec;
-import io.kubernetes.client.models.V1DeploymentStatus;
-import io.kubernetes.client.models.V1DeploymentStrategy;
-import io.kubernetes.client.models.V1LabelSelector;
-import io.kubernetes.client.models.V1LabelSelectorRequirement;
-import io.kubernetes.client.models.V1Namespace;
-import io.kubernetes.client.models.V1ObjectMeta;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1PodList;
-import io.kubernetes.client.models.V1PodSecurityContext;
-import io.kubernetes.client.models.V1PodSpec;
-import io.kubernetes.client.models.V1PodTemplate;
-import io.kubernetes.client.models.V1PodTemplateSpec;
-import io.kubernetes.client.models.V1ResourceRequirements;
-import io.kubernetes.client.models.V1RollingUpdateDeployment;
-import io.kubernetes.client.models.V1SecurityContext;
-import io.kubernetes.client.models.V1Service;
-import io.kubernetes.client.models.V1Status;
-import io.kubernetes.client.proto.V1beta1Apiextensions.JSON;
-import io.kubernetes.client.util.Config;
-import io.kubernetes.client.util.Yaml;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import junit.framework.TestCase;
 import messages.server.Server;
 import simulation.SimulationOrchestrator;
@@ -153,15 +103,15 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testKubernetes test-------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			ApiClient client = Config.defaultClient();
-			Configuration.setDefaultApiClient(client);
-
-			CoreV1Api api = new CoreV1Api();
-			V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-			for (V1Pod item : list.getItems()) {
+			Config config = new ConfigBuilder().build();
+			KubernetesClient client = new DefaultKubernetesClient(config);
+			
+			ReplicaSetList list = client.apps().replicaSets().inAnyNamespace().list();
+			for (ReplicaSet item : list.getItems()) {
 				System.out.println(item.getMetadata().getName());
 			}
-		} catch (IOException | ApiException e) {
+			client.close();
+		} catch (Exception e) {
 			Assert.fail();
 		}
 	}

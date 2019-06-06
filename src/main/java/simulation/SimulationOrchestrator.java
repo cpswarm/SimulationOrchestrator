@@ -60,6 +60,7 @@ import com.google.gson.stream.JsonReader;
 
 import config.deployment.Deployment;
 import config.deployment.DeploymentConfiguration;
+import config.deployment.Service;
 import config.frevo.FrevoConfiguration;
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
@@ -68,6 +69,7 @@ import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.server.Capabilities;
 import messages.server.Server;
+import simulation.kubernetes.KubernetesUtils;
 import simulation.kubernetes.KubernetesUtils;
 import simulation.tools.ChoiceOption;
 import simulation.tools.Zipper;
@@ -638,6 +640,9 @@ public class SimulationOrchestrator {
 		}
 		for (Deployment deployment: deployConf.getDeployments()) {
 			KubernetesUtils.deploy(deployment);
+		}
+		for (Service service : deployConf.getServices()) {
+			KubernetesUtils.installService(service);
 		}
     }
     

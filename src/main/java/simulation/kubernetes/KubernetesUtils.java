@@ -1,35 +1,37 @@
 package simulation.kubernetes;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.gson.Gson;
+
 import config.deployment.Container;
 import config.deployment.Deployment;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.Configuration;
-import io.kubernetes.client.apis.ExtensionsV1beta1Api;
-import io.kubernetes.client.models.ExtensionsV1beta1Deployment;
-import io.kubernetes.client.models.ExtensionsV1beta1DeploymentSpec;
-import io.kubernetes.client.models.ExtensionsV1beta1DeploymentStrategy;
-import io.kubernetes.client.models.ExtensionsV1beta1RollingUpdateDeployment;
-import io.kubernetes.client.models.ExtensionsV1beta1Scale;
-import io.kubernetes.client.models.ExtensionsV1beta1ScaleSpec;
-import io.kubernetes.client.models.V1Container;
-import io.kubernetes.client.models.V1LabelSelector;
-import io.kubernetes.client.models.V1ObjectMeta;
-import io.kubernetes.client.models.V1PodSecurityContext;
-import io.kubernetes.client.models.V1PodSpec;
-import io.kubernetes.client.models.V1PodTemplateSpec;
-import io.kubernetes.client.models.V1SecurityContext;
-import io.kubernetes.client.util.Config;
+import config.deployment.Port;
+import config.deployment.Service;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.LabelSelector;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.PodSecurityContext;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.SecurityContext;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.apps.DeploymentSpec;
+import io.fabric8.kubernetes.api.model.apps.DeploymentStrategy;
+import io.fabric8.kubernetes.api.model.apps.RollingUpdateDeployment;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+
 
 public final class KubernetesUtils {
-	
+
 	/**
 	 * Method used to deploy a Kubernetes APP
 	 * 
@@ -38,116 +40,156 @@ public final class KubernetesUtils {
 	 * @return true if all is OK, false otherwise
 	 */
 	public static boolean deploy(Deployment deploy) {
-		ExtensionsV1beta1Deployment currentDeployment = null;
-		ExtensionsV1beta1Deployment deploymentToDo = new ExtensionsV1beta1Deployment(); 
-		try {
-			// Check the current status of the deployment
-			ApiClient client = Config.defaultClient();
-			Configuration.setDefaultApiClient(client);
-			ExtensionsV1beta1Api extsApi = new ExtensionsV1beta1Api();
+		io.fabric8.kubernetes.api.model.apps.Deployment currentDeployment = new io.fabric8.kubernetes.api.model.apps.Deployment();
+
+		// Check the current status of the deployment
+		Config config = new ConfigBuilder().build();
+		KubernetesClient client = new DefaultKubernetesClient(config);
+		currentDeployment = client.apps().deployments().inNamespace(deploy.getMetadata().getNamespace()).withName(deploy.getMetadata().getName()).get();
+		if(currentDeployment!=null) {
+			// If something is already deployed 
+			// but the current number of replica is not equal to the desired one
+			// it scales the current deployment to reach the desired status
+			if(!currentDeployment.getStatus().getAvailableReplicas().equals(deploy.getSpec().getReplicas())) {
+				KubernetesUtils.scale(client, currentDeployment.getMetadata(), deploy.getSpec().getReplicas());
+			} 
+			return true;
+		}
+		Map<String,String> labelsMap = new HashMap<String,String>();
+		labelsMap.put("k8s-app", deploy.getMetadata().getLabels().getK8sApp());
+		Map<String,String> annotationsMap = new HashMap<String,String>();
+		annotationsMap.put("deployment.kubernetes.io/revision", "1");
+		Map<String,String> matchLabelsMap = new HashMap<String,String>();
+		matchLabelsMap.put("k8s-app", deploy.getSpec().getSelector().getMatchLabels().getK8sApp());
+		LabelSelector labelSelector = new LabelSelector();
+		labelSelector.setMatchLabels(matchLabelsMap);
+
+		io.fabric8.kubernetes.api.model.apps.Deployment deploymentToDo = new io.fabric8.kubernetes.api.model.apps.Deployment();
+		deploymentToDo.setKind("Deployment");
+		deploymentToDo.setApiVersion("extensions/v1beta1");
+		ObjectMeta metadata = new ObjectMeta();
+		metadata.setName(deploy.getMetadata().getName());
+		metadata.setNamespace(deploy.getMetadata().getNamespace());
+		metadata.setSelfLink("/apis/extensions/v1beta1/namespaces/default/deployments/"+deploy.getMetadata().getName());
+		metadata.setUid(UUID.randomUUID().toString());
+		metadata.setGeneration(Long.valueOf(1));
+		metadata.setLabels(labelsMap);
+		deploymentToDo.setMetadata(metadata);
+		DeploymentSpec spec = new DeploymentSpec();
+		spec.setReplicas(deploy.getSpec().getReplicas());
+		spec.setSelector(labelSelector);
+		PodTemplateSpec template = new PodTemplateSpec();
+		ObjectMeta meta = new ObjectMeta();
+		meta.setName(deploy.getTemplate().getMetadata().getName());
+		meta.setLabels(labelsMap);
+		template.setMetadata(meta);
+		PodSpec podSpec = new PodSpec();
+		List<io.fabric8.kubernetes.api.model.Container> containersList = new ArrayList<io.fabric8.kubernetes.api.model.Container>();
+		for (Container c : deploy.getTemplate().getSpec().getContainers()) {
+			io.fabric8.kubernetes.api.model.Container container = new io.fabric8.kubernetes.api.model.Container();
+			container.setName(c.getName());
+			container.setImage(c.getImage());
+			container.setTerminationMessagePath("/dev/termination-log");
+			container.setTerminationMessagePolicy("File");
+			container.setImagePullPolicy("IfNotPresent");
+			container.setStdin(Boolean.parseBoolean(c.getStdin()));
+			SecurityContext secContext = new SecurityContext();
+			secContext.setPrivileged(false);
+			container.setSecurityContext(secContext);
+			if(c.getArgs()!=null) {
+				container.setArgs(c.getArgs());
+			}
+			containersList.add(container);
+		}
+		Map<String,String> nodeSelector = new HashMap<String,String>();
+		nodeSelector.put("component", deploy.getTemplate().getSpec().getNodeSelector().getComponent());
+		podSpec.setNodeSelector(nodeSelector);
+		podSpec.setContainers(containersList);
+		podSpec.setRestartPolicy("Always");
+		podSpec.setTerminationGracePeriodSeconds(Long.valueOf(30));
+		podSpec.setDnsPolicy("ClusterFirst");
+		PodSecurityContext podSecContext = new PodSecurityContext();
+		podSpec.setSecurityContext(podSecContext);
+		podSpec.setSchedulerName("default-scheduler");
+		template.setSpec(podSpec);
+		DeploymentStrategy strategy = new DeploymentStrategy();
+		strategy.setType("RollingUpdate");
+		RollingUpdateDeployment rollingUpdate = new RollingUpdateDeployment();
+		rollingUpdate.setMaxUnavailable(new IntOrString("25%"));
+		rollingUpdate.setMaxSurge(new IntOrString("25%"));
+		strategy.setRollingUpdate(rollingUpdate);
+		spec.setTemplate(template);
+		spec.setStrategy(strategy);
+		spec.setRevisionHistoryLimit(10);
+		spec.setProgressDeadlineSeconds(600);
+		deploymentToDo.setSpec(spec);
+		Gson gson = new Gson();
+		String deploymentJson = gson.toJson(deploymentToDo, io.fabric8.kubernetes.api.model.apps.Deployment.class);
+		System.out.println(deploymentJson);
+		
+		
+		io.fabric8.kubernetes.api.model.apps.Deployment result = client.apps().deployments().inNamespace(deploy.getMetadata().getNamespace()).create(deploymentToDo);
+		String resultJson = gson.toJson(result, io.fabric8.kubernetes.api.model.apps.Deployment.class);
+		System.out.println(resultJson);
+		// Waits until the status is equal to the one desired
+		while(!checkReplicas(client, deploymentToDo.getMetadata(), deploy.getSpec().getReplicas())) {
 			try {
-				currentDeployment = extsApi.readNamespacedDeploymentStatus(deploy.getMetadata().getName(), deploy.getMetadata().getNamespace(), "true");
-			} catch(ApiException ex) {
-				if(ex.getCode()!=404) {
-					System.out.println("Exception checking the current deployment status for "+deploy.getMetadata().getName());
-					return false;
-				}
-			}
-			if(currentDeployment!=null) {
-				// If something is already deployed 
-				// but the current number of replica is not equal to the desired one
-				// it scales the current deployment to reach the desired status
-				if(!currentDeployment.getStatus().getAvailableReplicas().equals(deploy.getSpec().getReplicas())) {
-					KubernetesUtils.scale(extsApi, currentDeployment.getMetadata(), deploy.getSpec().getReplicas());
-					return true;
-				} else {
-					return true;
-				}
-			}
-			
-			deploymentToDo.setKind("Deployment");
-			deploymentToDo.setApiVersion("extensions/v1beta1");
-
-			V1ObjectMeta meta = new V1ObjectMeta();
-			meta.setName(deploy.getMetadata().getName());
-			meta.setNamespace(deploy.getMetadata().getNamespace());
-			meta.setSelfLink("/apis/extensions/v1beta1/namespaces/default/deployments/"+deploy.getMetadata().getName());
-			meta.setUid(UUID.randomUUID().toString());
-			meta.setGeneration(Long.valueOf(1));
-			Map<String,String> labelsMap = new HashMap<String,String>();
-			labelsMap.put("k8s-app", deploy.getMetadata().getLabels().getK8sApp());
-			meta.setLabels(labelsMap);
-			Map<String,String> annotationsMap = new HashMap<String,String>();
-			annotationsMap.put("deployment.kubernetes.io/revision", "1");
-			meta.setAnnotations(annotationsMap);
-			deploymentToDo.setMetadata(meta);
-
-			ExtensionsV1beta1DeploymentSpec spec = new ExtensionsV1beta1DeploymentSpec();
-			spec.setReplicas(deploy.getSpec().getReplicas());
-			V1LabelSelector labelSelector = new V1LabelSelector();
-			labelSelector.putMatchLabelsItem("k8s-app", deploy.getSpec().getSelector().getMatchLabels().getK8sApp());
-			spec.setSelector(labelSelector);
-			V1PodTemplateSpec template = new V1PodTemplateSpec();
-			V1ObjectMeta podMeta = new V1ObjectMeta();
-			podMeta.setName(deploy.getTemplate().getMetadata().getName());
-			podMeta.setLabels(labelsMap);
-			template.setMetadata(podMeta);
-			spec.setTemplate(template);
-			V1PodSpec podSpec = new V1PodSpec();
-			List<V1Container> containersList = new ArrayList<V1Container>();
-			for (Container c : deploy.getTemplate().getSpec().getContainers()) {
-				V1Container container = new V1Container();
-				container.setName(c.getName());
-				container.setImage(c.getImage());
-				container.setTerminationMessagePath("/dev/termination-log");
-				container.setTerminationMessagePolicy("File");
-				container.setImagePullPolicy("IfNotPresent");
-				container.setStdin(Boolean.parseBoolean(c.getStdin()));
-				V1SecurityContext secContext = new V1SecurityContext();
-				secContext.setPrivileged(false);
-				container.setSecurityContext(secContext);
-				if(c.getArgs()!=null) {
-					container.setArgs(c.getArgs());
-				}
-				containersList.add(container);
-			}
-			Map<String,String> nodeSelector = new HashMap<String,String>();
-			nodeSelector.put("component", deploy.getTemplate().getSpec().getNodeSelector().getComponent());
-			podSpec.setNodeSelector(nodeSelector);
-			podSpec.setContainers(containersList);
-			podSpec.setRestartPolicy("Always");
-			podSpec.setTerminationGracePeriodSeconds(Long.valueOf(30));
-			podSpec.setDnsPolicy("ClusterFirst");
-			V1PodSecurityContext podSecContext = new V1PodSecurityContext();
-			podSpec.setSecurityContext(podSecContext);
-			podSpec.setSchedulerName("default-scheduler");
-			template.setSpec(podSpec);
-			ExtensionsV1beta1DeploymentStrategy strategy = new ExtensionsV1beta1DeploymentStrategy();
-			strategy.setType("RollingUpdate");
-			ExtensionsV1beta1RollingUpdateDeployment rollingUpdate = new ExtensionsV1beta1RollingUpdateDeployment();
-			rollingUpdate.setMaxUnavailable("25%");
-			rollingUpdate.setMaxSurge("25%");
-			strategy .setRollingUpdate(rollingUpdate);
-			spec.setStrategy(strategy);
-			spec.setRevisionHistoryLimit(10);
-			spec.setProgressDeadlineSeconds(600);
-			deploymentToDo.setSpec(spec);
-
-			ExtensionsV1beta1Deployment result = extsApi.createNamespacedDeployment(deploy.getMetadata().getNamespace(), deploymentToDo, "true");
-			io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
-			String resultJson = json.serialize(result);
-			System.out.println(resultJson);
-			// Waits until the status is equal to the one desired
-			while(!checkReplicas(extsApi, deploymentToDo.getMetadata(), deploy.getSpec().getReplicas())) {
 				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (ApiException | IOException | InterruptedException e) {
-			System.out.println("Error deploying a simulator "+deploymentToDo.getMetadata().getName());
-			e.printStackTrace();
-			return false;
 		}
 		return true;
 	}
+
+
+	/**
+	 * Method used to deploy a Kubernetes service
+	 * 
+	 * @param service
+	 * 		characteristics of the service
+	 * @return true if all is OK, false otherwise
+	 */
+	public static boolean installService(Service service) {
+		io.fabric8.kubernetes.api.model.Service currentService = null;
+		io.fabric8.kubernetes.api.model.Service serviceToDo = new io.fabric8.kubernetes.api.model.Service (); 
+		// Check the current status of the service
+		Config config = new ConfigBuilder().build();
+		KubernetesClient client = new DefaultKubernetesClient(config);
+		currentService = client.services().inNamespace(service.getMetadata().getNamespace()).withName(service.getMetadata().getName()).get();
+		if(currentService!=null) {
+			client.close();
+			return true;
+		} else {
+			Map<String,String> labelsMap = new HashMap<String,String>();
+			labelsMap.put("application", service.getMetadata().getApplication());
+			ObjectMeta metadata = new ObjectMeta();
+			metadata.setName(service.getMetadata().getName());
+			metadata.setNamespace(service.getMetadata().getNamespace());
+			metadata.setLabels(labelsMap);
+			serviceToDo.setMetadata(metadata);
+			ServiceSpec serviceSpec = new ServiceSpec();
+			List<ServicePort> ports = new ArrayList<ServicePort>();
+			for(final Port port : service.getSpec().getPorts()) {
+				ServicePort servicePort = new ServicePort();
+				servicePort.setName(port.getName());
+				servicePort.setPort(port.getPort());
+				servicePort.setProtocol(port.getProtocol());
+				servicePort.setTargetPort(new IntOrString(port.getTargetPort()));
+				servicePort.setNodePort(port.getNodePort());
+				ports.add(servicePort);
+			}
+			serviceSpec.setPorts(ports);
+			serviceSpec.setSelector(labelsMap);
+			serviceSpec.setType(service.getType());
+			serviceToDo.setSpec(serviceSpec);
+		}
+		client.services().inNamespace(service.getMetadata().getNamespace()).create(serviceToDo);
+		client.close();
+		return true;
+	}
+
 
 	/**
 	 * Method used to scale a Kubernetes deployment
@@ -159,26 +201,13 @@ public final class KubernetesUtils {
 	 *      number of replicas to be deployed
 	 * @return true if all is OK, false otherwise
 	 */
-	private static boolean scale(final ExtensionsV1beta1Api extsApi, final V1ObjectMeta metadata, final Integer replicas) {
-		ExtensionsV1beta1Scale body = new ExtensionsV1beta1Scale();
-		body.setApiVersion("extensions/v1beta1");
-		body.setKind("Scale");
-		body.setMetadata(metadata);
-		ExtensionsV1beta1ScaleSpec scale = new ExtensionsV1beta1ScaleSpec();
-		scale.setReplicas(replicas);
-		body.setSpec(scale);
-		try {
-			ExtensionsV1beta1Scale result = extsApi.replaceNamespacedDeploymentScale(metadata.getName(), metadata.getNamespace(), body, "true");
-			io.kubernetes.client.JSON json = new io.kubernetes.client.JSON();
-			String resultJson = json.serialize(result);
-			System.out.println(resultJson);			
-		} catch (ApiException e) {
-			System.out.println("Error scaling the deployment "+metadata.getName());
-			e.printStackTrace();
-			return false;
-		}
+	private static boolean scale(final KubernetesClient client, final ObjectMeta metadata, final Integer replicas) {
+		io.fabric8.kubernetes.api.model.apps.Deployment result = client.apps().deployments().inNamespace(metadata.getNamespace()).withName(metadata.getName()).scale(replicas, true); 
+		Gson gson = new Gson();
+		String deploymentJson = gson.toJson(result, io.fabric8.kubernetes.api.model.apps.Deployment.class);
+		System.out.println(deploymentJson);
 		// Waits until the status is equal to the one desired
-		while(!checkReplicas(extsApi, metadata, replicas)) {
+		while(!checkReplicas(client, metadata, replicas)) {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
@@ -188,16 +217,10 @@ public final class KubernetesUtils {
 		}
 		return true;
 	}
-	
-	
-	private static boolean checkReplicas(final ExtensionsV1beta1Api extsApi, final V1ObjectMeta metadata, final Integer replicas) {
-		ExtensionsV1beta1Deployment currentDeployment = null; 
-		try {
-			currentDeployment = extsApi.readNamespacedDeploymentStatus(metadata.getName(), metadata.getNamespace(), "true");
-		} catch(ApiException ex) {
-			System.out.println("Exception checking the current deployment status for "+metadata.getName());
-			return false;
-		}
+
+
+	private static boolean checkReplicas(final KubernetesClient client, final ObjectMeta metadata, final Integer replicas) {
+		io.fabric8.kubernetes.api.model.apps.Deployment currentDeployment = client.apps().deployments().inNamespace(metadata.getNamespace()).withName(metadata.getName()).get(); 
 		if(currentDeployment.getStatus().getAvailableReplicas()!=null) {
 			return currentDeployment.getStatus().getAvailableReplicas().equals(replicas);
 		} else {
