@@ -492,7 +492,7 @@ public class SimulationOrchestrator {
 				// connect the client
 				client.connect();
 				int nOfAttempts = 0;
-				System.out.println("Waiting to onntect to the MQTT server");
+				System.out.println("Waiting to conntect to the MQTT server");
 				while(!client.isConnected() && nOfAttempts!=MAX_N_OF_ATTEMPTS){
 					try {
 						Thread.sleep(1000);
@@ -502,7 +502,7 @@ public class SimulationOrchestrator {
 					}
 				}
 				if(nOfAttempts==MAX_N_OF_ATTEMPTS) {
-					System.out.println("Impossible conntect to the MQTT server");
+					System.out.println("Impossible connect to the MQTT server");
 					return;
 				}
 				
