@@ -181,7 +181,9 @@ public final class KubernetesUtils {
 				ports.add(servicePort);
 			}
 			serviceSpec.setPorts(ports);
-			serviceSpec.setSelector(labelsMap);
+			Map<String,String> selectorMap = new HashMap<String,String>();
+			selectorMap.put("k8s-app", service.getSelector().getApplication());
+			serviceSpec.setSelector(selectorMap);
 			serviceSpec.setType(service.getType());
 			serviceToDo.setSpec(serviceSpec);
 		}
