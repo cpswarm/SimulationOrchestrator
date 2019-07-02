@@ -40,10 +40,9 @@ These are the values in the file
 	<username>orchestrator</username> <!-- username to be used to connect to the XMPP Server -->
 	<serverPassword>orchestrator</serverPassword> <!--  password to be used from the orchestator to connect to the XMPP server (temporary solution) -->
 	<optimizationUser>frevo</optimizationUser> <!--  XMPP username of the Optimization Tool  --> 
-	<monitoring>false</monitoring> <!--  indication if the monitoring GUI has to be used or not  -->
+	<recovery>false</recovery> <!--  indication if the recovery has to be used or not (it can be useful to disable it for performance  -->
 	<configEnabled>true</configEnabled> <!-- Indication if the configuration of the simulators has to be done or not -->
 	<startingTimeout>30000</startingTimeout> <!-- Time used to wait new Simulation Managers -->
-	<mqttBroker>tcp://123.123.123.123:1883</mqttBroker> <!--  MQTT broker to be used if the monitoring is set to true  -->
 	<localOptimization>false</localOptimization> <!-- Indicates if the  Optimization Tool has to be launched by the Orchestrator -->
 	<optimizationToolPath>/home/Desktop/frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</optimizationToolPath> <!-- Path of the optimization tool executable -->
 	<optimizationToolPassword>blah</optimizationToolPassword> <!-- To be used if the Optimization Tool has to be launched from the Orchestrator  -->

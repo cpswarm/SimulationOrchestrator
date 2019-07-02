@@ -7,14 +7,13 @@ import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
-import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
-import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
+
+import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
+import eu.cpswarm.optimization.messages.OptimizationStatusMessage.Status;
 import eu.cpswarm.optimization.messages.ReplyMessage;
-import eu.cpswarm.optimization.messages.OptimizationCancelledMessage;
-import simulation.GetProgressSender;
+import simulation.GetOptimizationStatusSender;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -25,7 +24,7 @@ import simulation.SimulationOrchestrator;
 public final class MessageEventCoordinatorImpl implements IncomingChatMessageListener {
 
 	private SimulationOrchestrator parent = null;
-	private GetProgressSender getProgressSender = null;
+	private GetOptimizationStatusSender getOptimizationStatusSender = null;
 	private Thread senderThread = null;
 	private boolean monitoring;
 	
@@ -44,45 +43,45 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
 			if(sender.toString().startsWith("manager")) {
 				if(message instanceof SimulatorConfiguredMessage) {
-					if(((SimulatorConfiguredMessage) message).getOperationStatus().equals(Status.OK)) {
+					if(((SimulatorConfiguredMessage) message).getSuccess()) {
 						System.out.println("Received configuration ACK from "+sender.toString());
 						parent.addManagerConfigured();	
 					}
 				} else if(message instanceof SimulationResultMessage) {
-					if(((SimulationResultMessage) message).getOperationStatus().equals(Status.OK)) {
+					if(((SimulationResultMessage) message).getSuccess()) {
 						System.out.println("Received simulation result from "+sender.toString());
 						parent.setSimulationDone(true);	
 					}
 				}
 			} else if(sender.compareTo(parent.getOptimizationJid().asBareJid())==0) {
-				if(message instanceof OptimizationProgressMessage) {
-					handleOptimizationProgressMessage((OptimizationProgressMessage) message, serializer);
+				if(message instanceof OptimizationStatusMessage) {
+					handleOptimizationStatusMessage((OptimizationStatusMessage) message, serializer);
 				} else {
 					System.out.println("Reply received: "+msg.getBody());
-					if(message instanceof OptimizationStartedMessage) {
-						handleOptimizationStartedMessage((OptimizationStartedMessage) message);
-					} else if(message instanceof OptimizationCancelledMessage) {
-						OptimizationCancelledMessage reply = serializer.fromJson(msg.getBody());
-						//TODO
-					}
 				}
 			}
 		}
 	}
+	
+	private void handleOptimizationStatusMessage(OptimizationStatusMessage optimizationStatus, MessageSerializer serializer) {
+		if(optimizationStatus.getOperationStatus().equals(Status.RUNNING)) {
+			handleOptimizationStartedMessage(optimizationStatus);
+		}
+	}
 
-	private void handleOptimizationStartedMessage(OptimizationStartedMessage reply) {
-		if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getOptimizationId()) && parent.getMonitoring().booleanValue()) {
-			getProgressSender = new GetProgressSender(parent);
+	private void handleOptimizationStartedMessage(OptimizationStatusMessage reply) {
+		if(reply.getOId().equals(parent.getOptimizationId())) {
+			getOptimizationStatusSender = new GetOptimizationStatusSender(parent);
 			
 			// create the thread
-			senderThread = new Thread(getProgressSender);
+			senderThread = new Thread(getOptimizationStatusSender);
 
 			// run
 			senderThread.start();
 		}
 	}
 
-	private void handleOptimizationProgressMessage(OptimizationProgressMessage progress, MessageSerializer serializer) {
+	/*private void handleOptimizationStatusMessage(OptimizationStatusMessage progress, MessageSerializer serializer) {
 		System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%, fitness value: "+progress.getFitnessValue());
 		if(progress.getOperationStatus().equals(ReplyMessage.Status.OK)) {
 			if(progress.getProgress()==100.0) {
@@ -103,17 +102,17 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			}
 			parent.evaluateSimulationManagers();
 		}
-	}
+	}*/
 
 	private void stopSenderThread() {
-		getProgressSender.setCanRun(false);
+		getOptimizationStatusSender.setCanRun(false);
 		try {
 			senderThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		senderThread = null;
-		getProgressSender = null;
+		getOptimizationStatusSender = null;
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {

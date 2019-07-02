@@ -9,7 +9,7 @@ package simulation;
  * 
  *
  */
-public class GetProgressSender implements Runnable {
+public class GetOptimizationStatusSender implements Runnable {
 
 	
 	private SimulationOrchestrator parent = null;
@@ -17,14 +17,14 @@ public class GetProgressSender implements Runnable {
 	private final static int TIME_TO_SLEEP = 60*1000;
 	
 	
-	public GetProgressSender(final SimulationOrchestrator parent) {
+	public GetOptimizationStatusSender(final SimulationOrchestrator parent) {
 		this.parent = parent;
 	}
 	
 	@Override
 	public void run() {
 		while(canRun) {
-			if(!parent.sendGetProgress()) {
+			if(!parent.sendGetOptimizationStatus()) {
 				canRun = false;
 			}
 			try {
