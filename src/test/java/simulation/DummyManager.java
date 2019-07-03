@@ -39,7 +39,6 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import com.google.gson.Gson;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.ReplyMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import messages.server.Server;
 
@@ -66,7 +65,6 @@ public class DummyManager {
 	private String optimizationId = null;
 	private String simulationId = null;
 	private String simulationConfiguration = null;
-	private Boolean simulationDone = null;
 	
 	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
 		this.clientID = clientID;
@@ -330,7 +328,7 @@ public class DummyManager {
 	};
 	
 	public boolean publishFitness(final Double value) {
-		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, "Simulation finished", ReplyMessage.Status.OK, simulationId, value.doubleValue());
+		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, true, simulationId, value.doubleValue());
 		MessageSerializer serializer = new MessageSerializer();
 		String body = serializer.toJson(result);
 		try {

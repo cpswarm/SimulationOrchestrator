@@ -64,13 +64,28 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 	
 	private void handleOptimizationStatusMessage(OptimizationStatusMessage optimizationStatus, MessageSerializer serializer) {
-		if(optimizationStatus.getOperationStatus().equals(Status.RUNNING)) {
-			handleOptimizationStartedMessage(optimizationStatus);
+		switch(optimizationStatus.getOperationStatus()) {
+		case STARTED:
+			handleOptimizationStarted(optimizationStatus);
+			break;
+		case RUNNING:
+		case STOPPED:
+			handleOptimizationRunningOrStopped(optimizationStatus);
+			break;
+		case COMPLETE:
+			handleOptimizationCompleted(optimizationStatus);
+			break;
+		case ERROR_BAD_CONFIGURATION:
+		case ERROR_OPTIMIZAZION_FAILED:
+			handleOptimizationError(optimizationStatus);
+			break;
+		default:
+			break;
 		}
 	}
 
-	private void handleOptimizationStartedMessage(OptimizationStatusMessage reply) {
-		if(reply.getOId().equals(parent.getOptimizationId())) {
+	private void handleOptimizationStarted(OptimizationStatusMessage reply) {
+		if(reply.getOId().equals(parent.getOptimizationId()) && parent.isRecovery()) {
 			getOptimizationStatusSender = new GetOptimizationStatusSender(parent);
 			
 			// create the thread
@@ -81,29 +96,33 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		}
 	}
 
-	/*private void handleOptimizationStatusMessage(OptimizationStatusMessage progress, MessageSerializer serializer) {
-		System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%, fitness value: "+progress.getFitnessValue());
-		if(progress.getOperationStatus().equals(ReplyMessage.Status.OK)) {
-			if(progress.getProgress()==100.0) {
-				if(senderThread!=null) {
-					stopSenderThread();
-				}
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-				System.out.println("Final candidate: "+progress.getCandidate()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
-				parent.setSimulationDone(true);
-				if(monitoring) {
-					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
-				}
-			}
-		// There is an error in the optimzation, which is stopped
-		} else {
-			if(senderThread!=null) {
-				stopSenderThread();
-			}
-			parent.evaluateSimulationManagers();
+	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
+		if(reply.getOId().equals(parent.getOptimizationId())) {
+			System.out.println("Status of the current optimization: "+reply.getOId());
+			System.out.println("Current progress: "+reply.getProgress()+"%");
+			System.out.println("Current status: "+reply.getOperationStatus());
+			System.out.println("Current best fitness value: "+reply.getBestFitnessValue());
+			System.out.println("Current best candidate: "+reply.getBestController() );
 		}
-	}*/
-
+	}
+	
+	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
+		if(senderThread!=null) {
+			stopSenderThread();
+		}
+		System.out.println("Result of the current optimization: "+reply.getOId());
+		System.out.println("Best fitness value: "+reply.getBestFitnessValue());
+		System.out.println("Best candidate: "+reply.getBestController() );		
+		parent.setSimulationDone(true);
+	}
+	
+	private void handleOptimizationError(OptimizationStatusMessage reply) {
+		if(senderThread!=null) {
+			stopSenderThread();
+		}
+		parent.evaluateSimulationManagers();
+	}
+	
 	private void stopSenderThread() {
 		getOptimizationStatusSender.setCanRun(false);
 		try {

@@ -14,14 +14,13 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
-import eu.cpswarm.optimization.messages.GetProgressMessage;
+import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
+import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
+import eu.cpswarm.optimization.messages.OptimizationStatusMessage.Status;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
-import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 
 
 /**
@@ -46,7 +45,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	if(msgReceived instanceof SimulationResultMessage) {
 		SimulationResultMessage result = (SimulationResultMessage) msgReceived; 
 		if(result.getFitnessValue()==100.0) {
-			OptimizationProgressMessage message1 = new OptimizationProgressMessage(parent.getOptimizationID(), "final result", Status.OK, 100.0, 100.0, "candidate");
+			OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), Status.COMPLETE, 2.0, "test");
 			Message msg1 = new Message();
 			msg1.setBody(serializer.toJson(message1));
 			ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
@@ -59,11 +58,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		}
 	} else if(msgReceived instanceof StartOptimizationMessage) {
 			StartOptimizationMessage start = (StartOptimizationMessage) msgReceived; 
-			parent.setOptimizationConfiguration(start.getOptimizationConfiguration());
-			parent.setSimulationConfiguration(start.getSimulationConfiguration());
-			parent.setManagers(start.getSimulationManagers());
+			parent.setOptimizationConfiguration(start.getConfiguration());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-			OptimizationStartedMessage reply = new OptimizationStartedMessage(start.getId(), "Optimization started", Status.OK);
+			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), Status.STARTED, 2.0, "test");
 			String messageToSend = serializer.toJson(reply); 
 			message.setBody(messageToSend);
 			System.out.println("Sending reply to the StartOptimization: "+messageToSend);
@@ -86,18 +83,18 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					e.printStackTrace();
 				}
 			}
-		} else if(msgReceived instanceof GetProgressMessage) {
-			GetProgressMessage getProgress = (GetProgressMessage) msgReceived;
+		} else if(msgReceived instanceof GetOptimizationStatusMessage) {
+			GetOptimizationStatusMessage getOptimizationStatus = (GetOptimizationStatusMessage) msgReceived;
 			value +=10;
-			System.out.println("OptimizationTool received GetProgress: "+msg.getBody());
-			OptimizationProgressMessage progress = new OptimizationProgressMessage(getProgress.getId(), "Optimzation progress", Status.OK, value, -1-24, "test");
-			String messageToSend = serializer.toJson(progress);
+			System.out.println("OptimizationTool received GetOptimizationStatus: "+msg.getBody());
+			OptimizationStatusMessage status = new OptimizationStatusMessage(getOptimizationStatus.getOId(), Status.COMPLETE, 2.0, "test");
+			String messageToSend = serializer.toJson(status);
 			message.setBody(messageToSend);
-			System.out.println("OptimizationTool sending progress "+messageToSend);
+			System.out.println("OptimizationTool sending optimization staus "+messageToSend);
 			try {
 				chat.send(message);
 			} catch (NotConnectedException | InterruptedException e) {
-				System.out.println("Error sending the progress");
+				System.out.println("Error sending the optimization status");
 				e.printStackTrace();
 			}
 		}

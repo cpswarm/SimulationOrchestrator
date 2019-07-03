@@ -6,7 +6,6 @@ import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 
@@ -28,12 +27,12 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			MessageSerializer serializer = new MessageSerializer();
 			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 			System.out.println("SimulationManager received "+msg.getBody());
-			parent.setOptimizationID(runSimulation.getId());
+			parent.setOptimizationID(runSimulation.getOId());
 			parent.setSimulationId(runSimulation.getSid());
 			parent.setSimulationConfiguration(runSimulation.getConfiguration());
 			parent.publishFitness(100.0);
 		} else if(sender.toString().startsWith("orchestrator")) {
-			SimulationResultMessage message = new SimulationResultMessage("test", "simulation result", Status.OK, "1", 100);
+			SimulationResultMessage message = new SimulationResultMessage("test", true, "1", 100);
 			MessageSerializer serializer = new MessageSerializer();
 			Message messageToSend = new Message();
 			messageToSend.setBody(serializer.toJson(message));

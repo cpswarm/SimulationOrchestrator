@@ -59,12 +59,12 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				if(dataFolder==null || rosFolder==null || unzipFiles(fileToReceive)) {
 					System.out.println("SimulationManager configured for optimization "+request.getDescription());
 					parent.setOptimizationID(request.getDescription());
-					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage("Simulator configured", request.getDescription(), eu.cpswarm.optimization.messages.ReplyMessage.Status.OK);
+					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage(parent.getOptimizationId(), true);
 					MessageSerializer serializer = new MessageSerializer();
 					newChat.send(serializer.toJson(reply));
 				} else {
 					System.out.println("Error configuring the simulation manager");
-					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage("Simulator not configured", request.getDescription(), eu.cpswarm.optimization.messages.ReplyMessage.Status.ERROR);
+					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage(parent.getOptimizationId(),false);
 					MessageSerializer serializer = new MessageSerializer();
 					newChat.send(serializer.toJson(reply));
 				}

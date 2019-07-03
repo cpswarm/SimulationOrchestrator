@@ -828,7 +828,7 @@ public class SimulationOrchestrator {
 			return false;
 		}
 		//FIXME the message is not correct
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "1", "", "", candidateToSend, "type");
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", "", candidateToSend, "type");
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
@@ -869,7 +869,7 @@ public class SimulationOrchestrator {
 		return optimizationId;
 	}
 	
-	public Boolean isMonitoring( ) {
+	public Boolean isRecovery( ) {
 		return recovery;
 	}
 	
