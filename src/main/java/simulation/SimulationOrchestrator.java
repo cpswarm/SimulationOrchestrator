@@ -74,6 +74,7 @@ import simulation.tools.ChoiceOption;
 import simulation.tools.Zipper;
 import simulation.xmpp.ConnectionListenerImpl;
 import simulation.xmpp.MessageEventCoordinatorImpl;
+import simulation.xmpp.OchestratorFileTransferListenerImpl;
 import simulation.xmpp.PacketListenerImpl;
 import simulation.xmpp.SubscriptionHandler;
 
@@ -470,7 +471,14 @@ public class SimulationOrchestrator {
 			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
 			
 			// Adds the listener for the incoming messages
-			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
+			ChatManager
+				.getInstanceFor(connection)
+				.addIncomingListener(new MessageEventCoordinatorImpl(this));
+			
+			FileTransferManager
+				.getInstanceFor(connection)
+				.addFileTransferListener(
+						new OchestratorFileTransferListenerImpl(inputDataFolder));
 			
 			do {
 				Thread.sleep(1000);
