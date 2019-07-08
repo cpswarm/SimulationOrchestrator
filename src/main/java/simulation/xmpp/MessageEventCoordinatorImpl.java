@@ -69,10 +69,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			handleOptimizationStarted(optimizationStatus);
 			break;
 		case RUNNING:
-		case STOPPED:
+		case CANCELLED:
 			handleOptimizationRunningOrStopped(optimizationStatus);
 			break;
-		case COMPLETE:
+		case COMPLETED:
 			handleOptimizationCompleted(optimizationStatus);
 			break;
 		case ERROR_BAD_CONFIGURATION:

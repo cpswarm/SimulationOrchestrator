@@ -836,7 +836,7 @@ public class SimulationOrchestrator {
 			return false;
 		}
 		//FIXME the message is not correct
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", "", candidateToSend, "type");
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", candidateToSend, "type");
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);

@@ -29,7 +29,6 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			System.out.println("SimulationManager received "+msg.getBody());
 			parent.setOptimizationID(runSimulation.getOId());
 			parent.setSimulationId(runSimulation.getSid());
-			parent.setSimulationConfiguration(runSimulation.getConfiguration());
 			parent.publishFitness(100.0);
 		} else if(sender.toString().startsWith("orchestrator")) {
 			SimulationResultMessage message = new SimulationResultMessage("test", true, "1", 100);

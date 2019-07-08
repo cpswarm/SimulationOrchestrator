@@ -45,7 +45,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	if(msgReceived instanceof SimulationResultMessage) {
 		SimulationResultMessage result = (SimulationResultMessage) msgReceived; 
 		if(result.getFitnessValue()==100.0) {
-			OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), Status.COMPLETE, 2.0, "test");
+			OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 50.9, Status.COMPLETED, 2.0, "test");
 			Message msg1 = new Message();
 			msg1.setBody(serializer.toJson(message1));
 			ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
@@ -60,7 +60,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			StartOptimizationMessage start = (StartOptimizationMessage) msgReceived; 
 			parent.setOptimizationConfiguration(start.getConfiguration());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), Status.STARTED, 2.0, "test");
+			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), 50.9, Status.STARTED, 2.0, "test");
 			String messageToSend = serializer.toJson(reply); 
 			message.setBody(messageToSend);
 			System.out.println("Sending reply to the StartOptimization: "+messageToSend);
@@ -73,7 +73,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			String simulationID = UUID.randomUUID().toString();
 			parent.setSimulationID(simulationID);
 			for(EntityFullJid manager : parent.getManagers()) {
-				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Run Simulation", simulationID, parent.getSimulationConfiguration(), "");
+				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Run Simulation", simulationID, "");
 				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 				chat = chatManager.chatWith(manager.asEntityBareJid());
 				Gson gson = new Gson();
@@ -87,7 +87,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			GetOptimizationStatusMessage getOptimizationStatus = (GetOptimizationStatusMessage) msgReceived;
 			value +=10;
 			System.out.println("OptimizationTool received GetOptimizationStatus: "+msg.getBody());
-			OptimizationStatusMessage status = new OptimizationStatusMessage(getOptimizationStatus.getOId(), Status.COMPLETE, 2.0, "test");
+			OptimizationStatusMessage status = new OptimizationStatusMessage(getOptimizationStatus.getOId(), 100, Status.COMPLETED, 2.0, "test");
 			String messageToSend = serializer.toJson(status);
 			message.setBody(messageToSend);
 			System.out.println("OptimizationTool sending optimization staus "+messageToSend);
