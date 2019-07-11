@@ -121,7 +121,7 @@ public class SimulationOrchestrator {
 	private FrevoConfiguration optimizationConfiguration = null;
 	private String simulationConfiguration = null;
 	private Server server;
-	private String taskId;
+	private String scid;
 	private String serverUsername = "";
 	private String serverPassword = "";
 	private Boolean optimizationEnabled = null;
@@ -163,7 +163,7 @@ public class SimulationOrchestrator {
 		String inputDataFolder = "";
 		String outputDataFolder = "";
 		String optimizationToolUser = "";
-		String taskId = "";
+		String scid = "";
 		String parameters = "";
 		String dimensions = "";
 		Long maxAgents = null;
@@ -261,7 +261,7 @@ public class SimulationOrchestrator {
 			if(!opMode.equals(OP_MODE.D)) {
 				inputDataFolder = cmd.getOptionValue("src");
 				outputDataFolder = cmd.getOptionValue("target");
-				taskId = cmd.getOptionValue("id");
+				scid = cmd.getOptionValue("scid");
 				dimensions = cmd.getOptionValue("dim");
 
 				maxAgents = Long.parseLong(cmd.getOptionValue("max"));
@@ -338,7 +338,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, mqttBroker, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -370,8 +370,8 @@ public class SimulationOrchestrator {
 	 * 		Flag to enable or disable the thread which monitor the progress of the optimization process
 	 * @param mqttBroker
 	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
-	 * @param taskId
-	 * 		ID of the task
+	 * @param scid
+	 * 		ID the simulator configuration
 	 * @param guiEnabled
 	 * 		Indicates if the GUI is enabled or not
 	 * @param parameters
@@ -401,9 +401,9 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean recovery, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean recovery, final String mqttBroker, final String scid, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
 		this.opMode = opMode;
-		this.taskId = taskId;
+		this.scid = scid;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
@@ -411,7 +411,7 @@ public class SimulationOrchestrator {
 		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.recovery = recovery;
-		this.optimizationId = taskId+"!"+UUID.randomUUID();
+		this.optimizationId = scid+"!"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
@@ -600,7 +600,7 @@ public class SimulationOrchestrator {
     		if(!TEST && configEnabled) {
     			System.out.println("Configuring the simulation manager: "+availableManager);
     			try {
-    				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, taskId);
+    				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, optimizationId+","+scid+","+simulationConfiguration);
     			} catch (XmppStringprepException e) {
     				e.printStackTrace();
     			}
@@ -797,7 +797,7 @@ public class SimulationOrchestrator {
 		}
 		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
 		Gson gson = new Gson();
-		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, gson.toJson(optimizationConfiguration), taskId);
+		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, gson.toJson(optimizationConfiguration), scid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
