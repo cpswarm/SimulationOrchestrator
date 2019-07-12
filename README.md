@@ -64,7 +64,7 @@ usage: java -jar soo.jar
  -d,--dim <arg>      Number of dimensions required for simulation
  -g,--gui            GUI to be used or not for the simulation
  -gc,--gen <arg>     Indicates the generation count
- -i,--id <arg>       Task ID
+ -i,--scid <arg>     Simulator Configuration ID
  -M,--mode <arg>     Running mode for the SOO [d, r, rd]
  -m,--max <arg>      Maximum number of agents required for simulation
  -o,--opt            Indicates if the optimization is required or not
@@ -78,7 +78,7 @@ usage: java -jar soo.jar
 And this is an example of running command
 
 ``` bash
-java -jar -M rd /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --id emergency_exit --dim any --max 3 --src /home/cpswarm/launcher_project/Models --target /home/cpswarm/launcher_project/Optimized --conf /home/cpswarm/launcher_project/SimulationConf --opt --gui
+java -jar -M rd /home/cpswarm/SimulationOrchestrator/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar --scid emergency_exit --dim any --max 3 --src /home/cpswarm/launcher_project/Models --target /home/cpswarm/launcher_project/Optimized --conf /home/cpswarm/launcher_project/SimulationConf --opt --gui
 ```
 
 ## Test suite

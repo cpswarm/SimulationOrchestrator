@@ -26,11 +26,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	private SimulationOrchestrator parent = null;
 	private GetOptimizationStatusSender getOptimizationStatusSender = null;
 	private Thread senderThread = null;
-	private boolean monitoring;
 	
 	public MessageEventCoordinatorImpl(final SimulationOrchestrator orchestrator) {
 		this.parent = orchestrator;
-		this.monitoring = parent.getMonitoring();
 	}
 	
 	@Override
@@ -43,10 +41,8 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
 			if(sender.toString().startsWith("manager")) {
 				if(message instanceof SimulatorConfiguredMessage) {
-					if(((SimulatorConfiguredMessage) message).getSuccess()) {
-						System.out.println("Received configuration ACK from "+sender.toString());
-						parent.addManagerConfigured();	
-					}
+					System.out.println("Received configuration ACK from "+sender.toString());
+					parent.handleACK(sender, ((SimulatorConfiguredMessage) message).getSuccess());
 				} else if(message instanceof SimulationResultMessage) {
 					if(((SimulationResultMessage) message).getSuccess()) {
 						System.out.println("Received simulation result from "+sender.toString());

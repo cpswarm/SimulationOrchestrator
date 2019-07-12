@@ -102,6 +102,7 @@ import java.text.SimpleDateFormat;
 public class SimulationOrchestrator {
 	private static final String RESOURCE = "cpswarm";
 	public static final Semaphore SEMAPHORE = new Semaphore(1);
+	private static final int MAX_CONFIGURATION_ATTEMPTS = 3;
 	private BlockingQueue <Presence> queue;
 	private XMPPTCPConnection connection;
 	private MqttAsyncDispatcher client;
@@ -113,6 +114,11 @@ public class SimulationOrchestrator {
 	private String outputDataFolder = null;
 	private int managerConfigured = 0;
 	private List<EntityBareJid> availableManagers = null;
+	// List of the managers to be reconfigured in the current configuration iteration
+	private List<EntityBareJid> toBeReconfiguredNowManagers = null;
+	// List of the managers to be reconfigured in the next configuration iteration
+	private List<EntityBareJid> toBeReconfiguredNextManagers = null;
+	private List<EntityBareJid> blacklistedManagers = null;
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
 	private Boolean recovery = null;
@@ -130,7 +136,8 @@ public class SimulationOrchestrator {
 	private static boolean TEST = true;
 	private Boolean simulationDone = null;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	private static final int MAX_N_OF_ATTEMPTS = 10;
+	private int configurationAttempts = 0;
+	private String simulatorConfigurationfileName = null;
 	private Boolean configEnabled = null;
 	private int startingTimeout;
 	public static enum OP_MODE {D,  R, RD;
@@ -142,6 +149,7 @@ public class SimulationOrchestrator {
 			case "R":
 				return OP_MODE.R;
 			case "RD":
+			case "DR":
 				return OP_MODE.RD;
 			default:
 				return null;
@@ -201,7 +209,7 @@ public class SimulationOrchestrator {
 			configuration.setRequired(true);
 			options.addOption(configuration);
 
-			Option id = new Option("i", "id", true, "Task ID");
+			Option id = new Option("i", "scid", true, "Simulator Configuration ID");
 			id.setRequired(false);
 			options.addOption(id);
 			
@@ -318,9 +326,6 @@ public class SimulationOrchestrator {
 				simulationManagerPath = document.getElementsByTagName("simulationManagerPath").item(0).getTextContent();
 			}
 			recovery = Boolean.parseBoolean(document.getElementsByTagName("recovery").item(0).getTextContent());
-			if(recovery) {
-				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
-			}
 			if(!inputDataFolder.endsWith(File.separator)) {
 				inputDataFolder+=File.separator;
 			} 
@@ -568,11 +573,22 @@ public class SimulationOrchestrator {
     
     public void evaluateSimulationManagers(Server serverCompare) {
     	this.managerConfigured=0;
-    	System.out.println("Evalauting available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
-    	String fileName = null;
+    	this.configurationAttempts=0;
+    	if(availableManagers!=null) {
+    		this.availableManagers.clear();
+    		this.toBeReconfiguredNowManagers.clear();
+    		this.toBeReconfiguredNextManagers.clear();
+    		this.blacklistedManagers.clear();
+    	} else {
+    		availableManagers = new ArrayList<EntityBareJid>();
+    		toBeReconfiguredNowManagers = new ArrayList<EntityBareJid>();
+    		toBeReconfiguredNextManagers = new ArrayList<EntityBareJid>();
+    		blacklistedManagers = new ArrayList<EntityBareJid>();
+    	}
+    	System.out.println("Evaluating available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
     	if((TEST && (inputDataFolder == null || configurationFolder==null)) || !configEnabled) {
     		File file = new File("src/main/resources/file.xsd");
-    		fileName = file.getAbsolutePath();
+    		simulatorConfigurationfileName = file.getAbsolutePath();
     	} else {
     		Zipper zipper = new Zipper(inputDataFolder);
     		zipper.generateFileList(new File(inputDataFolder));
@@ -581,10 +597,10 @@ public class SimulationOrchestrator {
     		String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
     		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
     		Date date = new Date();
-    		fileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
-    		zipper.zipIt(fileName);
+    		simulatorConfigurationfileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
+    		zipper.zipIt(simulatorConfigurationfileName);
     	}
-    	availableManagers = new ArrayList<EntityBareJid>();
+    	
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && simulationManagers.get(account).compareTo(serverCompare)>0) {
     			if(!availableManagers.contains(account)) {
@@ -600,25 +616,91 @@ public class SimulationOrchestrator {
     		if(!TEST && configEnabled) {
     			System.out.println("Configuring the simulation manager: "+availableManager);
     			try {
-    				this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), fileName, optimizationId+","+scid+","+simulationConfiguration);
+    				if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), optimizationId+","+scid+","+simulationConfiguration)) {
+    					this.handleACK(availableManager, false);
+    				}
     			} catch (XmppStringprepException e) {
     				e.printStackTrace();
+    				this.handleACK(availableManager, false);
     			}
     		} else {
-    			this.addManagerConfigured();
+    			this.handleACK(availableManager,true);
     		}
     	}
+    }
+
+    
+
+	public synchronized void handleACK(final EntityBareJid jid, boolean success) {
+		if(success) {
+			managerConfigured++;
+		} else {
+			// If it is the last attempt of configuration the manager is added to the blacklist 
+			if(this.configurationAttempts==MAX_CONFIGURATION_ATTEMPTS-1) {
+				this.blacklistedManagers.add(jid);
+				// Otherwise it is added in the list
+				// of the ones to be configured in the next attempt
+			} else {
+				this.toBeReconfiguredNextManagers.add(jid);
+			}
+		}
+		// If all the Simulation Managers not blacklisted have been configured it starts the optimization/simulation
+		if(managerConfigured==this.availableManagers.size()-toBeReconfiguredNextManagers.size()-blacklistedManagers.size()) {
+			this.configurationAttempts++;
+			// if the number of configuration attempts is lower than the number of the ones allowed
+			// it tries to configure again the manager that are not yet configured
+			if(this.configurationAttempts<MAX_CONFIGURATION_ATTEMPTS) {
+				if(!this.toBeReconfiguredNextManagers.isEmpty()) {
+					// Update the list of managers to be configured
+					this.toBeReconfiguredNowManagers.clear();
+					this.toBeReconfiguredNowManagers.addAll(this.toBeReconfiguredNextManagers);
+					this.toBeReconfiguredNextManagers.clear();
+					this.evaluateToBeReconfiguredManagers();
+					return;
+				}
+			}
+			// If the number of configuration attempts have finished, it closes the configuration
+			closeConfiguration();
+		}
+
+	}
+
+	
+	private void closeConfiguration() {
     	if(!TEST || configEnabled) {
     		//It deletes the zip file
-    		File file = new File(fileName);
+    		File file = new File(simulatorConfigurationfileName);
     		if(file.delete()){
     			System.out.println(file.getName() + " is deleted!");
     		}else{
     			System.out.println("Delete operation is failed.");
     		}
     	}
-    }
+		if(optimizationEnabled) {
+			sendStartOptimization();
+		} else {
+			sendRunSimulation();
+		}
 
+	}
+    
+    public void evaluateToBeReconfiguredManagers() {
+    	for (EntityBareJid toBeReconfiguredManager : toBeReconfiguredNowManagers) {
+    		System.out.println("Retrying to configure the simulation manager: "+toBeReconfiguredManager);
+    		try {
+    			if(!this.transferFile(JidCreate.entityFullFrom(toBeReconfiguredManager.toString()+"/"+RESOURCE), optimizationId+","+scid+","+simulationConfiguration)) {
+    				this.handleACK(toBeReconfiguredManager, false);
+    			}
+    		} catch (XmppStringprepException e) {
+    			e.printStackTrace();
+    			this.handleACK(toBeReconfiguredManager, false);
+    		}
+    	}
+    }
+    
+    
+    
+    
     
     private void deploySimulators() {
 		Gson gson = new Gson();
@@ -664,8 +746,10 @@ public class SimulationOrchestrator {
 	/**
 	 * This method verifies if the receiver supports the file transfer and in
 	 * this case it sends a file
+	 * 
+	 * @return boolean true if all is OK, false otherwise
 	 */
-	public void transferFile(final EntityFullJid receiver, final String filePath, final String message) {
+	public boolean transferFile(final EntityFullJid receiver, final String message) {
 		final ServiceDiscoveryManager disco = ServiceDiscoveryManager
 				.getInstanceFor(connection);
 
@@ -687,28 +771,40 @@ public class SimulationOrchestrator {
 					.createOutgoingFileTransfer(receiver);
 			// Here the file is actually sent
 			try {
-				transfer.sendFile(new File(filePath), message);
+				transfer.sendFile(new File(this.simulatorConfigurationfileName), message);
 				System.out.println("File sent, waiting transfer complete");
 				while (!transfer.isDone() && transfer.getException()==null) {
-					Exception ex = transfer.getException();
 					if (transfer.getStatus() == Status.refused) {
 						System.out.println("Transfer refused");
+						return false;
 					}
 					Thread.sleep(1000);
 				}
 			} catch (final SmackException | InterruptedException e) {
 				e.printStackTrace();
 			}
-			final Status status = transfer.getStatus();
-			if (status == Status.cancelled) {
+			Exception ex = transfer.getException();
+			if(ex!=null) {
+				System.out.println("Exception transferring file "+ex.getMessage());
+				return false;
+			}
+			switch(transfer.getStatus()) {
+			case cancelled:
 				System.out.println("Transfer cancelled");
-			} else if (status == Status.error) {
+				return false;
+			case error:
 				System.out.println("Error in file transfer" + transfer.getError());
-			} else if (status == Status.complete) {
+				return false;
+			case complete:
 				System.out.println("File transfered");
+				return true;
+			default:
+				System.out.println("Transfer not completed");
+				return false;
 			}
 		} else {
 			System.out.println("Error, the Simulation manager: "+receiver+" doesn't support the file transfer");
+			return false;
 		}
 	}
 	
@@ -747,17 +843,7 @@ public class SimulationOrchestrator {
 	}
 	
 
-	public synchronized void addManagerConfigured() {
-		managerConfigured++;
-		// If all the managers are configured the Simulation Orchestrator configure the Optmization Tool
-		if(managerConfigured==this.availableManagers.size()) {
-			if(optimizationEnabled) {
-				sendStartOptimization();
-			} else {
-				sendRunSimulation();
-			}
-		}
-	}
+	
 	
 	public boolean sendGetOptimizationStatus() {
 		if(!connection.isConnected()) {
@@ -793,7 +879,9 @@ public class SimulationOrchestrator {
 	private boolean sendStartOptimization() {
 		List<String> managersJid = new ArrayList<String>();
 		for(EntityBareJid availableManager : this.availableManagers) {
-			managersJid.add(availableManager.toString());
+			if(!this.blacklistedManagers.contains(availableManager)) {
+				managersJid.add(availableManager.toString());
+			}
 		}
 		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
 		Gson gson = new Gson();
