@@ -955,6 +955,7 @@ public class SimulationOrchestrator {
 
 	public void removeSimulationManager(Jid jid) {
 		simulationManagers.remove(jid);
+		
 	}
 	
 	public Jid getOptimizationJid() {
