@@ -602,7 +602,9 @@ public class SimulationOrchestrator {
     	}
     	
     	for(EntityBareJid account : simulationManagers.keySet()) {
-    		if(simulationManagers.get(account)!=null && simulationManagers.get(account).compareTo(serverCompare)>0) {
+    		if(simulationManagers.get(account)!=null && 
+    				simulationManagers.get(account).compareTo(serverCompare)>0 &&
+    				simulationManagers.get(account).getSCID()==null) {
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected
@@ -614,13 +616,20 @@ public class SimulationOrchestrator {
     	}
     	for (EntityBareJid availableManager : availableManagers) {
     		if(!TEST && configEnabled) {
-    			System.out.println("Configuring the simulation manager: "+availableManager);
-    			try {
-    				if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), optimizationId+","+scid+","+simulationConfiguration)) {
+    			// Check if the manager is still online (it can be gone offline in the meanwhile)
+    			if(simulationManagers.containsKey(availableManager)) {
+    				System.out.println("Configuring the simulation manager: "+availableManager);
+    				try {
+    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), optimizationId+","+scid+","+simulationConfiguration)) {
+    						this.handleACK(availableManager, false);
+    					}
+    				} catch (XmppStringprepException e) {
+    					e.printStackTrace();
     					this.handleACK(availableManager, false);
     				}
-    			} catch (XmppStringprepException e) {
-    				e.printStackTrace();
+    			// if the manager is no more online, it is put in the list of the ones to be evaluated 
+    			// in the next iteration or blacklisted
+    			} else {
     				this.handleACK(availableManager, false);
     			}
     		} else {
