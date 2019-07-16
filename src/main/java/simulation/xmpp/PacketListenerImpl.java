@@ -44,7 +44,14 @@ public class PacketListenerImpl implements StanzaListener {
 		// If the presence indicates that another user is trying to add the orchestrator
 		// to its roster, it puts the presence in the queue of the ones to be handled
 		if (presence.getType() == Presence.Type.subscribe) {
-			parent.putSubscribeRequest(presence);
+			try {
+				SimulationOrchestrator.SEMAPHORE.acquire();
+				parent.putSubscribeRequest(presence);
+				SimulationOrchestrator.SEMAPHORE.release();
+			} catch (InterruptedException e) {
+				System.out.println("error adding the new presence in Queue : from " + presence.getFrom());
+				e.printStackTrace();
+			}
 		} else {
 			if(presence.isAvailable()) {
 				Gson gson = new Gson();

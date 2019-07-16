@@ -645,7 +645,7 @@ public class SimulationOrchestrator {
 			managerConfigured++;
 		} else {
 			// If it is the last attempt of configuration the manager is added to the blacklist 
-			if(this.configurationAttempts==MAX_CONFIGURATION_ATTEMPTS-1) {
+			if(this.configurationAttempts==MAX_CONFIGURATION_ATTEMPTS-1) {    /* if =2, all ACK=False will be put in blacklist, next iteration will empty*/
 				this.blacklistedManagers.add(jid);
 				// Otherwise it is added in the list
 				// of the ones to be configured in the next attempt
@@ -654,12 +654,12 @@ public class SimulationOrchestrator {
 			}
 		}
 		// If all the Simulation Managers not blacklisted have been configured it starts the optimization/simulation
-		if(managerConfigured==this.availableManagers.size()-toBeReconfiguredNextManagers.size()-blacklistedManagers.size()) {
+		if(managerConfigured==this.availableManagers.size()-toBeReconfiguredNextManagers.size()-blacklistedManagers.size()) {   /*------- if equal, then all replys for the transferd SMs have been proceeded */
 			this.configurationAttempts++;
 			// if the number of configuration attempts is lower than the number of the ones allowed
 			// it tries to configure again the manager that are not yet configured
 			if(this.configurationAttempts<MAX_CONFIGURATION_ATTEMPTS) {
-				if(!this.toBeReconfiguredNextManagers.isEmpty()) {
+				if(!this.toBeReconfiguredNextManagers.isEmpty()) {    /* if =3, it means previous value=2, then for sure this Next is empty, so no need to do following steps */
 					// Update the list of managers to be configured
 					this.toBeReconfiguredNowManagers.clear();
 					this.toBeReconfiguredNowManagers.addAll(this.toBeReconfiguredNextManagers);
@@ -693,20 +693,24 @@ public class SimulationOrchestrator {
 
 	}
     
-    public void evaluateToBeReconfiguredManagers() {
-    	for (EntityBareJid toBeReconfiguredManager : toBeReconfiguredNowManagers) {
-    		System.out.println("Retrying to configure the simulation manager: "+toBeReconfiguredManager);
-    		try {
-    			if(!this.transferFile(JidCreate.entityFullFrom(toBeReconfiguredManager.toString()+"/"+RESOURCE), optimizationId+","+scid+","+simulationConfiguration)) {
-    				this.handleACK(toBeReconfiguredManager, false);
-    			}
-    		} catch (XmppStringprepException e) {
-    			e.printStackTrace();
-    			this.handleACK(toBeReconfiguredManager, false);
-    		}
-    	}
-    }
-    
+	public void evaluateToBeReconfiguredManagers() {
+		for (EntityBareJid toBeReconfiguredManager : toBeReconfiguredNowManagers) {
+			if (simulationManagers.containsKey(toBeReconfiguredManager)) { /* after an iteration finished, the previous SMs in toBeReconfiguredNextManagers may be offline */
+				System.out.println("Retrying to configure the simulation manager: " + toBeReconfiguredManager);
+				try {
+					if (!this.transferFile(
+							JidCreate.entityFullFrom(toBeReconfiguredManager.toString() + "/" + RESOURCE), optimizationId + "," + scid + "," + simulationConfiguration)) {
+						this.handleACK(toBeReconfiguredManager, false);
+					}
+				} catch (XmppStringprepException e) {
+					e.printStackTrace();
+					this.handleACK(toBeReconfiguredManager, false);
+				}
+			} else {
+				this.handleACK(toBeReconfiguredManager, false);
+			}
+		}
+	}
     
     
     
