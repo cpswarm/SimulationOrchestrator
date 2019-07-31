@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -62,6 +63,8 @@ import config.deployment.Deployment;
 import config.deployment.DeploymentConfiguration;
 import config.deployment.Service;
 import config.frevo.FrevoConfiguration;
+import eu.cpswarm.optimization.messages.CancelOptimizationMessage;
+import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
@@ -92,6 +95,7 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -177,7 +181,6 @@ public class SimulationOrchestrator {
 		Long maxAgents = null;
 		Boolean guiEnabled = false;
 		Boolean recovery = null;
-		String mqttBroker = null;
 		Boolean optimizationEnabled = false;
 		String configurationFolder = null;
 		String optimizationToolPath = null;
@@ -339,11 +342,15 @@ public class SimulationOrchestrator {
 				System.out.println("src must be a folder");
 				return;
 			}
-		} catch (ParserConfigurationException | SAXException | IOException e1) {
+			if(!new File(outputDataFolder).isDirectory()) {
+				System.out.println("target must be a folder");
+				return;
+			}
+		} catch (NumberFormatException | NullPointerException | ParserConfigurationException | SAXException | IOException e1) {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, mqttBroker, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -373,8 +380,6 @@ public class SimulationOrchestrator {
 	 * 		JID of the Optimization Tool
 	 * @param recovery
 	 * 		Flag to enable or disable the thread which monitor the progress of the optimization process
-	 * @param mqttBroker
-	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
 	 * @param scid
 	 * 		ID the simulator configuration
 	 * @param guiEnabled
@@ -406,7 +411,7 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean recovery, final String mqttBroker, final String scid, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean recovery, final String scid, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
 		this.opMode = opMode;
 		this.scid = scid;
 		this.serverName = serverName;
@@ -474,17 +479,13 @@ public class SimulationOrchestrator {
 			ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
 			reconnectionManager.enableAutomaticReconnection();
 			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
-			
+
 			// Adds the listener for the incoming messages
-			ChatManager
-				.getInstanceFor(connection)
-				.addIncomingListener(new MessageEventCoordinatorImpl(this));
-			
-			FileTransferManager
-				.getInstanceFor(connection)
-				.addFileTransferListener(
-						new OchestratorFileTransferListenerImpl(inputDataFolder));
-			
+			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
+
+			FileTransferManager.getInstanceFor(connection)
+					.addFileTransferListener(new OchestratorFileTransferListenerImpl(this, outputDataFolder));
+
 			do {
 				Thread.sleep(1000);
 			}while(!connection.isConnected() || !connection.isAuthenticated());
@@ -614,13 +615,13 @@ public class SimulationOrchestrator {
     			}
     		}
     	}
-    	for (EntityBareJid availableManager : availableManagers) {
-    		if(!TEST && configEnabled) {
-    			// Check if the manager is still online (it can be gone offline in the meanwhile)
+    	if(!TEST && configEnabled) {
+			for (EntityBareJid availableManager : availableManagers) {
+				// Check if the manager is still online (it can be gone offline in the meanwhile)
     			if(simulationManagers.containsKey(availableManager)) {
     				System.out.println("Configuring the simulation manager: "+availableManager);
     				try {
-    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), optimizationId+","+scid+","+simulationConfiguration)) {
+    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), this.simulatorConfigurationfileName, optimizationId+","+scid+","+simulationConfiguration)) {
     						this.handleACK(availableManager, false);
     					}
     				} catch (XmppStringprepException e) {
@@ -632,10 +633,12 @@ public class SimulationOrchestrator {
     			} else {
     				this.handleACK(availableManager, false);
     			}
-    		} else {
-    			this.handleACK(availableManager,true);
-    		}
-    	}
+			}
+		} else {
+			for (EntityBareJid availableManager : availableManagers) {
+				this.handleACK(availableManager,true);
+			}
+		}
     }
 
     
@@ -699,7 +702,7 @@ public class SimulationOrchestrator {
 				System.out.println("Retrying to configure the simulation manager: " + toBeReconfiguredManager);
 				try {
 					if (!this.transferFile(
-							JidCreate.entityFullFrom(toBeReconfiguredManager.toString() + "/" + RESOURCE), optimizationId + "," + scid + "," + simulationConfiguration)) {
+							JidCreate.entityFullFrom(toBeReconfiguredManager.toString() + "/" + RESOURCE), this.simulatorConfigurationfileName, optimizationId + "," + scid + "," + simulationConfiguration)) {
 						this.handleACK(toBeReconfiguredManager, false);
 					}
 				} catch (XmppStringprepException e) {
@@ -762,7 +765,7 @@ public class SimulationOrchestrator {
 	 * 
 	 * @return boolean true if all is OK, false otherwise
 	 */
-	public boolean transferFile(final EntityFullJid receiver, final String message) {
+	public boolean transferFile(final EntityFullJid receiver, String fileToTransfer, final String message) {
 		final ServiceDiscoveryManager disco = ServiceDiscoveryManager
 				.getInstanceFor(connection);
 
@@ -784,7 +787,7 @@ public class SimulationOrchestrator {
 					.createOutgoingFileTransfer(receiver);
 			// Here the file is actually sent
 			try {
-				transfer.sendFile(new File(this.simulatorConfigurationfileName), message);
+				transfer.sendFile(new File(fileToTransfer), message);
 				System.out.println("File sent, waiting transfer complete");
 				while (!transfer.isDone() && transfer.getException()==null) {
 					if (transfer.getStatus() == Status.refused) {
@@ -887,9 +890,62 @@ public class SimulationOrchestrator {
 		}
 		return true;
 	}
+	
+	public boolean sendGetOptimizationState() {    // backup of current generation
+		if(!connection.isConnected()) {
+			//the connection need to be reconnected
+			this.reconnect();
+			do {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} while(connection.isConnected());
+		}
+		GetOptimizationStateMessage getOptimizationState = new GetOptimizationStateMessage(optimizationId);
+		ChatManager manager = ChatManager.getInstanceFor(connection);
+		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
+		Message message = new Message();
+		MessageSerializer serializer = new MessageSerializer();
+		String messageToSend = serializer.toJson(getOptimizationState);
+		message.setBody(messageToSend);
+		System.out.println("Sending getOptimizationState " + messageToSend);
+		try {
+			chat.send(message);
+		} catch (NotConnectedException | InterruptedException e) {
+			System.out.println("Error sending getOptimizationState message");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean sendOptimizationStateToOT() {
+		String stateFile ="";
+		try {			
+			List<Path> filesInFolder = Files.walk(Paths.get(this.outputDataFolder), 1)
+					.filter(Files::isRegularFile)
+					.collect(Collectors.toList());
+	        for(Path path : filesInFolder) {
+	        	if(path.getFileName().toString().startsWith(this.scid)) {
+	        		stateFile = path.toString();
+	        	}
+	        }
+			if (!this.transferFile(
+					JidCreate.entityFullFrom(
+							this.optimizationToolJid.asEntityBareJidIfPossible().toString() + "/" + RESOURCE), stateFile, optimizationId + "," + scid + "," + simulationConfiguration)) {
+				return false;
+			}
+		} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+		}	
+		return true;
+	}
 
 	
-	private boolean sendStartOptimization() {
+	public boolean sendStartOptimization() {
 		List<String> managersJid = new ArrayList<String>();
 		for(EntityBareJid availableManager : this.availableManagers) {
 			if(!this.blacklistedManagers.contains(availableManager)) {
@@ -954,6 +1010,25 @@ public class SimulationOrchestrator {
 		}
 		return true;
 	}
+	
+	public boolean sendCancelOptimizationMessage() {
+		Gson gson = new Gson();
+		CancelOptimizationMessage cancel = new CancelOptimizationMessage(this.optimizationId);
+		MessageSerializer serializer = new MessageSerializer();
+		String messageToSend = serializer.toJson(cancel);
+		ChatManager manager = ChatManager.getInstanceFor(connection);
+		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
+		Message message = new Message();
+		message.setBody(messageToSend);
+		try {
+			chat.send(message);
+		} catch (NotConnectedException | InterruptedException e) {
+			System.out.println("Error sending CancelOptimization message");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
 
 	public XMPPTCPConnection getConnection() {
@@ -979,16 +1054,16 @@ public class SimulationOrchestrator {
 		return optimizationId;
 	}
 	
+	public void setOptimizationId(String optimizationId) {
+		this.optimizationId = optimizationId;
+	}
+	
 	public Boolean isRecovery( ) {
 		return recovery;
 	}
 	
 	public MqttAsyncDispatcher getMqttClient() {
 		return client;
-	}
-
-	public Boolean getMonitoring() {
-		return recovery;
 	}
 	
 	public Boolean getOptimizationEnabled() {
@@ -1006,6 +1081,10 @@ public class SimulationOrchestrator {
 	public void setSimulationDone(boolean simulationDone) {
 		System.out.println("Set simulation done");
 		this.simulationDone = simulationDone;
+	}
+	
+	public int getMAX_CONFIGURATION_ATTEMPTS() {
+		return MAX_CONFIGURATION_ATTEMPTS;
 	}
 	
 	public void reconnect() {

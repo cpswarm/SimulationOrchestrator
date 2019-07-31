@@ -1,2 +1,5 @@
 /bin/
 /target/
+/src/main/resources/3orchestrator.xml
+/git.sh
+

@@ -14,12 +14,12 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
 import config.frevo.FrevoConfiguration;
-import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+/*import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;*/
 import junit.framework.TestCase;
 import messages.server.Server;
 import simulation.SimulationOrchestrator;
@@ -97,7 +97,7 @@ public class AppTest extends TestCase{
 		}
 	}
  
-	@Test
+/*	@Test
 	public void testKubernetes() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -116,7 +116,7 @@ public class AppTest extends TestCase{
 		}
 	}
 
-	
+	*/
 
 	@Test
 	public void testCreation() {
@@ -124,12 +124,13 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, scid, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, scid, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, scid);
+	//		DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, scid);
+			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder/*, scid*/);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
@@ -151,23 +152,24 @@ public class AppTest extends TestCase{
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
 					   "	\"server\": 1,\r\n" + 
-					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					   "	\"simulations\": [\"stage\"],\r\n" + 
+//					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, scid, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, scid, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, scid);
+		//	DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, scid);
+			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder/*, scid*/);  // optimizationID is set when transfer()
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(orchestrator.isSimulationDone()==null) {
+			while(orchestrator.isSimulationDone()==null) {  // right: after the dummy manager get RunSimulation from SOO, it directly replys with a SimulationResult=100, SOO will set simulation is done 
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
@@ -189,24 +191,26 @@ public class AppTest extends TestCase{
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
 					   "	\"server\": 1,\r\n" + 
-					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					   "	\"simulations\": [\"stage\"],\r\n" + 
+//					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, mqttBroker, scid, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, monitoring, scid, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, scid);
-			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIPAddress, serverName, "server", otDataFolder, scid);
+		//	DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, scid);
+			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder/*, scid*/);
+		//	DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIPAddress, serverName, "server", otDataFolder, scid);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIPAddress, serverName, "server", otDataFolder/*, scid*/);
 			Thread.sleep(1000);
-			
-			orchestrator.evaluateSimulationManagers(server);
-			while(orchestrator.isSimulationDone()==null) {
+			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
+			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());

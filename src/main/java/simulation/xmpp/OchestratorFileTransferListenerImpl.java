@@ -13,10 +13,12 @@ import simulation.SimulationOrchestrator;
 
 public class OchestratorFileTransferListenerImpl implements FileTransferListener {
 
-	private String dataFolder = null;
+	private SimulationOrchestrator parent = null;
+	private String outputDataFolder = null;
 		
-	public OchestratorFileTransferListenerImpl(final String dataFolder) {
-		this.dataFolder = dataFolder;
+	public OchestratorFileTransferListenerImpl(final SimulationOrchestrator orchestrator, final String outputDataFolder) {
+		this.parent = orchestrator;
+		this.outputDataFolder = outputDataFolder;
 	}
 	
 	@Override
@@ -24,10 +26,11 @@ public class OchestratorFileTransferListenerImpl implements FileTransferListener
 		final IncomingFileTransfer transfer = request.accept();
 		String fileToReceive = null;
 		// The configuration files are stored in the simulator folder, instead the candidate in the rosFolder
-		if(request.getRequestor().toString().startsWith("manager")) {
-			fileToReceive = dataFolder+request.getFileName();
+		if(request.getRequestor().compareTo(parent.getOptimizationJid()) == 0) {
+			fileToReceive = outputDataFolder+request.getFileName();
 		} else {
 			System.out.println("Simulation Orchesrtator: Transfer refused");
+			return;
 		}
 		try {
 			transfer.receiveFile(new File(fileToReceive));
@@ -38,7 +41,7 @@ public class OchestratorFileTransferListenerImpl implements FileTransferListener
 				}
 				Thread.sleep(1000);
 			}
-			System.out.println("Simulation Orchestrator: status of the optimization tool saved for optimization "+request.getDescription());
+			System.out.println("Simulation Orchestrator: state of the optimization tool saved for optimization "+request.getDescription());
 		} catch (final SmackException | IOException | InterruptedException e) {
 			e.printStackTrace();
 		}

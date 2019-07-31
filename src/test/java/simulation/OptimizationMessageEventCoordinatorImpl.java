@@ -58,6 +58,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		}
 	} else if(msgReceived instanceof StartOptimizationMessage) {
 			StartOptimizationMessage start = (StartOptimizationMessage) msgReceived; 
+			parent.setOptimizationID(start.getOId());   /*---ADD-----Frevo's OID should be set when receiving the StartOptimization msg, not set in constructor */
 			parent.setOptimizationConfiguration(start.getConfiguration());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
 			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), 50.9, Status.STARTED, 2.0, "test");
@@ -73,7 +74,8 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			String simulationID = UUID.randomUUID().toString();
 			parent.setSimulationID(simulationID);
 			for(EntityFullJid manager : parent.getManagers()) {
-				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Run Simulation", simulationID, "");
+			//	RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Run Simulation", simulationID, "");
+				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, "Candidate", "type");
 				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 				chat = chatManager.chatWith(manager.asEntityBareJid());
 				Gson gson = new Gson();

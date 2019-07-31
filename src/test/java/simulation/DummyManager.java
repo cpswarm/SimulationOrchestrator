@@ -66,9 +66,9 @@ public class DummyManager {
 	private String simulationId = null;
 	private String simulationConfiguration = null;
 	
-	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder, final String optimizationId) {
+	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder/*, final String optimizationId*/) {
 		this.clientID = clientID;
-		this.optimizationId = optimizationId;
+	//	this.optimizationId = optimizationId;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith(File.separator)) {
 			dataFolder+=File.separator;
@@ -125,8 +125,8 @@ public class DummyManager {
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 					   "	\"server\": 1,\r\n" + 
-					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					   "	\"simulations\": [\"stage\"],\r\n" + 
+//					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "	\"dimensions\": 2,\r\n" + 
 					   "    \"max_agents\": 8\r\n" +
@@ -171,8 +171,8 @@ public class DummyManager {
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 					   "	\"server\": 1,\r\n" + 
-					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
-					   "	\"simulations\": [\"stage\"],\r\n" + 
+//					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "	\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +

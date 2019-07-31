@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -37,6 +38,7 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	public void fileTransferRequest(FileTransferRequest request) {
 		final IncomingFileTransfer transfer = request.accept();
 		String fileToReceive = null;
+		System.out.println("request sender= "+request.getRequestor() + "file name= "+request.getFileName()+" desp= "+request.getDescription());
 		// The configuration files are stored in the simulator folder, instead the candidate in the rosFolder
 		if(request.getRequestor().toString().startsWith("orchestrator")) {
 			fileToReceive = dataFolder+request.getFileName();
@@ -58,7 +60,16 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				final Chat newChat = chatmanager.chatWith(orchestrator);
 				if(dataFolder==null || rosFolder==null || unzipFiles(fileToReceive)) {
 					System.out.println("SimulationManager configured for optimization "+request.getDescription());
-					parent.setOptimizationID(request.getDescription());
+					String otherSimulationConfiguration = request.getDescription();  // Format is: OID,SCID,visual:=false,....
+					String[] simConfigs = otherSimulationConfiguration.split(",");
+					this.parent.setOptimizationID(simConfigs[0]);
+		//			this.parent.setSCID(simConfigs[1]);   // the SCID have not been considered based one new APIs
+					String parameters = "";
+					for(int i=2; i<Arrays.asList(simConfigs).size(); i++) {
+						parameters += simConfigs[i];
+					}			
+					this.parent.setSimulationConfiguration(parameters);	
+		//			parent.setOptimizationID(request.getDescription());
 					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage(parent.getOptimizationId(), true);
 					MessageSerializer serializer = new MessageSerializer();
 					newChat.send(serializer.toJson(reply));
