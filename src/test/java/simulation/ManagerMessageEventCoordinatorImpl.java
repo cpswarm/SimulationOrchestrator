@@ -17,7 +17,7 @@ import eu.cpswarm.optimization.messages.SimulationResultMessage;
 public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMessageListener {
 	private DummyManager parent = null;
 	
-	public ManagerMessageEventCoordinatorImpl(final DummyManager manager, final String rosFolder, final String optimizationId) {
+	public ManagerMessageEventCoordinatorImpl(final DummyManager manager) {
 		this.parent = manager;
 	}
 	
@@ -27,12 +27,10 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			MessageSerializer serializer = new MessageSerializer();
 			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 			System.out.println("SimulationManager received "+msg.getBody());
-		//	parent.setOptimizationID(runSimulation.getOId());   // it's set when simulatorConfiguration
 			parent.setSimulationId(runSimulation.getSid());
 			parent.publishFitness(100.0);
 		} else if(sender.toString().startsWith("orchestrator")) {
-		//	SimulationResultMessage message = new SimulationResultMessage("test", true, "1", 100);
-			SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, "1", 100);
+			SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, "", 100);
 			MessageSerializer serializer = new MessageSerializer();
 			Message messageToSend = new Message();
 			messageToSend.setBody(serializer.toJson(message));

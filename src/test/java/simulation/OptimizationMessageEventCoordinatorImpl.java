@@ -44,7 +44,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
 	if(msgReceived instanceof SimulationResultMessage) {
 		SimulationResultMessage result = (SimulationResultMessage) msgReceived; 
-		if(result.getFitnessValue()==100.0) {
+		if(result.getFitnessValue()==100.0 && result.getSuccess()==true) {
 			OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 50.9, Status.COMPLETED, 2.0, "test");
 			Message msg1 = new Message();
 			msg1.setBody(serializer.toJson(message1));

@@ -61,14 +61,13 @@ public class DummyOptimizationTool {
 	private String serverName = null;
 	private String clientID = null;
 	private String optimizationID = null;
+	private String SCID = null;
 	private String simulationID = null;
 	private String optimizationConfiguration = null;
-	private String simulationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
-	public DummyOptimizationTool(final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder/*, final String optimizationId*/ ) {
-		clientID = "optimization_test";
-//		this.optimizationID = optimizationId;
+	public DummyOptimizationTool(String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder/*, final String optimizationId*/ ) {
+		this.clientID = clientID;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith(File.separator)) {
 			dataFolder+=File.separator;
@@ -283,7 +282,14 @@ public class DummyOptimizationTool {
 	public String getSimulationID() {
 		return simulationID;
 	}
+	
+	public String getSCID() {
+		return SCID;
+	}
 
+	public void setSCID(final String SCID) {
+		this.SCID = SCID;
+	}
 
 	public void setSimulationID(String simulationID) {
 		this.simulationID = simulationID;
@@ -310,15 +316,7 @@ public class DummyOptimizationTool {
 	public void setOptimizationConfiguration(String optimizationConfiguration) {
 		this.optimizationConfiguration = optimizationConfiguration;
 	}
-
-	public String getSimulationConfiguration() {
-		return simulationConfiguration;
-	}
-
-	public void setSimulationConfiguration(String simulationConfiguration) {
-		this.simulationConfiguration = simulationConfiguration;
-	}
-
+	
 	public String getServerName() {
 		return serverName;
 	}

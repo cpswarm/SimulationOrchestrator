@@ -63,12 +63,12 @@ public class DummyManager {
 	private String serverName = null;
 	private String clientID = null;
 	private String optimizationId = null;
+	private String SCID = null;
 	private String simulationId = null;
 	private String simulationConfiguration = null;
 	
-	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder/*, final String optimizationId*/) {
+	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder) {
 		this.clientID = clientID;
-	//	this.optimizationId = optimizationId;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith(File.separator)) {
 			dataFolder+=File.separator;
@@ -116,7 +116,7 @@ public class DummyManager {
 			addAsyncStanzaListener(packetListener, presenceFilter);
 
 			// Adds the listener for the incoming messages
-			ChatManager.getInstanceFor(connection).addIncomingListener(new ManagerMessageEventCoordinatorImpl(this, rosFolder, optimizationId));
+			ChatManager.getInstanceFor(connection).addIncomingListener(new ManagerMessageEventCoordinatorImpl(this));
 			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			do {
@@ -125,7 +125,6 @@ public class DummyManager {
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 					   "	\"server\": 1,\r\n" + 
-//					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "	\"dimensions\": 2,\r\n" + 
@@ -171,7 +170,6 @@ public class DummyManager {
 			final Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("{\r\n" + 
 					   "	\"server\": 1,\r\n" + 
-//					   "	\"simulation_hash\": \"21a57f2fe765e1ae4a8bf15d73fc1bf2a533f547f2343d12a499d9c0592044d4\",\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "	\"dimensions\": 2,\r\n" + 
@@ -360,7 +358,14 @@ public class DummyManager {
 		System.out.println("Setting Optimization ID to "+optimizationId);
 		this.optimizationId = optimizationId;
 	}
+	
+	public String getSCID() {
+		return SCID;
+	}
 
+	public void setSCID(final String SCID) {
+		this.SCID = SCID;
+	}
 
 	public Server getServer() {
 		return server;

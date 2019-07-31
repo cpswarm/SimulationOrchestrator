@@ -17,7 +17,7 @@ mvn install
 The software contains some tests, which require a setup, if you want to avoid them
 
 ``` bash
-mvn install -DskitTests 
+mvn install -DskipTests 
 ```
 
 # Configuration
@@ -118,7 +118,7 @@ This test is used to verify:
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=123.123.123.123 -Dtest_server_name=pippo.pluto.it -Dtest_server_username=orchestrator -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dscid=cpswarm_sar -Dparameters="" -Dgui=false -Dmonitoring=false -Ddimensions="Any" -Dmax_agents=3 -Dlocal_optimzation=false -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=123.123.123.123 -Dtest_server_name=pippo.pluto.it -Dtest_server_username=orchestrator -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dscid=cpswarm_sar -Dparameters="" -Dgui=false -Drecovery=false -Ddimensions="Any" -Dmax_agents=3 -Dlocal_optimzation=false -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explanation of the parameters:
@@ -126,7 +126,7 @@ And here with the explanation of the parameters:
 ``` bash
   -Dtest_server_ip=123.123.123.123 (IP of the XMPP server) 
   -Dtest_server_name=pippo.pluto.it (name of the XMPP server)
-  -Dtest_server_orchestrator=orchestrator (username to be used by the SOO to authenticate in the XMPP server)
+  -Dtest_server_username=orchestrator (username to be used by the SOO to authenticate in the XMPP server)
   -Dtest_server_password=orchestrator (Password to be used by the SOO to authenticate in the XMPP server - temporary solution)
   -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ (folder containing the input files) - optional - it can be empty for test
   -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted) - optional - it can be empty for test
@@ -135,7 +135,7 @@ And here with the explanation of the parameters:
   -Dorchestrator_user=orchestrator User of the Simulation Orchestrator
   -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool, if run by the SOO) - optional - it can be empty for test
   -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) - optional - it can be empty for test
-  -Dmonitoring=true (indicates if the monitoring GUI has to be used, monitoring the evolution of the optimization)
+  -Drecovery=true ((Flag to enable or disable the thread which monitor the progress of the optimization process))
   -Dmqtt_broker=tcp://123.123.123.123:1883  (IP of the MQTT broker to be used for the monitoring)
   -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
   -Dscid=emergency_exit (ID of Simulator Configuration AKA the name of the package)

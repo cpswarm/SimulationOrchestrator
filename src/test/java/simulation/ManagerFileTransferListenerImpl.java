@@ -38,11 +38,13 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	public void fileTransferRequest(FileTransferRequest request) {
 		final IncomingFileTransfer transfer = request.accept();
 		String fileToReceive = null;
-		System.out.println("request sender= "+request.getRequestor() + "file name= "+request.getFileName()+" desp= "+request.getDescription());
+		System.out.println(" description in transfer() is: "+request.getDescription());
 		// The configuration files are stored in the simulator folder, instead the candidate in the rosFolder
 		if(request.getRequestor().toString().startsWith("orchestrator")) {
 			fileToReceive = dataFolder+request.getFileName();
-		} 
+		} else {
+			fileToReceive = rosFolder + request.getFileName();
+		}
 		try {
 			transfer.receiveFile(new File(fileToReceive));
 
@@ -63,13 +65,12 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					String otherSimulationConfiguration = request.getDescription();  // Format is: OID,SCID,visual:=false,....
 					String[] simConfigs = otherSimulationConfiguration.split(",");
 					this.parent.setOptimizationID(simConfigs[0]);
-		//			this.parent.setSCID(simConfigs[1]);   // the SCID have not been considered based one new APIs
+					this.parent.setSCID(simConfigs[1]);
 					String parameters = "";
 					for(int i=2; i<Arrays.asList(simConfigs).size(); i++) {
 						parameters += simConfigs[i];
 					}			
 					this.parent.setSimulationConfiguration(parameters);	
-		//			parent.setOptimizationID(request.getDescription());
 					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage(parent.getOptimizationId(), true);
 					MessageSerializer serializer = new MessageSerializer();
 					newChat.send(serializer.toJson(reply));
