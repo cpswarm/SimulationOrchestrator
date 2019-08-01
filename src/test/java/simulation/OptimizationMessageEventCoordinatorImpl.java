@@ -62,6 +62,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			StartOptimizationMessage start = (StartOptimizationMessage) msgReceived; 
 			parent.setOptimizationID(start.getOId());   /*---ADD-----Frevo's OID should be set when receiving the StartOptimization msg, not set in constructor */
 			parent.setOptimizationConfiguration(start.getConfiguration());
+			parent.setSCID(start.getSCID());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
 			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), 0.0, Status.STARTED, 0.0, null);  // default values
 			String messageToSend = serializer.toJson(reply); 
