@@ -14,6 +14,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
+import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
@@ -42,10 +43,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
+		if(parent.getOptimizationID().equals(msgReceived.getOId())) {
 	if(msgReceived instanceof SimulationResultMessage) {
 		SimulationResultMessage result = (SimulationResultMessage) msgReceived; 
 		if(result.getFitnessValue()==100.0 && result.getSuccess()==true) {
-			OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 50.9, Status.COMPLETED, 2.0, "test");
+			OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, Status.COMPLETED, 100.0, "bestController");
 			Message msg1 = new Message();
 			msg1.setBody(serializer.toJson(message1));
 			ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
@@ -61,7 +63,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			parent.setOptimizationID(start.getOId());   /*---ADD-----Frevo's OID should be set when receiving the StartOptimization msg, not set in constructor */
 			parent.setOptimizationConfiguration(start.getConfiguration());
 			System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), 50.9, Status.STARTED, 2.0, "test");
+			OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOId(), 0.0, Status.STARTED, 0.0, null);  // default values
 			String messageToSend = serializer.toJson(reply); 
 			message.setBody(messageToSend);
 			System.out.println("Sending reply to the StartOptimization: "+messageToSend);
@@ -71,11 +73,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				System.out.println("Error sending the reply");
 				e.printStackTrace();
 			}
-			String simulationID = UUID.randomUUID().toString();
-			parent.setSimulationID(simulationID);
+			String simulationID = "";
 			for(EntityFullJid manager : parent.getManagers()) {
-			//	RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), "Run Simulation", simulationID, "");
-				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, "Candidate", "type");
+				simulationID = UUID.randomUUID().toString();
+				parent.setSimulationID(simulationID);
+				RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, "currentCandidate", "type");
 				ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 				chat = chatManager.chatWith(manager.asEntityBareJid());
 				Gson gson = new Gson();
@@ -89,7 +91,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			GetOptimizationStatusMessage getOptimizationStatus = (GetOptimizationStatusMessage) msgReceived;
 			value +=10;
 			System.out.println("OptimizationTool received GetOptimizationStatus: "+msg.getBody());
-			OptimizationStatusMessage status = new OptimizationStatusMessage(getOptimizationStatus.getOId(), 100, Status.COMPLETED, 2.0, "test");
+			OptimizationStatusMessage status = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, Status.COMPLETED, 100.0, "bestController");
 			String messageToSend = serializer.toJson(status);
 			message.setBody(messageToSend);
 			System.out.println("OptimizationTool sending optimization staus "+messageToSend);
@@ -99,7 +101,13 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				System.out.println("Error sending the optimization status");
 				e.printStackTrace();
 			}
+		} else if(msgReceived instanceof GetOptimizationStateMessage) {
+			
+		} else {
+			System.out.println("Reply received: " + msg.getBody());
 		}
+	
+	}
 		
 	}
 }

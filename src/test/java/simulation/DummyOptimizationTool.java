@@ -24,6 +24,11 @@ import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
+import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.LeafNode;
@@ -63,15 +68,17 @@ public class DummyOptimizationTool {
 	private String optimizationID = null;
 	private String SCID = null;
 	private String simulationID = null;
+	private String otDataFolder = null;
 	private String optimizationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
-	public DummyOptimizationTool(String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder/*, final String optimizationId*/ ) {
+	public DummyOptimizationTool(String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		this.clientID = clientID;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith(File.separator)) {
 			dataFolder+=File.separator;
 		}
+		this.otDataFolder = dataFolder;
 		try {
 
 			clientJID = JidCreate.from(clientID+"@"+serverName);
@@ -148,6 +155,88 @@ public class DummyOptimizationTool {
 		return true;
     }
     
+
+	/**
+	 * This method verifies if the receiver supports the file transfer and in this
+	 * case it sends a file
+	 */
+	public boolean transferFile(final EntityFullJid receiver, String fileToTransfer, final String message) {
+		final ServiceDiscoveryManager disco = ServiceDiscoveryManager.getInstanceFor(connection);
+		System.out.println("OT transfers file: "+fileToTransfer +"  to "+ receiver +" with message = " + message);
+		// Receives the info about the client of the receiver
+		DiscoverInfo discoInfo = null;
+		try {
+			discoInfo = disco.discoverInfo(receiver);
+		} catch (XMPPException | NoResponseException | NotConnectedException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// Controls if the file transfer is supported
+		if (discoInfo.containsFeature("http://jabber.org/protocol/si/profile/file-transfer")) {
+			final FileTransferManager manager = FileTransferManager.getInstanceFor(connection);
+			OutgoingFileTransfer transfer = null;
+			transfer = manager.createOutgoingFileTransfer(receiver);
+			// Here the file is actually sent
+			try {
+				transfer.sendFile(new File(fileToTransfer), message);
+				System.out.println("File sent, waiting transfer complete");
+				while (!transfer.isDone() && transfer.getException() == null) {
+					if (transfer.getStatus() == Status.refused) {
+						System.out.println("Transfer refused");
+					}
+					Thread.sleep(1000);
+				}
+			} catch (final SmackException | InterruptedException e) {
+				e.printStackTrace();
+			}
+			Exception ex = transfer.getException();
+			if(ex!=null) {
+				System.out.println("Exception transferring file "+ex.getMessage());
+				return false;
+			}
+
+			switch (transfer.getStatus()) {
+			case cancelled:
+				System.out.println("Transfer cancelled");
+				return false;
+			case error:
+				System.out.println("Error in file transfer" + transfer.getError());
+				return false;
+			case complete:
+				System.out.println("File transfered");
+				return true;
+			default:
+				System.out.println("Transfer not completed");
+				return false;
+			}
+		} else {
+			System.out.println("Error, the Simulation manager: " + receiver + " doesn't support the file transfer");
+			return false;
+		}
+	}
+	
+	
+	public boolean sendOptimizationState() {
+		
+		// the state file called SCID will be saved in the subfolder named with OID in the otDataFolder
+		String stateFile = this.otDataFolder + this.optimizationID + File.separator + this.SCID;
+		File file = new File(stateFile);
+		if (!file.exists()) {
+			System.out.println("OT failed to create the state file for the optimization ");
+			return false;
+		}
+		try {			
+			if (!this.transferFile(
+					JidCreate.entityFullFrom(
+							JidCreate.entityBareFrom("orchestrator@"+this.serverName).toString() + "/" + RESOURCE), stateFile, this.optimizationID)) {
+				return false;
+			}
+		} catch (XmppStringprepException e) {
+				e.printStackTrace();
+				return false;
+		}	
+		return true;
+	}
     
 	/**
 	 * Method used to add a {@link RosterListener} to the roster

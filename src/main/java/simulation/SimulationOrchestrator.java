@@ -926,12 +926,13 @@ public class SimulationOrchestrator {
 		String stateFile = this.outputDataFolder + this.optimizationId + File.separator + this.scid;
 		File file = new File(stateFile);
 		if (!file.exists()) {
+			System.out.println("SOO doesn't store the state file for the optimization ");
 			return false;
 		}
 		try {			
 			if (!this.transferFile(
 					JidCreate.entityFullFrom(
-							this.optimizationToolJid.asEntityBareJidIfPossible().toString() + "/" + RESOURCE), stateFile, optimizationId + "," + scid + "," + simulationConfiguration)) {
+							this.optimizationToolJid.asEntityBareJidIfPossible().toString() + "/" + RESOURCE), stateFile, optimizationId)) {
 				return false;
 			}
 		} catch (XmppStringprepException e) {
