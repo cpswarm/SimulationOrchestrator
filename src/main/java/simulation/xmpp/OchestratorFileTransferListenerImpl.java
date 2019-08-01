@@ -25,13 +25,14 @@ public class OchestratorFileTransferListenerImpl implements FileTransferListener
 	public void fileTransferRequest(FileTransferRequest request) {
 		final IncomingFileTransfer transfer = request.accept();
 		String fileToReceive = null;
-		// The configuration files are stored in the simulator folder, instead the candidate in the rosFolder
+		// // the state file called SCID from OT will saved in the subfolder named with OID in the outputDataFolder, instead refuse the request
 		if(request.getRequestor().compareTo(parent.getOptimizationJid()) == 0) {
-			fileToReceive = outputDataFolder+request.getFileName();
+			fileToReceive = outputDataFolder+parent.getOptimizationId()+File.separator+request.getFileName();
 		} else {
 			System.out.println("Simulation Orchesrtator: Transfer refused");
 			return;
 		}
+	//	System.out.println("SOO fileToReceive = "+fileToReceive);
 		try {
 			transfer.receiveFile(new File(fileToReceive));
 

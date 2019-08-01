@@ -922,22 +922,19 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendOptimizationStateToOT() {
-		String stateFile ="";
+		// the state file called SCID will saved in the subfolder named with OID in the outputDataFolder
+		String stateFile = this.outputDataFolder + this.optimizationId + File.separator + this.scid;
+		File file = new File(stateFile);
+		if (!file.exists()) {
+			return false;
+		}
 		try {			
-			List<Path> filesInFolder = Files.walk(Paths.get(this.outputDataFolder), 1)
-					.filter(Files::isRegularFile)
-					.collect(Collectors.toList());
-	        for(Path path : filesInFolder) {
-	        	if(path.getFileName().toString().startsWith(this.scid)) {
-	        		stateFile = path.toString();
-	        	}
-	        }
 			if (!this.transferFile(
 					JidCreate.entityFullFrom(
 							this.optimizationToolJid.asEntityBareJidIfPossible().toString() + "/" + RESOURCE), stateFile, optimizationId + "," + scid + "," + simulationConfiguration)) {
 				return false;
 			}
-		} catch (IOException e) {
+		} catch (XmppStringprepException e) {
 				e.printStackTrace();
 				return false;
 		}	

@@ -61,7 +61,7 @@ public class PacketListenerImpl implements StanzaListener {
 					if(presence.getFrom().toString().startsWith("manager")) {
 						System.out.println("Adding Manager "+presence.getFrom().toString()+" to the list of the ones available");
 						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));	
-					} else if(presence.getFrom().toString().startsWith(parent.getOptimizationJid().toString()) && parent.getOptimizationId()!=null) {
+					} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 						// if optimization was ever started(OID!=null), but OT was offline and online again, SOO sends getOptimizationStatus in OT error handling workflow
 						parent.sendGetOptimizationStatus();
 					} 				
