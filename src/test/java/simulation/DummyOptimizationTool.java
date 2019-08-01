@@ -66,6 +66,7 @@ public class DummyOptimizationTool {
 	private String serverName = null;
 	private String clientID = null;
 	private String optimizationID = null;
+	private Jid orchestratorJid = null;
 	private String SCID = null;
 	private String simulationID = null;
 	private String otDataFolder = null;
@@ -79,9 +80,13 @@ public class DummyOptimizationTool {
 			dataFolder+=File.separator;
 		}
 		this.otDataFolder = dataFolder;
+		if(!otDataFolder.endsWith(File.separator)) {
+			otDataFolder+=File.separator;
+		}
 		try {
 
-			clientJID = JidCreate.from(clientID+"@"+serverName);
+			clientJID = JidCreate.from(clientID+"@"+serverName+"/"+RESOURCE);
+			orchestratorJid = JidCreate.from("orchestrator@"+serverName+"/"+RESOURCE);
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
 
@@ -218,17 +223,23 @@ public class DummyOptimizationTool {
 	
 	public boolean sendOptimizationState() {
 		
-		// the state file called SCID will be saved in the subfolder named with OID in the otDataFolder
+		// TODO the state file called SCID will be saved in the subfolder named with OID in the otDataFolder
 		String stateFile = this.otDataFolder + this.optimizationID + File.separator + this.SCID;
 		File file = new File(stateFile);
-		if (!file.exists()) {
-			System.out.println("OT failed to create the state file for the optimization ");
-			return false;
+		if (file.exists()) {
+			file.delete();
+		}else {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
 		}
 		try {			
 			if (!this.transferFile(
 					JidCreate.entityFullFrom(
-							JidCreate.entityBareFrom("orchestrator@"+this.serverName).toString() + "/" + RESOURCE), stateFile, this.optimizationID)) {
+							this.orchestratorJid.toString()), stateFile, this.optimizationID)) {
 				return false;
 			}
 		} catch (XmppStringprepException e) {
@@ -237,6 +248,7 @@ public class DummyOptimizationTool {
 		}	
 		return true;
 	}
+	
     
 	/**
 	 * Method used to add a {@link RosterListener} to the roster
@@ -383,7 +395,10 @@ public class DummyOptimizationTool {
 	public void setSimulationID(String simulationID) {
 		this.simulationID = simulationID;
 	}
-
+	
+	public String getOtDataFolder() {
+		return this.otDataFolder;
+	}
 
 	public Server getServer() {
 		return server;
@@ -395,6 +410,10 @@ public class DummyOptimizationTool {
 	
 	public Jid getJid() {
 		return clientJID;
+	}
+
+	public Jid getOrchestratorJid() {
+		return orchestratorJid;
 	}
 
 

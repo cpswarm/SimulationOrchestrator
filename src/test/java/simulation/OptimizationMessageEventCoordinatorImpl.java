@@ -52,9 +52,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			msg1.setBody(serializer.toJson(message1));
 			ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
 			try {
-				Chat chatToUse = chatManager.chatWith(JidCreate.entityBareFrom("orchestrator@"+parent.getServerName()));
+				Chat chatToUse = chatManager.chatWith(parent.getOrchestratorJid().asEntityBareJidIfPossible());
 				chatToUse.send(msg1);
-			} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
+			} catch (NotConnectedException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
@@ -102,7 +102,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				e.printStackTrace();
 			}
 		} else if(msgReceived instanceof GetOptimizationStateMessage) {
-			
+			if(parent.sendOptimizationState()) {
+				System.out.println("Error failing to report optimization state file to SOO");
+			}
 		} else {
 			System.out.println("Reply received: " + msg.getBody());
 		}
