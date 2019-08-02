@@ -98,9 +98,9 @@
             			<configuration>
 			                <groupId>cpswarm</groupId>
             			    <artifactId>it.ismb.pert.cpswarm.mqttLib</artifactId>
-                			<version>1.1.0</version>
+                			<version>1.1.0-bundle</version>
                 			<packaging>bundle</packaging>
-                			<file>${basedir}/BDjar/it.ismb.pert.cpswarm.mqttLib-1.1.0.jar</file>
+                			<file>${basedir}/BDjar/it.ismb.pert.cpswarm.mqttLib-1.1.0-bundle.jar</file>
             			</configuration>
         			</execution>    
         			
@@ -260,7 +260,7 @@
 		<dependency>
 			<groupId>cpswarm</groupId>
 			<artifactId>it.ismb.pert.cpswarm.mqttLib</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.0-bundle</version>
 		</dependency>
 		<dependency>
 			<groupId>eu.cpswarm</groupId>
