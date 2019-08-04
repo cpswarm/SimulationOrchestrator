@@ -27,6 +27,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			MessageSerializer serializer = new MessageSerializer();
 			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 			System.out.println("SimulationManager received "+msg.getBody());
+			parent.setOptimizationID(runSimulation.getOId());
 			parent.setSimulationId(runSimulation.getSid());
 			parent.publishFitness(100.0);
 		} else if(sender.toString().startsWith("orchestrator")) {

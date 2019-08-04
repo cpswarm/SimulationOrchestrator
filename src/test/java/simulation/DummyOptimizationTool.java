@@ -445,5 +445,12 @@ public class DummyOptimizationTool {
 		}
 	}
 	
+	public void setManager(final EntityFullJid jid) {
+		this.managers.add(jid);
+	}
+	
+	public void removeManager(final EntityFullJid jid) {
+		managers.remove(jid);
+	}
 	
 }
