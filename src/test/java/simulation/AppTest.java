@@ -70,7 +70,6 @@ public class AppTest extends TestCase{
 	private String otDataFolder = System.getProperty("ot_data_folder");
 	private String rosFolder = System.getProperty("ros_folder");
 	private Boolean recovery = Boolean.parseBoolean(System.getProperty("recovery"));
-	private String mqttBroker = System.getProperty("mqtt_broker");
 	private String scid = System.getProperty("scid");
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String parameters = System.getProperty("parameters");

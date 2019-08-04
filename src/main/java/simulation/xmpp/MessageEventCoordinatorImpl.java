@@ -36,7 +36,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			System.out.println("error received from "+msg.getFrom());
 		} else {
 			eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
-			if (message.getOId().equals(parent.getOptimizationId())) {
+			// Check if it is a simple simulation or if it is an optimization
+			// if the ID is the one set for the current optimization
+			if (parent.getOptimizationId()==null 
+					|| message.getOId().equals(parent.getOptimizationId())) {
 				if (sender.toString().startsWith("manager")) {
 					if (message instanceof SimulatorConfiguredMessage) {
 						System.out.println("Received configuration ACK="

@@ -411,7 +411,30 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean recovery, final String scid, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final OP_MODE opMode, 
+									final InetAddress serverIP, 
+									final String serverName, 
+									final String serverUsername, 
+									final String serverPassword, 
+									final String inputDataFolder, 
+									final String outputDataFolder, 
+									final String optimizationToolUser, 
+									final boolean recovery, 
+									final String scid, 
+									final Boolean guiEnabled, 
+									final String parameters, 
+									final String dimensions, 
+									final Long maxAgents, 
+									final Boolean optimization,
+									final String configurationFolder, 
+									final Boolean localOptimization,  
+									final String optimizationToolPath, 
+									final String optimizationToolPassword, 
+									final Boolean localSimulationManager,  
+									final String simulationManagerPath, 
+									final FrevoConfiguration optConf, 
+									final Boolean configEnabled, 
+									int startingTimeout) {
 		this.opMode = opMode;
 		this.scid = scid;
 		this.serverName = serverName;
@@ -421,7 +444,6 @@ public class SimulationOrchestrator {
 		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
 		this.recovery = recovery;
-		this.optimizationId = scid+"!"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
@@ -605,7 +627,7 @@ public class SimulationOrchestrator {
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && 
     				simulationManagers.get(account).compareTo(serverCompare)>0 &&
-    				simulationManagers.get(account).getSCID()==null) {
+    				simulationManagers.get(account).getSCID().isEmpty()) {
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected
@@ -952,6 +974,9 @@ public class SimulationOrchestrator {
 		}
 		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
 		Gson gson = new Gson();
+		if(this.optimizationEnabled) {
+			this.optimizationId = scid+"!"+UUID.randomUUID();
+		}
 		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, gson.toJson(optimizationConfiguration), scid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
