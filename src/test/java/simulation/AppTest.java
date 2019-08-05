@@ -14,6 +14,12 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
 import config.frevo.FrevoConfiguration;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 /*import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
 import io.fabric8.kubernetes.client.Config;
@@ -96,7 +102,7 @@ public class AppTest extends TestCase{
 		}
 	}
  
-/*	@Test
+	@Test
 	public void testKubernetes() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -115,7 +121,6 @@ public class AppTest extends TestCase{
 		}
 	}
 
-	*/
 
 	@Test
 	public void testCreation() {
@@ -220,4 +225,19 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}  
 	}
+	
+/*	
+	@Test
+	public void testOptimizationToolRecovery() {	
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testOptimizationToolRecovery test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+*/
 }
