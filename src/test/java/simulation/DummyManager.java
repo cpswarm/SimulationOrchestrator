@@ -56,10 +56,14 @@ public class DummyManager {
 	private Server server;
 	private boolean available = true;
 	private boolean started = false;
+	private boolean optimizationToolAvailable = false;
+	private boolean orchestratorAvailable = false;
 	private ManagerConnectionListenerImpl connectionListener;
 	private StanzaListener packetListener;
 	//private RosterListener rosterListener;
 	private Jid clientJID = null;
+	private Jid optimizationToolJID = null;
+	private Jid orchestratorJID = null;
 	private String serverName = null;
 	private String clientID = null;
 	private String optimizationId = null;
@@ -259,32 +263,28 @@ public class DummyManager {
 			final String[] groups = { "orchestrator" };
 			RosterGroup group = roster
 				.getGroup("orchestrator");		
+			orchestratorJID = JidCreate.from("orchestrator@" + serverName + "/"+RESOURCE);
 			if (group != null) {
-				if (!group.contains(JidCreate.bareFrom("orchestrator@"
-						+ serverName))) {
-					roster.createEntry(JidCreate.bareFrom("orchestrator@"
-							+ serverName),
+				if (!group.contains(orchestratorJID)) {
+					roster.createEntry(orchestratorJID.asBareJid(),
 							"orchestrator", groups);
 				} 
 			} else {
-				roster.createEntry(JidCreate.bareFrom("orchestrator@"
-						+ serverName),
+				roster.createEntry(orchestratorJID.asBareJid(),
 						"orchestrator", groups);
 			}
 			
 			final String[] groups2 = { "optimization" };
 			group = roster
 				.getGroup("optimization");
+			optimizationToolJID = JidCreate.from("optimization_test@" + serverName + "/"+RESOURCE);
 			if (group != null) {
-				if (!group.contains(JidCreate.bareFrom("optimization_test@"
-						+ serverName))) {
-					roster.createEntry(JidCreate.bareFrom("optimization_test@"
-							+ serverName),
+				if (!group.contains(optimizationToolJID)) {
+					roster.createEntry(optimizationToolJID.asBareJid(),
 							"optimization", groups2);
 				} 
 			} else {
-				roster.createEntry(JidCreate.bareFrom("optimization_test@"
-						+ serverName),
+				roster.createEntry(optimizationToolJID.asBareJid(),
 						"optimization", groups2);
 			}			
 			
@@ -379,6 +379,14 @@ public class DummyManager {
 		return clientJID;
 	}
 
+	public Jid getOptimizationToolJID () {
+		return optimizationToolJID;
+	}
+	
+	public Jid getOrchestratorJID () {
+		return orchestratorJID;
+	}
+	
 	public String getSimulationConfiguration() {
 		return simulationConfiguration;
 	}
@@ -394,5 +402,22 @@ public class DummyManager {
 
 	public void setSimulationId(String simulationId) {
 		this.simulationId = simulationId;
+	}
+
+
+	public boolean isOptimizationToolAvailable() {
+		return optimizationToolAvailable;
+	}
+
+	public void setOptimizationToolAvailable(boolean optimizationToolAvailable) {
+		this.optimizationToolAvailable = optimizationToolAvailable;
+	}
+
+	public boolean isOrchestratorAvailable() {
+		return orchestratorAvailable;
+	}
+
+	public void setOrchestratorAvailable(boolean orchestratorAvailable) {
+		this.orchestratorAvailable = orchestratorAvailable;
 	}
 }

@@ -63,6 +63,8 @@ public class DummyOptimizationTool {
 	//private RosterListener rosterListener;
 	private Jid clientJID = null;
 	private String serverName = null;
+	private InetAddress serverIP = null;
+	private String serverPassword = null;
 	private String clientID = null;
 	private String optimizationID = null;
 	private Jid orchestratorJid = null;
@@ -76,6 +78,8 @@ public class DummyOptimizationTool {
 	public DummyOptimizationTool(String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		this.clientID = clientID;
 		this.serverName = serverName;
+		this.serverIP = serverIP;
+		this.serverPassword = serverPassword;
 		if(!dataFolder.endsWith(File.separator)) {
 			dataFolder+=File.separator;
 		}
@@ -84,9 +88,24 @@ public class DummyOptimizationTool {
 			otDataFolder+=File.separator;
 		}
 		try {
-
 			clientJID = JidCreate.from(clientID+"@"+serverName+"/"+RESOURCE);
 			orchestratorJid = JidCreate.from("orchestrator@"+serverName+"/"+RESOURCE);
+		} catch (final Exception me) {
+			System.out.println("msg "+me.getMessage());
+			System.out.println("loc "+me.getLocalizedMessage());
+			System.out.println("cause "+me.getCause());
+			System.out.println("excep "+me);
+			me.printStackTrace();			
+		}
+		connect();
+		
+		addOrchestratorToTheRoster();
+	}
+
+
+	private void connect() {
+		try {
+
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
 
@@ -136,8 +155,6 @@ public class DummyOptimizationTool {
 			System.out.println("excep "+me);
 			me.printStackTrace();
 		}
-		
-		addOrchestratorToTheRoster();
 	}
 
     
@@ -356,17 +373,22 @@ public class DummyOptimizationTool {
 	
 	
 	public void disconnect() {
-		this.connection.disconnect();
+		final Presence presence = new Presence(Presence.Type.unavailable);
+		try {
+			connection.sendStanza(presence);
+		} catch (final NotConnectedException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void reconnect() {
+		final Presence presence = new Presence(Presence.Type.available);
 		try {
-			this.connection.connect();
-		} catch (SmackException | IOException | XMPPException | InterruptedException e) {
-			// TODO Auto-generated catch block
+			connection.sendStanza(presence);
+		} catch (final NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+		this.messageListener.setStopOptimization(true);
 	}
 	
 	public boolean publishServer(String simulationHash) {

@@ -9,6 +9,8 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
 
@@ -50,7 +52,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				SimulationResultMessage result = (SimulationResultMessage) msgReceived;
 				// emergency_exit SCID is used to test simulations that conclude immediately
 				if(this.stopOptimzation ||
-						parent.getOptimizationID().equals("emergency_exit")) {
+						parent.getSCID().equals("emergency_exit")) {
 					if(result.getFitnessValue()==100.0 && result.getSuccess()==true) {
 						OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, Status.COMPLETED, 100.0, "bestController");
 						Message msg1 = new Message();
@@ -64,19 +66,16 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 						}
 					}
 				// cpswarm_sar is used for optimizations that doesn't have to finish immediately because used to test the OT recovery  
-				} else if(parent.getOptimizationID().equals("cpswarm_sar")) {
-					boolean error = false;
-					do {
-						RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), parent.getSCID(), "currentCandidate", "type");
+				} else if(parent.getSCID().equals("cpswarm_sar")) {
+					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), parent.getSCID(), "currentCandidate", "type");
+					try {
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-						chat = chatManager.chatWith(message.getFrom().asEntityBareJidIfPossible());
-						Gson gson = new Gson();
-						try {
-							chat.send(gson.toJson(runSimulation));
-						} catch (NotConnectedException | InterruptedException e) {
-							error = true;
-						}
-					} while(error);
+						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());
+						Gson gson = new Gson();						
+						chat.send(gson.toJson(runSimulation));
+					} catch (NullPointerException | NotConnectedException | InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			} else if(msgReceived instanceof StartOptimizationMessage) {
 				StartOptimizationMessage start = (StartOptimizationMessage) msgReceived; 
@@ -135,5 +134,15 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	
 	public void setStopOptimization(boolean stop) {
 		this.stopOptimzation = stop;
+		Chat chat = null;
+		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), parent.getSCID(), "currentCandidate", "type");
+		try {
+			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
+			chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_test@"+parent.getServerName()));
+			Gson gson = new Gson();						
+			chat.send(gson.toJson(runSimulation));
+		} catch (NullPointerException | NotConnectedException | InterruptedException | XmppStringprepException e) {
+			e.printStackTrace();
+		}
 	}
 }

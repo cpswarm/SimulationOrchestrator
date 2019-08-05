@@ -29,7 +29,9 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			System.out.println("SimulationManager received "+msg.getBody());
 			parent.setOptimizationID(runSimulation.getOId());
 			parent.setSimulationId(runSimulation.getSid());
-			parent.publishFitness(100.0);
+			if(parent.isOptimizationToolAvailable()) {
+				parent.publishFitness(100.0);
+			}
 		} else if(sender.toString().startsWith("orchestrator")) {
 			SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, "", 100);
 			MessageSerializer serializer = new MessageSerializer();
@@ -38,10 +40,8 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			try {
 				chat.send(messageToSend);
 			} catch (NotConnectedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

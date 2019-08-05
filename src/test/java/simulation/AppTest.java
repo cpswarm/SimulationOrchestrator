@@ -344,7 +344,7 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
 			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
-			Thread.sleep(5000);
+			Thread.sleep(15000);
 			optimizationTool.disconnect();
 			Thread.sleep(10000);
 			optimizationTool.reconnect();
