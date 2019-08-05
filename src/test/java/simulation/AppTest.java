@@ -51,7 +51,6 @@ public class AppTest extends TestCase{
 	 * -Drecovery=true (Flag to enable or disable the thread which monitor the progress of the optimization process)
 	 * -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 * -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
-	 * -Dscid=emergency_exit (ID of the simulator configuration AKA the name of the package)
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
 	 * -Dmax_agents = "8" (indicates the maximum number of agents required for the simulation)
@@ -76,7 +75,6 @@ public class AppTest extends TestCase{
 	private String otDataFolder = System.getProperty("ot_data_folder");
 	private String rosFolder = System.getProperty("ros_folder");
 	private Boolean recovery = Boolean.parseBoolean(System.getProperty("recovery"));
-	private String scid = System.getProperty("scid");
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String parameters = System.getProperty("parameters");
 	private String dimensions = System.getProperty("dimensions");
@@ -128,7 +126,29 @@ public class AppTest extends TestCase{
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword, 
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder, 
+																			optimizationUser, 
+																			recovery, "emergency_exit", 
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -162,7 +182,30 @@ public class AppTest extends TestCase{
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
 			Assert.assertNotNull(server);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword, 
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder, 
+																			optimizationUser, 
+																			recovery, 
+																			"emergency_exit",
+																			guiEnabled, 
+																			parameters,
+																			dimensions, 
+																			maxAgents, 
+																			false, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager,
+																			simulationManagerPath,
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -200,12 +243,36 @@ public class AppTest extends TestCase{
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword,
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder,
+																			optimizationUser, 
+																			recovery, 
+																			"emergency_exit", 
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager("manager_test", 
+					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
@@ -226,18 +293,73 @@ public class AppTest extends TestCase{
 		}  
 	}
 	
-/*	
+
 	@Test
 	public void testOptimizationToolRecovery() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testOptimizationToolRecovery test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			
+			Gson gson = new Gson();
+			Server server = gson.fromJson("{\r\n" + 
+					   "	\"server\": 1,\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n", Server.class);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword,
+																			orchestratorInputDataFolder,
+																			orchestratorOutputDataFolder,
+																			optimizationUser, 
+																			recovery,
+																			"cpswarm_sar", // This usws cpswarm_sar and not emergency_exit to indicated that neeed a test optimization that doesn't finish immediately, to test the OT recovery
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword,
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
+			Assert.assertNotNull(optimizationTool);
+			Thread.sleep(1000);
+			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
+			Thread.sleep(5000);
+			optimizationTool.disconnect();
+			Thread.sleep(10000);
+			optimizationTool.reconnect();
+			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(orchestrator.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			optimizationTool.getConnection().disconnect();
+			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
 		}  
 	}
-*/
+
 }

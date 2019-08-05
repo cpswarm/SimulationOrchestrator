@@ -58,7 +58,6 @@ public class DummyOptimizationTool {
 	private Server server;
 	private boolean available = true;
 	private boolean started = false;
-	private String simulationHash="";
 	private OptimizationConnectionListenerImpl connectionListener;
 	private StanzaListener packetListener;
 	//private RosterListener rosterListener;
@@ -72,6 +71,7 @@ public class DummyOptimizationTool {
 	private String otDataFolder = null;
 	private String optimizationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
+	private OptimizationMessageEventCoordinatorImpl messageListener = null;
 	
 	public DummyOptimizationTool(String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		this.clientID = clientID;
@@ -103,11 +103,13 @@ public class DummyOptimizationTool {
 			connectionListener = new OptimizationConnectionListenerImpl(this);
 			// Adds a listener for the status of the connection
 			connection.addConnectionListener(connectionListener);
-
+/*
+ * Removed because the connection has not to be automatically reconnected to test the OT recovery
+ * 
 			ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
 			reconnectionManager.enableAutomaticReconnection();
 			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
-			
+*/		
 			// Adds the packet listener, used to catch the requests
 			// of adding this client to the roster
 			final StanzaFilter presenceFilter = new StanzaTypeFilter(
@@ -117,7 +119,8 @@ public class DummyOptimizationTool {
 			addAsyncStanzaListener(packetListener, presenceFilter);
 
 			// Adds the listener for the incoming messages
-			ChatManager.getInstanceFor(connection).addIncomingListener(new OptimizationMessageEventCoordinatorImpl(this));
+			messageListener  = new OptimizationMessageEventCoordinatorImpl(this);
+			ChatManager.getInstanceFor(connection).addIncomingListener(messageListener);
 			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			Thread.sleep(2000);
@@ -351,7 +354,21 @@ public class DummyOptimizationTool {
 		this.available = availalble;
 	}
 	
+	
+	public void disconnect() {
+		this.connection.disconnect();
+	}
+	
+	public void reconnect() {
+		try {
+			this.connection.connect();
+		} catch (SmackException | IOException | XMPPException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+	}
+	
 	public boolean publishServer(String simulationHash) {
 		try {
 			Gson gson = new Gson();

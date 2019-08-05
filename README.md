@@ -118,7 +118,7 @@ This test is used to verify:
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=123.123.123.123 -Dtest_server_name=pippo.pluto.it -Dtest_server_username=orchestrator -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder=   -Dscid=cpswarm_sar -Dparameters="" -Dgui=false -Drecovery=false -Ddimensions="Any" -Dmax_agents=3 -Dlocal_optimzation=false -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=123.123.123.123 -Dtest_server_name=pippo.pluto.it -Dtest_server_username=orchestrator -Dtest_server_password=orchestrator -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_test -Dot_data_folder= -Dros_folder="" -Dparameters="" -Dgui=false -Drecovery=false -Ddimensions="Any" -Dmax_agents=3 -Dlocal_optimzation=false -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explanation of the parameters:
@@ -138,7 +138,6 @@ And here with the explanation of the parameters:
   -Drecovery=true ((Flag to enable or disable the thread which monitor the progress of the optimization process))
   -Dmqtt_broker=tcp://123.123.123.123:1883  (IP of the MQTT broker to be used for the monitoring)
   -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
-  -Dscid=emergency_exit (ID of Simulator Configuration AKA the name of the package)
   -Dparameters="" (indicates the parameters to be used in the simulations)
   -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
   -Dmax_agents="8" (indicates the maximum number of agents required for the simulation)
