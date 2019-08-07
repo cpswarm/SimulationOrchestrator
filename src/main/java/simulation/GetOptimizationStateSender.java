@@ -4,7 +4,8 @@ public class GetOptimizationStateSender implements Runnable {
 
 	private SimulationOrchestrator parent = null;
 	private boolean sendState = true;
-	private final static int TIME_TO_SLEEP = 60*1000;
+	private boolean suspendState = false;
+	private final static int TIME_TO_SLEEP = 30*1000;
 	
 	
 	public GetOptimizationStateSender(final SimulationOrchestrator parent) {
@@ -14,8 +15,10 @@ public class GetOptimizationStateSender implements Runnable {
 	@Override
 	public void run() {
 		while(sendState) {
-			if(!parent.sendGetOptimizationState()) {
-				this.setSendState(false);
+			if(!suspendState) {
+				if(!parent.sendGetOptimizationState()) {
+					this.setSendState(false);
+				}
 			}
 			try {
 				Thread.sleep(TIME_TO_SLEEP);
@@ -36,4 +39,13 @@ public class GetOptimizationStateSender implements Runnable {
 		this.sendState = sendState;
 	}
 
+	/**
+	 * The suspend flag setter, if called with a true value, the thread will
+	 * stop sending messages but will continue running
+	 * 
+	 * @param canRun
+	 */
+	public synchronized void setSuspendtate(boolean suspendState) {
+		this.suspendState = suspendState;
+	}
 }

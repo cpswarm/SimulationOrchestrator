@@ -81,9 +81,11 @@ public class DummyManager {
 		try {
 
 			clientJID = JidCreate.from(clientID+"@"+serverName);
+			orchestratorJID = JidCreate.from("orchestrator@" + serverName + "/"+RESOURCE);
+			optimizationToolJID = JidCreate.from("optimization_test@" + serverName + "/"+RESOURCE);
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
-			SmackConfiguration.DEBUG = false;
+			SmackConfiguration.DEBUG = true;
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
 					.builder().setHostAddress(serverIP).setPort(5222)
 					.setXmppDomain(serverName)
@@ -263,7 +265,6 @@ public class DummyManager {
 			final String[] groups = { "orchestrator" };
 			RosterGroup group = roster
 				.getGroup("orchestrator");		
-			orchestratorJID = JidCreate.from("orchestrator@" + serverName + "/"+RESOURCE);
 			if (group != null) {
 				if (!group.contains(orchestratorJID)) {
 					roster.createEntry(orchestratorJID.asBareJid(),
@@ -277,7 +278,7 @@ public class DummyManager {
 			final String[] groups2 = { "optimization" };
 			group = roster
 				.getGroup("optimization");
-			optimizationToolJID = JidCreate.from("optimization_test@" + serverName + "/"+RESOURCE);
+
 			if (group != null) {
 				if (!group.contains(optimizationToolJID)) {
 					roster.createEntry(optimizationToolJID.asBareJid(),
@@ -288,7 +289,7 @@ public class DummyManager {
 						"optimization", groups2);
 			}			
 			
-		} catch (XmppStringprepException | NotLoggedInException | NoResponseException | XMPPErrorException
+		} catch (NotLoggedInException | NoResponseException | XMPPErrorException
 				| NotConnectedException | InterruptedException e) {
 			// The client is disconnected
 			System.out.println(

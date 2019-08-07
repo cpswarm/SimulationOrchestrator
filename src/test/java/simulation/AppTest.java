@@ -295,10 +295,10 @@ public class AppTest extends TestCase{
 	
 
 	@Test
-	public void testOptimizationToolRecovery() {	
+	public void testOptimizationToolRecoveryConnection() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testOptimizationToolRecovery test----------------------------------");
+			System.out.println("--------------------Starting the testOptimizationToolRecovery1 test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			Server server = gson.fromJson("{\r\n" + 
@@ -345,7 +345,7 @@ public class AppTest extends TestCase{
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
 			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
 			Thread.sleep(15000);
-			optimizationTool.disconnect();
+			optimizationTool.disconnect(false);
 			Thread.sleep(10000);
 			optimizationTool.reconnect();
 			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
@@ -361,5 +361,74 @@ public class AppTest extends TestCase{
 			Assert.fail();
 		}  
 	}
-
+	
+	@Test
+	public void testOptimizationToolRecoveryError() {	
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testOptimizationToolRecovery2 test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			Gson gson = new Gson();
+			Server server = gson.fromJson("{\r\n" + 
+					   "	\"server\": 1,\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n", Server.class);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword,
+																			orchestratorInputDataFolder,
+																			orchestratorOutputDataFolder,
+																			optimizationUser, 
+																			recovery,
+																			"cpswarm_sar", // This usws cpswarm_sar and not emergency_exit to indicated that neeed a test optimization that doesn't finish immediately, to test the OT recovery
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword,
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
+			Assert.assertNotNull(optimizationTool);
+			Thread.sleep(1000);
+			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
+			Thread.sleep(15000);
+			optimizationTool.disconnect(true);
+			Thread.sleep(10000);
+			optimizationTool.reconnect();
+			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(orchestrator.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			optimizationTool.getConnection().disconnect();
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+	
+	
 }

@@ -33,12 +33,13 @@ public class OptimiztionFileTransferListenerImpl implements FileTransferListener
 		String fileToReceive = null;
 		// TODO save the state file to configure the OT for restarting optimization
 		if(request.getRequestor().compareTo(parent.getOrchestratorJid()) == 0) {
-			fileToReceive = parent.getOtDataFolder()+request.getFileName();
+			fileToReceive = "src/main/resources/stateTest.zip";
 		}else {
 			System.out.println("OT: Transfer refused");
 			return;
 		}
-		
+
+
 		try {
 			transfer.receiveFile(new File(fileToReceive));
 
@@ -52,6 +53,8 @@ public class OptimiztionFileTransferListenerImpl implements FileTransferListener
 		} catch (final SmackException | IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		// Since it is only for the test the file is not really stored but the one included in the resources is used
+		System.out.println("Optimzation Tool: state of the optimization tool saved for optimization "+request.getDescription());
 		OptimizationToolConfiguredMessage msg = new OptimizationToolConfiguredMessage(parent.getOptimizationID(), true);
 		ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 		Chat chat = chatManager.chatWith(parent.getOrchestratorJid().asEntityBareJidIfPossible());
@@ -61,8 +64,6 @@ public class OptimiztionFileTransferListenerImpl implements FileTransferListener
 		} catch (NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-
 	}
 
 }

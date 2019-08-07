@@ -3,15 +3,15 @@ package simulation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.filter.StanzaFilter;
@@ -58,6 +58,7 @@ public class DummyOptimizationTool {
 	private Server server;
 	private boolean available = true;
 	private boolean started = false;
+	private boolean optimizationError = true;
 	private OptimizationConnectionListenerImpl connectionListener;
 	private StanzaListener packetListener;
 	//private RosterListener rosterListener;
@@ -140,6 +141,10 @@ public class DummyOptimizationTool {
 			// Adds the listener for the incoming messages
 			messageListener  = new OptimizationMessageEventCoordinatorImpl(this);
 			ChatManager.getInstanceFor(connection).addIncomingListener(messageListener);
+			
+			FileTransferManager.getInstanceFor(connection)
+			.addFileTransferListener(new OptimiztionFileTransferListenerImpl(this));
+
 			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			Thread.sleep(2000);
@@ -240,15 +245,13 @@ public class DummyOptimizationTool {
 		}
 	}
 	
-	
+	/*
+	 * It is not used because during the TEST phase the file transfer doesn't work
 	public boolean sendOptimizationState() {
 		
 		// TODO the state file called SCID will be saved in the subfolder named with OID in the otDataFolder
-		String stateFile = this.otDataFolder + this.optimizationID + File.separator + this.SCID;
-		File file = new File(stateFile);
-		if (file.exists()) {
-			file.delete();
-		}else {
+		File file = new File("src/main/resources/stateTest.zip");
+		if (!file.exists()) {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
@@ -259,7 +262,7 @@ public class DummyOptimizationTool {
 		try {			
 			if (!this.transferFile(
 					JidCreate.entityFullFrom(
-							this.orchestratorJid.toString()), stateFile, this.optimizationID)) {
+							this.orchestratorJid.toString()), "src/main/resources/stateTest.zip", this.optimizationID)) {
 				return false;
 			}
 		} catch (XmppStringprepException e) {
@@ -268,7 +271,7 @@ public class DummyOptimizationTool {
 		}	
 		return true;
 	}
-	
+	*/
     
 	/**
 	 * Method used to add a {@link RosterListener} to the roster
@@ -372,7 +375,8 @@ public class DummyOptimizationTool {
 	}
 	
 	
-	public void disconnect() {
+	public void disconnect(boolean error) {
+		this.optimizationError = error;
 		final Presence presence = new Presence(Presence.Type.unavailable);
 		try {
 			connection.sendStanza(presence);
@@ -388,7 +392,20 @@ public class DummyOptimizationTool {
 		} catch (final NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		this.messageListener.setStopOptimization(true);
+		// If it is the test of the recovery after error 
+		// it waits 10 seconds before to stop the optimization
+		if(this.optimizationError) {
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				public void run() {
+					messageListener.setStopOptimization(true);
+				}
+			}, 10000);
+		// if it is the test of the simple recovery of the connection
+		// it stops immediately
+		} else {
+			this.messageListener.setStopOptimization(true);
+		}
 	}
 	
 	public boolean publishServer(String simulationHash) {
@@ -491,5 +508,9 @@ public class DummyOptimizationTool {
 	public void removeManager(final EntityFullJid jid) {
 		managers.remove(jid);
 	}
-	
+
+
+	public boolean isOptimizationError() {
+		return optimizationError;
+	}
 }

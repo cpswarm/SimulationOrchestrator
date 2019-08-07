@@ -106,6 +106,8 @@ public class SimulationOrchestrator {
 	public static final Semaphore SEMAPHORE = new Semaphore(1);
 	private static final int MAX_CONFIGURATION_ATTEMPTS = 3;
 	private BlockingQueue <Presence> queue;
+	private GetOptimizationStateSender getOptimizationStateSender = null;
+	private Thread stateSenderThread = null;
 	private XMPPTCPConnection connection;
 	private MqttAsyncDispatcher client;
 	private ConnectionListenerImpl connectionListener;
@@ -135,7 +137,7 @@ public class SimulationOrchestrator {
 	private Boolean optimizationEnabled = null;
 	private String configurationFolder = null;
 	private boolean localSimulationManager = false;
-	private static boolean TEST = true;
+	public static boolean TEST = true;
 	private Boolean simulationDone = null;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private int configurationAttempts = 0;
@@ -942,8 +944,15 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendOptimizationStateToOT() {
+		if(TEST) {
+			// In case of test the file transfer cannot be used, so the optimization tool is considered as configured
+			sendStartOptimization();
+			return true;
+		}
+
 		// the state file called SCID will saved in the subfolder named with OID in the outputDataFolder
 		String stateFile = this.outputDataFolder + this.optimizationId + File.separator + this.scid;
+		
 		File file = new File(stateFile);
 		if (!file.exists()) {
 			System.out.println("SOO doesn't store the state file for the optimization ");
@@ -972,7 +981,7 @@ public class SimulationOrchestrator {
 		}
 		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
 		Gson gson = new Gson();
-		if(this.optimizationEnabled) {
+		if(this.optimizationEnabled && this.optimizationId==null) {
 			this.optimizationId = scid+"!"+UUID.randomUUID();
 		}
 		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, gson.toJson(optimizationConfiguration), scid);
@@ -981,10 +990,11 @@ public class SimulationOrchestrator {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		System.out.println("Sending StartOptimization message: "+messageToSend+" at "+sdf.format(timestamp));
 		ChatManager manager = ChatManager.getInstanceFor(connection);
-		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
-		Message message = new Message();
-		message.setBody(messageToSend);
 		try {
+			Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
+			Message message = new Message();
+			message.setBody(messageToSend);
+		
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
 			System.out.println("Error sending StartOptimization message");
@@ -993,7 +1003,6 @@ public class SimulationOrchestrator {
 		}
 		return true;
 	}
-	
 	
 	private String readFile(String path, Charset encoding) 
 			throws IOException {
@@ -1151,5 +1160,42 @@ public class SimulationOrchestrator {
 		} catch (InterruptedException e) {
 			return null;
 		}
+	}
+
+	public void startGetOptimizationStateSender() {
+		if(this.isRecovery()) {
+			getOptimizationStateSender = new GetOptimizationStateSender(this);
+			// create the thread
+			stateSenderThread = new Thread(getOptimizationStateSender);
+			// run
+			stateSenderThread.start();
+		}
+	}
+	
+	
+	public void stopGetOptimizationStateSender() {
+		if(this.stateSenderThread!=null) {
+			getOptimizationStateSender.setSendState(false);
+			try {
+				stateSenderThread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			stateSenderThread = null;
+			getOptimizationStateSender = null;
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void suspendGetOptimizationStateSender() {
+		this.getOptimizationStateSender.setSuspendtate(true);		
+	}
+	
+	public void restartGetOptimizationStateSender() {
+		this.getOptimizationStateSender.setSuspendtate(false);		
 	}
 }

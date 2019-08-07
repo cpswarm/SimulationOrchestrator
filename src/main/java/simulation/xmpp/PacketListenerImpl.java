@@ -66,6 +66,7 @@ public class PacketListenerImpl implements StanzaListener {
 						parent.sendGetOptimizationStatus();
 					} 				
 				} catch (JsonSyntaxException | XmppStringprepException e) {
+					e.printStackTrace();
 				}
 			} else if(presence.getType().equals(Presence.Type.unavailable)){
 				System.out.println(
@@ -73,10 +74,10 @@ public class PacketListenerImpl implements StanzaListener {
 				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					System.out.println("Removing Manager "+presence.getFrom().toString()+" to the list of the ones available");
 					parent.removeSimulationManager(presence.getFrom());
-				}/* else if(presence.getFrom().toString().startsWith("orchestrator") || presence.getFrom().toString().startsWith(parent.getOptimizationJid().toString())) {
-						System.out.println("The connection is disconnected, reconnect");
-						parent.reconnect();
-				}*/
+				} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
+					System.out.println("The Optimization Tool is offline, stop to send the state");
+					parent.suspendGetOptimizationStateSender();
+				}
 			}
 		}
 	}

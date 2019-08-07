@@ -8,7 +8,6 @@ import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.OptimizationToolConfiguredMessage;
-import simulation.GetOptimizationStateSender;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -17,10 +16,7 @@ import simulation.SimulationOrchestrator;
  *
  */
 public final class MessageEventCoordinatorImpl implements IncomingChatMessageListener {
-
 	private SimulationOrchestrator parent = null;
-	private GetOptimizationStateSender getOptimizationStateSender = null;
-	private Thread stateSenderThread = null;
 	private int counter = 0;
 	
 	public MessageEventCoordinatorImpl(final SimulationOrchestrator orchestrator) {
@@ -88,13 +84,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 
 	private void handleOptimizationStarted(OptimizationStatusMessage reply) {
-		if(parent.isRecovery()) {
-			getOptimizationStateSender = new GetOptimizationStateSender(parent);
-			// create the thread
-			stateSenderThread = new Thread(getOptimizationStateSender);
-			// run
-			stateSenderThread.start();
-		}
+		parent.startGetOptimizationStateSender();
 	}
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
@@ -112,9 +102,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 	
 	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
-		if(stateSenderThread!=null) {
-			stopStateSenderThread();
-		}
+		parent.stopGetOptimizationStateSender();
 		System.out.println("Result of the current optimization: "+reply.getOId());
 		System.out.println("Best fitness value: "+reply.getBestFitnessValue());
 		System.out.println("Best candidate: "+reply.getBestController() );		
@@ -123,9 +111,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 	
 	private void handleOptimizationError(OptimizationStatusMessage reply) {
-		if(stateSenderThread!=null) {
-			stopStateSenderThread();
-		}
+		parent.stopGetOptimizationStateSender();
 		// SOO try to reconfigure OT for maximum 3 times
 		while(counter>0) {
 			if(parent.sendOptimizationStateToOT()) {   /* state file transfered successfully-----if SOO wants to restart the optimization, just send OptimizationState to reconfigure the OT */
@@ -145,21 +131,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		}
 	}
 	
-	private void stopStateSenderThread() {
-		getOptimizationStateSender.setSendState(false);
-		try {
-			stateSenderThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		stateSenderThread = null;
-		getOptimizationStateSender = null;
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	private void handleOptimizationToolConfiguredMessage(OptimizationToolConfiguredMessage reply) {
 		if (reply.getSuccess() != true) {

@@ -110,9 +110,15 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			} else if(msgReceived instanceof GetOptimizationStatusMessage) {
 				GetOptimizationStatusMessage getOptimizationStatus = (GetOptimizationStatusMessage) msgReceived;
 				value +=10;
-				System.out.println("OptimizationTool received GetOptimizationStatus: "+msg.getBody());
-				OptimizationStatusMessage status = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, Status.COMPLETED, 100.0, "bestController");
-				String messageToSend = serializer.toJson(status);
+				System.out.println("OptimizationTool received GetOptimizationStatus: "+getOptimizationStatus.toString());
+				Status status = null;
+				if(parent.isOptimizationError()) {
+					status = Status.ERROR_OPTIMIZAZION_FAILED;
+				} else {
+					status = Status.RUNNING;
+				}
+				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, status, 80.0, "bestController");
+				String messageToSend = serializer.toJson(optimizationStatus);
 				message.setBody(messageToSend);
 				System.out.println("OptimizationTool sending optimization staus "+messageToSend);
 				try {
@@ -122,9 +128,12 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					e.printStackTrace();
 				}
 			} else if(msgReceived instanceof GetOptimizationStateMessage) {
+				/* Not used because the file transfer doesn't work in case of test
 				if(parent.sendOptimizationState()) {
 					System.out.println("Error failing to report optimization state file to SOO");
 				}
+				*/
+				return;
 			} else {
 				System.out.println("Reply received: " + msg.getBody());
 			}
@@ -132,13 +141,19 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		}
 	}
 	
+	/**
+	 * This is the method used to indicate that the optimization ongoing has to be stopped or started again
+	 * it is used to stop the optimization after that the Optimization Tool has returned online after have gone offline
+	 * 
+	 * @param stop - true to stop, false to start
+	 */
 	public void setStopOptimization(boolean stop) {
 		this.stopOptimzation = stop;
-		Chat chat = null;
+		//It sends a run simulation message to restart the optimization if it has ben stopped
 		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), parent.getSCID(), "currentCandidate", "type");
 		try {
 			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-			chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_test@"+parent.getServerName()));
+			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_test@"+parent.getServerName()));
 			Gson gson = new Gson();						
 			chat.send(gson.toJson(runSimulation));
 		} catch (NullPointerException | NotConnectedException | InterruptedException | XmppStringprepException e) {

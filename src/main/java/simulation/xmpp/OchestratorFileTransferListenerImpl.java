@@ -27,12 +27,16 @@ public class OchestratorFileTransferListenerImpl implements FileTransferListener
 		String fileToReceive = null;
 		// // the state file called SCID from OT will saved in the subfolder named with OID in the outputDataFolder, instead refuse the request
 		if(request.getRequestor().compareTo(parent.getOptimizationJid()) == 0) {
-			fileToReceive = outputDataFolder+parent.getOptimizationId()+File.separator+request.getFileName();
+			if(SimulationOrchestrator.TEST) {
+				fileToReceive = "src/main/resources/stateTest.zip";
+			} else {
+				fileToReceive = outputDataFolder+parent.getOptimizationId()+File.separator+request.getFileName();
+			}
 		} else {
-			System.out.println("Simulation Orchesrtator: Transfer refused");
+			System.out.println("Simulation orchestrator: Transfer refused");
 			return;
 		}
-	//	System.out.println("SOO fileToReceive = "+fileToReceive);
+		//	System.out.println("SOO fileToReceive = "+fileToReceive);
 		try {
 			transfer.receiveFile(new File(fileToReceive));
 
