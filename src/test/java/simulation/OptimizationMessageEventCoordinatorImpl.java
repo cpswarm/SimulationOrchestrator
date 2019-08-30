@@ -47,7 +47,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
 		if(parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
-				|| parent.getOptimizationID().equals(msgReceived.getOId())) {
+				|| parent.getOptimizationID().equals(msgReceived.getOId())) {   //>>>>>>>> FIXME .NullPointerException when first time the start msg is received
 			if(msgReceived instanceof SimulationResultMessage) {
 				SimulationResultMessage result = (SimulationResultMessage) msgReceived;
 				// emergency_exit SCID is used to test simulations that conclude immediately
@@ -156,8 +156,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	 */
 	public void setStopOptimization(boolean stop) {
 		this.stopOptimzation = stop;
-		//It sends a run simulation message to restart the optimization if it has ben stopped
-		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), parent.getSCID(), "currentCandidate", "type");
+		System.out.println("\n set the last stop candidate\n");
+		//It sends a run simulation message to restart the optimization if it has been stopped
+		int newSID = new Integer(parent.getSimulationID()).intValue()+1;
+		String newSimulationID = String.valueOf(newSID);
+		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, "stopCandidate", "type");
 		try {
 			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_test@"+parent.getServerName()));

@@ -100,7 +100,7 @@ public class AppTest extends TestCase{
 		}
 	}
  
-/*	@Test
+	@Test
 	public void testKubernetes() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -117,7 +117,7 @@ public class AppTest extends TestCase{
 		} catch (Exception e) {
 			Assert.fail();
 		}
-	}*/
+	}
 
 
 	@Test
@@ -215,7 +215,7 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(orchestrator.isSimulationDone()==null) {
+			while(orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
@@ -279,7 +279,7 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
 			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
-			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
@@ -348,7 +348,7 @@ public class AppTest extends TestCase{
 			optimizationTool.disconnect(false);  // immediately stop optimization after connection recovery
 			Thread.sleep(10000);
 			optimizationTool.reconnect();
-			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
@@ -416,7 +416,7 @@ public class AppTest extends TestCase{
 			optimizationTool.disconnect(true);
 			Thread.sleep(10000);
 			optimizationTool.reconnect();
-			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
