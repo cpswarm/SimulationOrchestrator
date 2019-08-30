@@ -89,10 +89,14 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
 		if(reply.getOperationStatus().equals(OptimizationStatusMessage.Status.CANCELLED)) {
+			parent.stopGetOptimizationStateSender();
 			if(parent.getOptimizationId()!=null) {  // If COMPLETED or CANCELLED, OID=null
 				parent.setOptimizationId(null);
 			}
 		}else {
+			if(parent.isStateSenderSuspend()) {
+				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
+			}
 			System.out.println("Status of the current optimization: " + reply.getOId());
 			System.out.println("Current progress: " + reply.getProgress() + "%");
 			System.out.println("Current status: " + reply.getOperationStatus());

@@ -76,7 +76,9 @@ public class PacketListenerImpl implements StanzaListener {
 					parent.removeSimulationManager(presence.getFrom());
 				} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 					System.out.println("The Optimization Tool is offline, stop to send the state");
-					parent.suspendGetOptimizationStateSender();
+					if(parent.isRecovery()) {
+						parent.suspendGetOptimizationStateSender();
+					}
 				}
 			}
 		}

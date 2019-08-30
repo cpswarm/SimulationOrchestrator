@@ -44,9 +44,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
-		// CHeck if the optimization ID has not been yet set (before the start optimization
+		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
-		if(parent.getOptimizationID()==null
+		if(parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
 				|| parent.getOptimizationID().equals(msgReceived.getOId())) {
 			if(msgReceived instanceof SimulationResultMessage) {
 				SimulationResultMessage result = (SimulationResultMessage) msgReceived;
@@ -67,10 +67,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					}
 				// cpswarm_sar is used for optimizations that doesn't have to finish immediately because used to test the OT recovery  
 				} else if(parent.getSCID().equals("cpswarm_sar")) {
-					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), parent.getSCID(), "currentCandidate", "type");
+			//		String newSimulationID = UUID.randomUUID().toString();   /*>>>>>>> new SID could be a nunmber, +1 every time */
+					int newSID = new Integer(parent.getSimulationID()).intValue()+1;
+					String newSimulationID = String.valueOf(newSID);
+					parent.setSimulationID(newSimulationID);
+					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, "currentCandidate", "type");
 					try {
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());
+						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());   //<<<<<<<<< send back the same candidate to simulate again 
 						Gson gson = new Gson();						
 						chat.send(gson.toJson(runSimulation));
 					} catch (NullPointerException | NotConnectedException | InterruptedException e) {
@@ -94,8 +98,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					e.printStackTrace();
 				}
 				String simulationID = "";
+				int sid = 0;
 				for(EntityFullJid manager : parent.getManagers()) {
-					simulationID = UUID.randomUUID().toString();
+			//		simulationID = UUID.randomUUID().toString();
+					sid += 1;  // SID increases by 1 each time
+					simulationID = String.valueOf(sid);
 					parent.setSimulationID(simulationID);
 					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, "currentCandidate", "type");
 					ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
@@ -117,7 +124,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				} else {
 					status = Status.RUNNING;
 				}
-				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, status, 80.0, "bestController");
+				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 0.8, status, 80.0, "bestController");
 				String messageToSend = serializer.toJson(optimizationStatus);
 				message.setBody(messageToSend);
 				System.out.println("OptimizationTool sending optimization staus "+messageToSend);
@@ -128,7 +135,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					e.printStackTrace();
 				}
 			} else if(msgReceived instanceof GetOptimizationStateMessage) {
-				/* Not used because the file transfer doesn't work in case of test
+				/* Not used because the file transfer doesn't work in case of test               // configure SMs when receiving RunSimulation 
 				if(parent.sendOptimizationState()) {
 					System.out.println("Error failing to report optimization state file to SOO");
 				}

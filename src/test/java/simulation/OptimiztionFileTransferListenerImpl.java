@@ -39,7 +39,6 @@ public class OptimiztionFileTransferListenerImpl implements FileTransferListener
 			return;
 		}
 
-
 		try {
 			transfer.receiveFile(new File(fileToReceive));
 

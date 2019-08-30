@@ -215,9 +215,9 @@ public class ManagerPresencePacketListener implements StanzaListener {
 			System.out.println(
 					"SimulationManager "+manager.getJid()+"," + presence.getFrom() +"is offline");			
 			if(jid.equals(manager.getOptimizationToolJID().asBareJid())) {
-				manager.setOptimizationToolAvailable(true);
-			} else if(jid.equals(manager.getOptimizationToolJID().asBareJid())) {
-				manager.setOrchestratorAvailable(true);
+				manager.setOptimizationToolAvailable(false);   /* if offline, should be false */
+			} else if(jid.equals(manager.getOrchestratorJID().asBareJid())) {
+				manager.setOrchestratorAvailable(false);
 			}
 			
 			// If instead it is an indication of available
@@ -228,7 +228,7 @@ public class ManagerPresencePacketListener implements StanzaListener {
 					"SimulationManager "+manager.getJid()+"," + presence.getFrom() +"is online");
 			if(jid.equals(manager.getOptimizationToolJID().asBareJid())) {
 				manager.setOptimizationToolAvailable(true);
-			} else if(jid.equals(manager.getOptimizationToolJID())) {
+			} else if(jid.equals(manager.getOrchestratorJID().asBareJid())) {
 				manager.setOrchestratorAvailable(true);
 			}			
 		}

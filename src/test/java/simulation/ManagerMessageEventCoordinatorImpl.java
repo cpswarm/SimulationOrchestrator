@@ -27,22 +27,24 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 			MessageSerializer serializer = new MessageSerializer();
 			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 			System.out.println("SimulationManager received "+msg.getBody());
-			parent.setOptimizationID(runSimulation.getOId());
+			parent.setOptimizationID(runSimulation.getOId());  /*>>>>>>> If just for TEST, it's OK, because OID of SM is set here. but in real case, OID is set when fileTransfer, that will be different */
 			parent.setSimulationId(runSimulation.getSid());
-			if(parent.isOptimizationToolAvailable()) {
+			if(parent.isOptimizationToolAvailable()) {     // in case OT is offline during simulation
 				parent.publishFitness(100.0);
 			}
-		} else if(sender.toString().startsWith("orchestrator")) {
-			SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, "", 100);
-			MessageSerializer serializer = new MessageSerializer();
-			Message messageToSend = new Message();
-			messageToSend.setBody(serializer.toJson(message));
-			try {
-				chat.send(messageToSend);
-			} catch (NotConnectedException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		} else if(sender.toString().startsWith("orchestrator")) {   /* >>>>>>>> for single sim, OID = null */
+			if (parent.isOrchestratorAvailable()) {
+				SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, "", 100);
+				MessageSerializer serializer = new MessageSerializer();
+				Message messageToSend = new Message();
+				messageToSend.setBody(serializer.toJson(message));
+				try {
+					chat.send(messageToSend);
+				} catch (NotConnectedException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

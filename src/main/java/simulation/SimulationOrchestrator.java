@@ -972,7 +972,7 @@ public class SimulationOrchestrator {
 	}
 
 	
-	public boolean sendStartOptimization() {
+	public boolean sendStartOptimization() {   
 		List<String> managersJid = new ArrayList<String>();
 		for(EntityBareJid availableManager : this.availableManagers) {
 			if(!this.blacklistedManagers.contains(availableManager)) {
@@ -1022,7 +1022,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return false;
 		}
-		//FIXME the message is not correct
+		//FIXME the message is not correct   /* >>>>>>>>>>>in case of single simulation, OID = null */
 		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", candidateToSend, "type");
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
@@ -1192,10 +1192,19 @@ public class SimulationOrchestrator {
 	}
 	
 	public void suspendGetOptimizationStateSender() {
-		this.getOptimizationStateSender.setSuspendtate(true);		
+		this.getOptimizationStateSender.setSuspendState(true);		
 	}
 	
 	public void restartGetOptimizationStateSender() {
-		this.getOptimizationStateSender.setSuspendtate(false);		
+		this.getOptimizationStateSender.setSuspendState(false);		
 	}
+	
+	public boolean isStateSenderSuspend() {
+		if(getOptimizationStateSender!=null && getOptimizationStateSender.isSuspendState()) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 }

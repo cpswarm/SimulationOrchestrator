@@ -45,7 +45,11 @@ public class GetOptimizationStateSender implements Runnable {
 	 * 
 	 * @param canRun
 	 */
-	public synchronized void setSuspendtate(boolean suspendState) {
+	public synchronized void setSuspendState(boolean suspendState) {
 		this.suspendState = suspendState;
+	}
+	
+	public boolean isSuspendState() {
+		return suspendState;
 	}
 }

@@ -490,17 +490,6 @@ public class DummyOptimizationTool {
 		return managers;
 	}
 
-
-	public void setManagers(List<String> managers) {
-		for(String manager : managers) {
-			try {
-				this.managers.add(JidCreate.entityFullFrom(manager+"/"+RESOURCE));
-			} catch (XmppStringprepException e) {
-				System.out.println("Invalid username for the manager: "+manager);
-			}
-		}
-	}
-	
 	public void setManager(final EntityFullJid jid) {
 		this.managers.add(jid);
 	}

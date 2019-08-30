@@ -100,7 +100,7 @@ public class AppTest extends TestCase{
 		}
 	}
  
-	@Test
+/*	@Test
 	public void testKubernetes() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -117,7 +117,7 @@ public class AppTest extends TestCase{
 		} catch (Exception e) {
 			Assert.fail();
 		}
-	}
+	}*/
 
 
 	@Test
@@ -318,7 +318,7 @@ public class AppTest extends TestCase{
 																			orchestratorOutputDataFolder,
 																			optimizationUser, 
 																			recovery,
-																			"cpswarm_sar", // This usws cpswarm_sar and not emergency_exit to indicated that neeed a test optimization that doesn't finish immediately, to test the OT recovery
+																			"cpswarm_sar", // This uses cpswarm_sar and not emergency_exit to indicated that neeed a test optimization that doesn't finish immediately, to test the OT recovery
 																			guiEnabled, 
 																			parameters, 
 																			dimensions, 
@@ -345,7 +345,7 @@ public class AppTest extends TestCase{
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
 			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
 			Thread.sleep(15000);
-			optimizationTool.disconnect(false);
+			optimizationTool.disconnect(false);  // immediately stop optimization after connection recovery
 			Thread.sleep(10000);
 			optimizationTool.reconnect();
 			while(orchestrator.isSimulationDone()==null) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 

@@ -14,6 +14,10 @@ import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
 import org.jxmpp.jid.BareJid;
 
+import com.google.gson.Gson;
+
+import messages.server.Server;
+
 /**
  * Packet listener to be used in the {@link XMPPClient} to receive presences
  *
@@ -37,11 +41,11 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 	 * @throws AssertionError
 	 *             if something is wrong
 	 */
-	public OptimizationPresencePacketListener(final DummyOptimizationTool manager,
+	public OptimizationPresencePacketListener(final DummyOptimizationTool optTool,
 			final Class<? extends ManagerMessageEventCoordinatorImpl> clazz) {
-		assert manager != null;
+		assert optTool != null;
 		assert clazz != null;
-		this.optimizationTool = manager;
+		this.optimizationTool = optTool;
 		this.clazz = clazz;
 	}
 
@@ -204,14 +208,19 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 			final String jid) {
 		assert presence != null;
 		assert jid != null;
+		Gson gson = new Gson();
 		// If the bundle has gone away, it is removed from
 		// the list of the available bundles
 		if (presence.getMode() == Presence.Mode.away) {
 			System.out.println(
 					optimizationTool.getJid()+"----------- " + presence.getFrom() +" is offline");
-			if(!presence.getFrom().equals(optimizationTool.getOrchestratorJid()) 
-					&& !presence.getFrom().equals(optimizationTool.getJid())) {
+			if (!presence.getFrom().equals(optimizationTool.getOrchestratorJid())
+					&& !presence.getFrom().equals(optimizationTool.getJid())) {				
+			/*	Server server = gson.fromJson(presence.getStatus(), Server.class);    
+				if (server.getSCID().equals(optimizationTool.getSCID())) {   //>>>>>>>>>> in real case, OT has to check the SCID 
 					optimizationTool.removeManager(presence.getFrom().asEntityFullJidIfPossible());
+				}*/
+				optimizationTool.removeManager(presence.getFrom().asEntityFullJidIfPossible());  // No need to check SCID during the TEST phase, because the fileTransfer() for configuring the SMs is not used, so SCID is not set  
 			}
 			// If instead it is an indication of available
 			// it is inserted in the list of those available
@@ -227,7 +236,7 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 	}
 
 	/**
-	 * Handle a presence of type available
+	 * Handle a presence of type unavailable
 	 *
 	 * @param presence
 	 *            Presence received
@@ -246,7 +255,15 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 		System.out.println(
 				"OptimizationTool "+optimizationTool.getJid()+","+ presence.getFrom() + "is offline");
 		//TODO
-		// handle orchestrator offline
+		// handle orchestrator and manager offline
+		if(presence.getType().equals(Presence.Type.unavailable)){
+			if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
+				optimizationTool.removeManager(presence.getFrom().asEntityFullJidIfPossible());
+			}else if(presence.getFrom().equals(optimizationTool.getOrchestratorJid())) {
+				System.out.println("Orchestrator is offline");  // TODO >>>>>> how to proceed? 
+			}
+			
+		}
 	}
 
 	
