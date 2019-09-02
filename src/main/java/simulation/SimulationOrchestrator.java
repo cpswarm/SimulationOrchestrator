@@ -627,7 +627,7 @@ public class SimulationOrchestrator {
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && 
     				simulationManagers.get(account).compareTo(serverCompare)>0 &&
-    				simulationManagers.get(account).getSCID().isEmpty()) {
+    				simulationManagers.get(account).getSCID()==null) {
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected
