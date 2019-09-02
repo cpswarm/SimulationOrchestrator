@@ -119,7 +119,6 @@ public class AppTest extends TestCase{
 		}
 	}
 
-
 	@Test
 	public void testCreation() {
 		try {
@@ -278,7 +277,7 @@ public class AppTest extends TestCase{
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
+			orchestrator.evaluateSimulationManagers(server);
 			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
 				Thread.sleep(1000);
 			}
@@ -343,7 +342,7 @@ public class AppTest extends TestCase{
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
+			orchestrator.evaluateSimulationManagers(server);
 			Thread.sleep(15000);
 			optimizationTool.disconnect(false);  // immediately stop optimization after connection recovery
 			Thread.sleep(10000);
@@ -411,7 +410,7 @@ public class AppTest extends TestCase{
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(server);   // this method is called automatically by SOO, so remove it,
+			orchestrator.evaluateSimulationManagers(server);
 			Thread.sleep(15000);
 			optimizationTool.disconnect(true);
 			Thread.sleep(10000);

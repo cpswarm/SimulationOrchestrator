@@ -46,8 +46,8 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
 		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
-		if(parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
-				|| parent.getOptimizationID().equals(msgReceived.getOId())) {   //>>>>>>>> FIXME .NullPointerException when first time the start msg is received
+		if( parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
+					|| parent.getOptimizationID().equals(msgReceived.getOId())) {
 			if(msgReceived instanceof SimulationResultMessage) {
 				SimulationResultMessage result = (SimulationResultMessage) msgReceived;
 				// emergency_exit SCID is used to test simulations that conclude immediately
@@ -67,14 +67,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					}
 				// cpswarm_sar is used for optimizations that doesn't have to finish immediately because used to test the OT recovery  
 				} else if(parent.getSCID().equals("cpswarm_sar")) {
-			//		String newSimulationID = UUID.randomUUID().toString();   /*>>>>>>> new SID could be a nunmber, +1 every time */
+			//		String newSimulationID = UUID.randomUUID().toString();
 					int newSID = new Integer(parent.getSimulationID()).intValue()+1;
 					String newSimulationID = String.valueOf(newSID);
 					parent.setSimulationID(newSimulationID);
 					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, "currentCandidate", "type");
 					try {
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());   //<<<<<<<<< send back the same candidate to simulate again 
+						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());
 						Gson gson = new Gson();						
 						chat.send(gson.toJson(runSimulation));
 					} catch (NullPointerException | NotConnectedException | InterruptedException e) {
@@ -99,6 +99,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				}
 				String simulationID = "";
 				int sid = 0;
+				if(parent.getSimulationID()!=null) {
+					sid = new Integer(parent.getSimulationID()).intValue();
+				}
 				for(EntityFullJid manager : parent.getManagers()) {
 			//		simulationID = UUID.randomUUID().toString();
 					sid += 1;  // SID increases by 1 each time
@@ -117,7 +120,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			} else if(msgReceived instanceof GetOptimizationStatusMessage) {
 				GetOptimizationStatusMessage getOptimizationStatus = (GetOptimizationStatusMessage) msgReceived;
 				value +=10;
-				System.out.println("OptimizationTool received GetOptimizationStatus: "+getOptimizationStatus.toString());
+				System.out.println("OptimizationTool received GetOptimizationStatus: "+serializer.toJson(getOptimizationStatus));
 				Status status = null;
 				if(parent.isOptimizationError()) {
 					status = Status.ERROR_OPTIMIZAZION_FAILED;

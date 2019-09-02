@@ -138,7 +138,7 @@ public class SimulationOrchestrator {
 	private String configurationFolder = null;
 	private boolean localSimulationManager = false;
 	public static boolean TEST = true;
-	private Boolean simulationDone = null;
+	private Boolean simulationDone = false;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private int configurationAttempts = 0;
 	private String simulatorConfigurationfileName = null;

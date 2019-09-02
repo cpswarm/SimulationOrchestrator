@@ -392,9 +392,11 @@ public class DummyOptimizationTool {
 		} catch (final NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.println("reconnect: sending avaolable msg.... ");
 		// If it is the test of the recovery after error 
 		// it waits 10 seconds before to stop the optimization
 		if(this.optimizationError) {
+			System.out.println("optimizationError: waiting for 10 sed.... ");
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
 				public void run() {
