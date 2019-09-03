@@ -18,6 +18,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
 import org.jivesoftware.smack.SmackException;
@@ -627,7 +628,7 @@ public class SimulationOrchestrator {
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && 
     				simulationManagers.get(account).compareTo(serverCompare)>0 &&
-    				simulationManagers.get(account).getSCID()==null) {
+    				StringUtils.isEmpty(simulationManagers.get(account).getSCID())) { //"" or null
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected

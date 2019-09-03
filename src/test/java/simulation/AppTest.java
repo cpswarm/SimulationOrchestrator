@@ -214,7 +214,7 @@ public class AppTest extends TestCase{
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
-			while(orchestrator.isSimulationDone()) {
+			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
