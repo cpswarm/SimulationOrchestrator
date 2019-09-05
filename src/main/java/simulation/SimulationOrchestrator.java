@@ -624,9 +624,7 @@ public class SimulationOrchestrator {
     		simulatorConfigurationfileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
     		zipper.zipIt(simulatorConfigurationfileName);
     	}
-    	System.out.println("SCID LENGTH="+ simulationManagers.keySet());
     	for(EntityBareJid account : simulationManagers.keySet()) {
-    		System.out.println("SCID LENGTH="+simulationManagers.get(account).getSCID().length()+":"+simulationManagers.get(account).getSCID());
     		if(simulationManagers.get(account)!=null && 
     				simulationManagers.get(account).compareTo(serverCompare)>0 &&
     				StringUtils.isEmpty(simulationManagers.get(account).getSCID())) { //"" or null
@@ -645,7 +643,7 @@ public class SimulationOrchestrator {
     			if(simulationManagers.containsKey(availableManager)) {
     				System.out.println("Configuring the simulation manager: "+availableManager);
     				try {
-    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), this.simulatorConfigurationfileName, optimizationId+","+scid+","+simulationConfiguration)) {
+    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), this.simulatorConfigurationfileName, /*optimizationId+","+*/scid+","+simulationConfiguration)) {
     						this.handleACK(availableManager, false);
     					}
     				} catch (XmppStringprepException e) {

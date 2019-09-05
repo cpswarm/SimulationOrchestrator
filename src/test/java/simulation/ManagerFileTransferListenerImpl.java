@@ -62,12 +62,12 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 				final Chat newChat = chatmanager.chatWith(orchestrator);
 				if(dataFolder==null || rosFolder==null || unzipFiles(fileToReceive)) {
 					System.out.println("SimulationManager configured for optimization "+request.getDescription());
-					String otherSimulationConfiguration = request.getDescription();  // Format is: OID,SCID,visual:=false,....
+					String otherSimulationConfiguration = request.getDescription();  // Format is: SCID,visual:=false,....
 					String[] simConfigs = otherSimulationConfiguration.split(",");
-					this.parent.setOptimizationID(simConfigs[0]);
-					this.parent.setSCID(simConfigs[1]);
+				//	this.parent.setOptimizationID(simConfigs[0]);
+					this.parent.setSCID(simConfigs[0]);
 					String parameters = "";
-					for(int i=2; i<Arrays.asList(simConfigs).size(); i++) {
+					for(int i=1; i<Arrays.asList(simConfigs).size(); i++) {
 						parameters += simConfigs[i];
 					}			
 					this.parent.setSimulationConfiguration(parameters);	

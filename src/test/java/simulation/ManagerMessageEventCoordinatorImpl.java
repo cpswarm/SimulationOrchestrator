@@ -23,19 +23,18 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 	
 	@Override
 	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
+		MessageSerializer serializer = new MessageSerializer();
+		RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 		if(sender.toString().startsWith("optimization")) {
-			MessageSerializer serializer = new MessageSerializer();
-			RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 			System.out.println("SimulationManager received "+msg.getBody());
-			parent.setOptimizationID(runSimulation.getOId());  /*>>>>>>> If just for TEST, it's OK, because OID of SM is set here. but in real case, OID is set when fileTransfer, that will be different */
+			parent.setOptimizationID(runSimulation.getOId());
 			parent.setSimulationId(runSimulation.getSid());
 			if(parent.isOptimizationToolAvailable()) {     // in case OT is offline during simulation
 				parent.publishFitness(100.0);
 			}
-		} else if(sender.toString().startsWith("orchestrator")) {   /* >>>>>>>> for single sim, OID = null */
+		} else if(sender.toString().startsWith("orchestrator")) {   /* for single sim, OID = null */
 			if (parent.isOrchestratorAvailable()) {
-				SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, "", 100);
-				MessageSerializer serializer = new MessageSerializer();
+				SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, runSimulation.getSid(), 100);
 				Message messageToSend = new Message();
 				messageToSend.setBody(serializer.toJson(message));
 				try {
