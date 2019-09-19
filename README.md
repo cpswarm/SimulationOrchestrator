@@ -1,4 +1,4 @@
-# CPSwarm Deployment Tool 
+# CPSwarm Simulation and Optimization Orchestrator
 
 This is the project for the Simulation and Optimization Orchestrator (SOO). This component orchestrates the simulation and optimization process. 
 It is the only interface between the Simulation and Optimization Environment and the rest of the workbench. The SOO is the centralized component connected, 
