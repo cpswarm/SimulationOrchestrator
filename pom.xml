@@ -90,21 +90,6 @@
         			</execution>
     			
         			<execution>
-        				<id>execution1</id>
-            			<phase>validate</phase>
-            			<goals>
-                			<goal>install-file</goal>
-			            </goals>
-            			<configuration>
-			                <groupId>cpswarm</groupId>
-            			    <artifactId>it.ismb.pert.cpswarm.mqttLib</artifactId>
-                			<version>1.1.0-bundle</version>
-                			<packaging>bundle</packaging>
-                			<file>${basedir}/BDjar/it.ismb.pert.cpswarm.mqttLib-1.1.0-bundle.jar</file>
-            			</configuration>
-        			</execution>    
-        			
-        			<execution>
         				<id>execution2</id>
             			<phase>validate</phase>
             			<goals>
