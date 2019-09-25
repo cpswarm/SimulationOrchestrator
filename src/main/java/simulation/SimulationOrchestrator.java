@@ -69,7 +69,7 @@ import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
+
 import messages.server.Capabilities;
 import messages.server.Server;
 import simulation.kubernetes.KubernetesUtils;
@@ -110,7 +110,6 @@ public class SimulationOrchestrator {
 	private GetOptimizationStateSender getOptimizationStateSender = null;
 	private Thread stateSenderThread = null;
 	private XMPPTCPConnection connection;
-	private MqttAsyncDispatcher client;
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
@@ -1090,10 +1089,6 @@ public class SimulationOrchestrator {
 	
 	public Boolean isRecovery( ) {
 		return recovery;
-	}
-	
-	public MqttAsyncDispatcher getMqttClient() {
-		return client;
 	}
 	
 	public Boolean getOptimizationEnabled() {
