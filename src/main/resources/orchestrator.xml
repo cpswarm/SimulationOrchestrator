@@ -15,3 +15,4 @@
 	<localSimulationManager>false</localSimulationManager> <!-- Indicates if the  Simulation Manager has to be launched by the Orchestrator -->
 	<simulationManagerPath>/home/Desktop/frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</simulationManagerPath> <!-- Path of the simulation manager executable -->
 </settings>
+
