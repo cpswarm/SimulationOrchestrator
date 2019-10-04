@@ -15,6 +15,7 @@ Packages are built continuously with [Bamboo](https://pipelines.linksmart.eu/bro
 
 ### Compile from source
 Within the root of the repository:
+
 ```bash
 mvn install
 ```
