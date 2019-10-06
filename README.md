@@ -65,8 +65,11 @@ And here with the explanation of the parameters:
 ```
 
 ### Dependencies
-* [Java 8 JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 
+* [Java 8 JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 * [maven](https://maven.apache.org/).
+* XMPP Server
+  * [Openfire](https://www.igniterealtime.org/projects/openfire/)
+  * [Tigase](https://tigase.net/content/tigase-xmpp-server)
 
 ## Contributing
 Contributions are welcome. 
