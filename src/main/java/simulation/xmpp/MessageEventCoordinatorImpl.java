@@ -1,5 +1,8 @@
 package simulation.xmpp;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
@@ -95,8 +98,20 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				if(monitoring) {
 					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
 				}
+				// The final candidate contains the optimized values for the parameters
+				// and has to be saved in the output folder of the launcher to be used as result
+				// to be passed to the deployment tool
+			    BufferedWriter writer;
+				try {
+					writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"parameters.yaml"));
+				    writer.write(progress.getCandidate());
+				    writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-		// There is an error in the optimzation, which is stopped
+		// There is an error in the optimization, which is stopped
 		} else {
 			if(senderThread!=null) {
 				stopSenderThread();
