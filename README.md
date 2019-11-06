@@ -152,7 +152,7 @@ And here with the explanation of the parameters:
   -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted) - optional - it can be empty for test
   -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ (data folder used by the simulation manager) - optional - it can be empty for test
   -Doptimization_user=optimization_test (User of the Optimization Tool)
-  -Dorchestrator_user=orchestrator User of the Simulation Orchestrator
+  -Dorchestrator_user=orchestrator (User of the Simulation Orchestrator)
   -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool, if run by the SOO) - optional - it can be empty for test
   -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) - optional - it can be empty for test
   -Drecovery=true (Flag to enable or disable the backup of optimization status, for optimization recovery in case of errors)
@@ -213,7 +213,7 @@ Use this tag to set username to be used to connect to the XMPP Server
 Use this tag to set the password to be used by the orchestrator to connect (it is a temporary solution).
 
 ``` xml
-  	<optimizationUser>frevo</optimizationUser>   
+  <optimizationUser>frevo</optimizationUser>
 ```
 Use this tag to set the JID used by the Optimization Tool.
  
@@ -247,6 +247,16 @@ Use this tag to indicate the path of the Optimization Tool executable, to launch
   <optimizationToolPassword>blah</optimizationToolPassword> 
 ```
 Use this tag to indicate the password of the Optimization Tool, needed if LocalOptimization=true (it is a temporary solution). 
+
+``` xml
+  <localSimulationManager>false</localSimulationManager>
+```
+Use this tag to indicate if the  Simulation Manager has to be launched locally by the SOO (true) or not (false).
+
+``` xml
+  <simulationManagerPath>/home/Desktop/stageManager.jar</simulationManagerPath>
+```
+Use this tag to indicate the path of the simulation manager executable, to launch it if localSimulationManager=true
 
 Then, you can proceed to modify the Optimization Tool configuration file (if needed), open the file Then you can open the src/main/resources/frevoConfiguration.json file and configure it. Particularly, here you have to configure:
 
