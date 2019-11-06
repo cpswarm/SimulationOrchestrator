@@ -77,4 +77,3 @@ Please fork, make your changes, and submit a pull request. For major changes, pl
 ## Affiliation
 ![CPSwarm](https://github.com/cpswarm/template/raw/master/cpswarm.png)  
 This work is supported by the European Commission through the [CPSwarm H2020 project](https://cpswarm.eu) under grant no. 731946.
-
