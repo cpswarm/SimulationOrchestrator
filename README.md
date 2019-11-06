@@ -40,7 +40,7 @@ And here with the explanation of the parameters:
 ``` bash
   -Dtest_server_ip=123.123.123.123 (IP of the XMPP server) 
   -Dtest_server_name=pippo.pluto.it (name of the XMPP server) 
-  -Dtest_server_password=server (Password to be used by the SOO to authenticate in the XMPP server - temporary solution)
+  -Dtest_server_password=orchestrator (Password to be used by the SOO to authenticate in the XMPP server - temporary solution)
   -Dtest_orchestrator_input_data_folder=/home/cpswarm/Desktop/cpswarm/ (folder containing the input files) - optional - it can be empty for test
   -Dtest_orchestrator_output_data_folder=/home/cpswarm/Desktop/cpswarm-out (folder where the output files will be inserted) - optional - it can be empty for test
   -Dtest_manager_data_folder=/home/cpswarm/Desktop/output/ (data folder used by the simulation manager) - optional - it can be empty for test
