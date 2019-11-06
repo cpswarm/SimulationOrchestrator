@@ -58,7 +58,6 @@ And here with the explanation of the parameters:
   -Dlocal_optimzation=false (Indicates if the Optimization Tool has to be launched by the SOO)
   -Doptimization_tool_path=/home/Desktop/frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar (path of the Optimization Tool, used if local_optimization = true)
   -Doptimization_tool_password = blah (password to be used to launch the optimization tool from the SOO, if local_optimization = true)
-  
   -Dstarting_timeout=5000 (time to wait for the subscription of new Simulation Managers)
   -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 ```
