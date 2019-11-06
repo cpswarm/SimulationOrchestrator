@@ -47,7 +47,7 @@ These are the values in the file
 	<optimizationToolPath>/home/Desktop/frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</optimizationToolPath> <!-- Path of the optimization tool executable -->
 	<optimizationToolPassword>blah</optimizationToolPassword> <!-- To be used if the Optimization Tool has to be launched from the Orchestrator  -->
 	<localSimulationManager>false</localSimulationManager> <!-- Indicates if the  Simulation Manager has to be launched by the Orchestrator -->
-	<simulationManagerPath>/home/Desktop/frevo.xmpp-0.0.1-SNAPSHOT-jar-with-dependencies.jar</simulationManagerPath> <!-- Path of the simulation manager executable -->
+	<simulationManagerPath>/home/Desktop/stageManager.jar</simulationManagerPath> <!-- Path of the simulation manager executable -->
 
 </settings>
 ```
@@ -155,8 +155,7 @@ And here with the explanation of the parameters:
   -Dorchestrator_user=orchestrator User of the Simulation Orchestrator
   -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool, if run by the SOO) - optional - it can be empty for test
   -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) - optional - it can be empty for test
-  -Drecovery=true ((Flag to enable or disable the thread which monitor the progress of the optimization process))
-  -Dmqtt_broker=tcp://123.123.123.123:1883  (IP of the MQTT broker to be used for the monitoring)
+  -Drecovery=true (Flag to enable or disable the backup of optimization status, for optimization recovery in case of errors)
   -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
   -Dparameters="" (indicates the parameters to be used in the simulations)
   -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
@@ -219,14 +218,10 @@ Use this tag to set the password to be used by the manager to connect (it is a t
 Use this tag to set the JID used by the Optimization Tool.
  
 ``` xml
-  <monitoring>true</monitoring> 
+  <recovery>true</recovery> 
 ```
-Use this tag to set enable/disable the monitoring of the optimization process, done through MQTT. If it set to true, the manager will publish a new event, each time the one simulation is concluded.
+Use this tag to set enable/disable the backup of optimization status, for optimization recovery in case of errors. If it set to true, the SOO periodically downloads from OT the optimization status
 
-``` xml
-  <mqttBroker>tcp://123.123.123.123:1883</mqttBroker> 
-```
-Use this tag to set MQTT broker leveraged to publish the monitoring events if monitoring is set to true. 
 
 ``` xml
   <configEnabled>true</configEnabled> 
