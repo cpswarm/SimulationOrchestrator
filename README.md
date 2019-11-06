@@ -208,9 +208,9 @@ Use this tag to set the name of the XMPP server that you want to use.
 Use this tag to set username to be used to connect to the XMPP Server
 
 ``` xml
-  <serverPassword>server</serverPassword> 
+  <serverPassword>orchestrator</serverPassword> 
 ```
-Use this tag to set the password to be used by the manager to connect (it is a temporary solution).
+Use this tag to set the password to be used by the orchestrator to connect (it is a temporary solution).
 
 ``` xml
   	<optimizationUser>frevo</optimizationUser>   
@@ -281,7 +281,7 @@ In the Docker file, set the command to run as
 
 ```
 ENTRYPOINT ["java", "-jar", "/home/target/it.ismb.pert.cpswarm.simulation.orchestrator-1.0.0-jar-with-dependencies.jar"]
-CMD ["--id", "emergency_exit", "--dim", "2d", "--max", "8", "--opt", "--src", "/home/Desktop/cpswarm/", "--target", "/home/Desktop/cpswarm/optimized/", "--conf", "/home/Desktop/conf/"]
+CMD ["--id", "emergency_exit", "--dim", "2d", "--max", "8", "--opt", "--src", "/home/Desktop/cpswarm/", "--target", "/home/Desktop/optimized/", "--conf", "/home/Desktop/conf/"]
 ```
 
 In this way, it will be possible to pass to the SOO all the required parameters
