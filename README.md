@@ -48,7 +48,6 @@ And here with the explanation of the parameters:
   -Dorchestrator_user=orchestrator (User of the Simulation Orchestrator)
   -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool, if run by the SOO) - optional - it can be empty for test
   -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) - optional - it can be empty for test
-  -Dmonitoring=true (indicates if the monitoring GUI has to be used, monitoring the evolution of the optimization)
   -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
   -Dtask_id=emergency_exit (ID of the task AKA the name of the package)
   -Dparameters="" (indicates the parameters to be used in the simulations)
