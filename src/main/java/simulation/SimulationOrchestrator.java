@@ -129,10 +129,12 @@ public class SimulationOrchestrator {
 	private static final int MAX_N_OF_ATTEMPTS = 10;
 	private Boolean configEnabled = null;
 	private int startingTimeout;
-	public static enum OP_MODE {D,  R, RD;
+	public static enum OP_MODE {G, D,  R, RD;
 		
 		static OP_MODE fromString(String text) {
 			switch(text) {
+			case "G":
+				return OP_MODE.G;
 			case "D":
 				return OP_MODE.D;
 			case "R":
@@ -179,7 +181,7 @@ public class SimulationOrchestrator {
 		try {
 			Options options = new Options();
 
-			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r","rd");
+			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "g", "d", "r","rd");
 			mode.setRequired(true);
 			options.addOption(mode);
 			
@@ -497,6 +499,9 @@ public class SimulationOrchestrator {
 		addOptimizationToTheRoster();
 		
 		switch(opMode) {
+		case G:
+			this.generateCode();
+			break;
 		case D:
 			this.deploySimulators();
 			break;
@@ -598,6 +603,10 @@ public class SimulationOrchestrator {
     	}
     }
 
+    
+    private void generateCode() {
+    	return;
+    }
     
     private void deploySimulators() {
 		Gson gson = new Gson();
