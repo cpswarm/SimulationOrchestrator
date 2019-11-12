@@ -14,7 +14,6 @@ import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
 import eu.cpswarm.optimization.messages.ReplyMessage.Status;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
-import eu.cpswarm.optimization.messages.OptimizationStartedMessage;
 import eu.cpswarm.optimization.messages.ReplyMessage;
 import eu.cpswarm.optimization.messages.OptimizationCancelledMessage;
 import simulation.GetProgressSender;
@@ -30,11 +29,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	private SimulationOrchestrator parent = null;
 	private GetProgressSender getProgressSender = null;
 	private Thread senderThread = null;
-	private boolean monitoring;
 	
 	public MessageEventCoordinatorImpl(final SimulationOrchestrator orchestrator) {
 		this.parent = orchestrator;
-		this.monitoring = parent.getMonitoring();
 	}
 	
 	@Override
@@ -62,9 +59,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 					handleOptimizationProgressMessage((OptimizationProgressMessage) message, serializer);
 				} else {
 					System.out.println("Reply received: "+msg.getBody());
-					if(message instanceof OptimizationStartedMessage) {
-						handleOptimizationStartedMessage((OptimizationStartedMessage) message);
-					} else if(message instanceof OptimizationCancelledMessage) {
+					if(message instanceof OptimizationCancelledMessage) {
 						OptimizationCancelledMessage reply = serializer.fromJson(msg.getBody());
 						//TODO
 					}
@@ -73,17 +68,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		}
 	}
 
-	private void handleOptimizationStartedMessage(OptimizationStartedMessage reply) {
-		if(reply.getOperationStatus().equals(Status.OK) && reply.getId().equals(parent.getOptimizationId()) && parent.getMonitoring().booleanValue()) {
-			getProgressSender = new GetProgressSender(parent);
-			
-			// create the thread
-			senderThread = new Thread(getProgressSender);
-
-			// run
-			senderThread.start();
-		}
-	}
 
 	private void handleOptimizationProgressMessage(OptimizationProgressMessage progress, MessageSerializer serializer) {
 		System.out.println("Optimization "+progress.getId()+ ", progress:" + progress.getProgress() + "%, fitness value: "+progress.getFitnessValue());
@@ -95,9 +79,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 				System.out.println("Final candidate: "+progress.getCandidate()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 				parent.setSimulationDone(true);
-				if(monitoring) {
-					parent.getMqttClient().publish("/cpswarm/progress", serializer.toJson(progress).getBytes());
-				}
 				// The final candidate contains the optimized values for the parameters
 				// and has to be saved in the output folder of the launcher to be used as result
 				// to be passed to the deployment tool

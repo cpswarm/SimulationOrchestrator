@@ -249,12 +249,6 @@
 		    <artifactId>smack-debug</artifactId>
 		    <version>4.3.1</version>
 		</dependency>		
-        <!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
-		<dependency>
-		    <groupId>org.eclipse.paho</groupId>
-		    <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-		    <version>1.2.0</version>
-		</dependency>
 		<dependency>
 			<groupId>cpswarm</groupId>
 			<artifactId>it.ismb.pert.cpswarm.mqttLib</artifactId>

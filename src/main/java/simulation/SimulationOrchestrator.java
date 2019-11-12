@@ -66,10 +66,8 @@ import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import it.ismb.pert.cpswarm.mqttlib.transport.MqttAsyncDispatcher;
 import messages.server.Capabilities;
 import messages.server.Server;
-import simulation.kubernetes.KubernetesUtils;
 import simulation.kubernetes.KubernetesUtils;
 import simulation.tools.ChoiceOption;
 import simulation.tools.Zipper;
@@ -104,7 +102,6 @@ public class SimulationOrchestrator {
 	public static final Semaphore SEMAPHORE = new Semaphore(1);
 	private BlockingQueue <Presence> queue;
 	private XMPPTCPConnection connection;
-	private MqttAsyncDispatcher client;
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
@@ -115,7 +112,6 @@ public class SimulationOrchestrator {
 	private List<EntityBareJid> availableManagers = null;
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
-	private Boolean monitoring = null;
 	// JSon containing the Optimization Configuration 
 	// TODO receive these configurations from the Launcher
 	private FrevoConfiguration optimizationConfiguration = null;
@@ -168,8 +164,6 @@ public class SimulationOrchestrator {
 		String dimensions = "";
 		Long maxAgents = null;
 		Boolean guiEnabled = false;
-		Boolean monitoring = null;
-		String mqttBroker = null;
 		Boolean optimizationEnabled = false;
 		String configurationFolder = null;
 		String optimizationToolPath = null;
@@ -317,10 +311,6 @@ public class SimulationOrchestrator {
 			if(localSimulationManager) {
 				simulationManagerPath = document.getElementsByTagName("simulationManagerPath").item(0).getTextContent();
 			}
-			monitoring = Boolean.parseBoolean(document.getElementsByTagName("monitoring").item(0).getTextContent());
-			if(monitoring) {
-				mqttBroker = document.getElementsByTagName("mqttBroker").item(0).getTextContent();
-			}
 			if(!inputDataFolder.endsWith(File.separator)) {
 				inputDataFolder+=File.separator;
 			} 
@@ -338,7 +328,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, monitoring, mqttBroker, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, taskId, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -366,10 +356,6 @@ public class SimulationOrchestrator {
 	 * 		Folder to be used to store the files
 	 * @param optimizationToolUser
 	 * 		JID of the Optimization Tool
-	 * @param monitoring
-	 * 		Flag to enable or disable the thread which monitor the progress of the optimization process
-	 * @param mqttBroker
-	 * 		If the monitor is enabled, this is the IP of the MQTT broker where the messages are forwarded
 	 * @param taskId
 	 * 		ID of the task
 	 * @param guiEnabled
@@ -401,7 +387,7 @@ public class SimulationOrchestrator {
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
 	 */
-	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final boolean monitoring, final String mqttBroker, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
+	public SimulationOrchestrator(final OP_MODE opMode, final InetAddress serverIP, final String serverName, final String serverUsername, final String serverPassword, final String inputDataFolder, final String outputDataFolder, final String optimizationToolUser, final String taskId, final Boolean guiEnabled, final String parameters, final String dimensions, final Long maxAgents, final Boolean optimization, final String configurationFolder, final Boolean localOptimization,  final String optimizationToolPath, final String optimizationToolPassword, final Boolean localSimulationManager,  final String simulationManagerPath, final FrevoConfiguration optConf, final Boolean configEnabled, int startingTimeout) {
 		this.opMode = opMode;
 		this.taskId = taskId;
 		this.serverName = serverName;
@@ -410,7 +396,6 @@ public class SimulationOrchestrator {
 		this.serverUsername = serverUsername;
 		this.serverPassword = serverPassword;
 		this.simulationManagers = new HashMap<EntityBareJid, Server>();
-		this.monitoring = monitoring;
 		this.optimizationId = taskId+"!"+UUID.randomUUID();
 		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
@@ -485,28 +470,6 @@ public class SimulationOrchestrator {
 				e.printStackTrace();
 			}
 			
-			// If the monitoring is needed, it instantiates also the MQTT broker
-			if(monitoring) {
-				client = new MqttAsyncDispatcher(mqttBroker, UUID.randomUUID().toString(), null,
-						null, true, null);
-				// connect the client
-				client.connect();
-				int nOfAttempts = 0;
-				System.out.println("Waiting to conntect to the MQTT server");
-				while(!client.isConnected() && nOfAttempts!=MAX_N_OF_ATTEMPTS){
-					try {
-						Thread.sleep(1000);
-						nOfAttempts++;
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				if(nOfAttempts==MAX_N_OF_ATTEMPTS) {
-					System.out.println("Impossible connect to the MQTT server");
-					return;
-				}
-				
-			}
 		} catch (final SmackException | IOException | XMPPException e) {
 			if (e instanceof SASLErrorException) {
 				connection.disconnect();
@@ -891,19 +854,7 @@ public class SimulationOrchestrator {
 	public String getOptimizationId() {
 		return optimizationId;
 	}
-	
-	public Boolean isMonitoring( ) {
-		return monitoring;
-	}
-	
-	public MqttAsyncDispatcher getMqttClient() {
-		return client;
-	}
-
-	public Boolean getMonitoring() {
-		return monitoring;
-	}
-	
+		
 	public Boolean getOptimizationEnabled() {
 		return optimizationEnabled;
 	}
