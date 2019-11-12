@@ -916,6 +916,14 @@ public class SimulationOrchestrator {
 		return simulationDone;
 	}
 
+	public String getOutputDataFolder() {
+		return outputDataFolder;
+	}
+
+	public void setOutputDataFolder(String outputDataFolder) {
+		this.outputDataFolder = outputDataFolder;
+	}
+
 	public void setSimulationDone(boolean simulationDone) {
 		System.out.println("Set simulation done");
 		this.simulationDone = simulationDone;
