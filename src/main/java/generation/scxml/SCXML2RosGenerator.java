@@ -94,7 +94,8 @@ public class SCXML2RosGenerator implements CodeGenerator {
 		final File scriptsDirectory = new File(newDirectory, "scripts");
 		final File launchDirectory = new File(newDirectory, "launch");
 		final File paramDirectory = new File(newDirectory, "param");
-		return scriptsDirectory.mkdirs() && launchDirectory.mkdir() && paramDirectory.mkdir() && newDirectory.exists();
+		final File worldDirectory = new File(newDirectory, "world");
+		return scriptsDirectory.mkdirs() && launchDirectory.mkdir() && paramDirectory.mkdir() && worldDirectory.mkdir() && newDirectory.exists();
 	}
 
 	/**
