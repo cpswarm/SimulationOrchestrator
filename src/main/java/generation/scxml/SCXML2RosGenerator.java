@@ -1,4 +1,4 @@
-package generator.scxml;
+package generation.scxml;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +24,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import generator.CodeGenerator;
+import generation.CodeGenerator;
 
 public class SCXML2RosGenerator implements CodeGenerator {
 
@@ -158,38 +158,38 @@ public class SCXML2RosGenerator implements CodeGenerator {
 
 		// Create new ROS package to contain generated algorithm
 		success = createNewROSPackage();
-		if (success) {
-			// Create a list of custom actions, add as many as are needed
-			final List<CustomAction> customActions = new ArrayList<>();
-			// CustomAction ca = new
-			// CustomAction("http://my.custom-actions.domain/cpswarm/CUSTOM", "input",
-			// Input.class);
-			// customActions.add(ca);
-			try (InputStream inputFile = Files.newInputStream(Paths.get(scxmlPath));) {
-				LOGGER.info("Loading state machine...");
-				LOGGER.info("path: " + scxmlPath);
-				SCXML scxml;
-				scxml = SCXMLReader.read(inputFile, new SCXMLReader.Configuration(null, null, customActions));
-				/*
-				 * Make a Context object and populate it.
-				 */
-				final VelocityContext context = new VelocityContext();
-				context.put("scxml", scxml);
-				/*
-				 * make a writer, and merge the template 'against' the context
-				 */
-				final String path = outputDir + currentRosPkgName + "/scripts/" + SMACH_FILE_NAME;
-				try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path));) {
-					final Template template = engine.getTemplate(FSM_TEMPLATE_FILE);
-					template.merge(context, writer);
-					LOGGER.info("Writing code in: " + path);
-					writer.flush();
-				}
-			} catch (IOException | ModelException | XMLStreamException e) {
-				LOGGER.error("Error:", e);
-				success = false;
-			}
-		}
+//		if (success) {
+//			// Create a list of custom actions, add as many as are needed
+//			final List<CustomAction> customActions = new ArrayList<>();
+//			// CustomAction ca = new
+//			// CustomAction("http://my.custom-actions.domain/cpswarm/CUSTOM", "input",
+//			// Input.class);
+//			// customActions.add(ca);
+//			try (InputStream inputFile = Files.newInputStream(Paths.get(scxmlPath));) {
+//				LOGGER.info("Loading state machine...");
+//				LOGGER.info("path: " + scxmlPath);
+//				SCXML scxml;
+//				scxml = SCXMLReader.read(inputFile, new SCXMLReader.Configuration(null, null, customActions));
+//				/*
+//				 * Make a Context object and populate it.
+//				 */
+//				final VelocityContext context = new VelocityContext();
+//				context.put("scxml", scxml);
+//				/*
+//				 * make a writer, and merge the template 'against' the context
+//				 */
+//				final String path = outputDir + currentRosPkgName + "/scripts/" + SMACH_FILE_NAME;
+//				try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path));) {
+//					final Template template = engine.getTemplate(FSM_TEMPLATE_FILE);
+//					template.merge(context, writer);
+//					LOGGER.info("Writing code in: " + path);
+//					writer.flush();
+//				}
+//			} catch (IOException | ModelException | XMLStreamException e) {
+//				LOGGER.error("Error:", e);
+//				success = false;
+//			}
+//		}
 		return success;
 	}
 }

@@ -1,4 +1,4 @@
-package generator;
+package generation;
 
 public interface CodeGenerator {
 	
