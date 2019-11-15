@@ -1,0 +1,6 @@
+#*************************************************************************************************
+*	Generate code for ROS Monitor State
+*###
+	${indent}smach_ros.MonitorState('$monitor_content.getElementsByTagName("topic").item(0).getFirstChild().getNodeValue()',
+		${indent}$monitor_content.getElementsByTagName("msg").item(0).getFirstChild().getNodeValue(),
+		${indent}cond_cb=lambda ud, msg: False)
