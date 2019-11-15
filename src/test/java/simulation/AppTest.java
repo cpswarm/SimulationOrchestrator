@@ -22,7 +22,6 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import junit.framework.TestCase;
 import messages.server.Server;
-import simulation.SimulationOrchestrator;
 
 /**
  * Unit test for simple App.

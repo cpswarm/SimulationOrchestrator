@@ -3,19 +3,10 @@ package generation.scxml;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.commons.scxml2.io.SCXMLReader;
-import org.apache.commons.scxml2.model.CustomAction;
-import org.apache.commons.scxml2.model.ModelException;
-import org.apache.commons.scxml2.model.SCXML;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -158,6 +149,7 @@ public class SCXML2RosGenerator implements CodeGenerator {
 
 		// Create new ROS package to contain generated algorithm
 		success = createNewROSPackage();
+		//TODO: INTGRATION step2 - add complete behavior generation
 //		if (success) {
 //			// Create a list of custom actions, add as many as are needed
 //			final List<CustomAction> customActions = new ArrayList<>();
