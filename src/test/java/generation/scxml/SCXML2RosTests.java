@@ -16,6 +16,12 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+
+/**
+ * 
+ * Tests for the generation of the simulation package
+ *
+ */
 @TestMethodOrder(OrderAnnotation.class)
 class SCXML2RosTests {
 
