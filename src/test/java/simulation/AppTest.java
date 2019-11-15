@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jxmpp.jid.impl.JidCreate;
 
 import com.google.gson.Gson;

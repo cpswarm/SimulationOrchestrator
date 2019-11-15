@@ -7,7 +7,8 @@
 	<version>2.0.0</version>
 
 	<properties>
-		<junit.jupiter.version>5.4.2</junit.jupiter.version>
+		<junit.jupiter.version>5.5.2</junit.jupiter.version>
+		<junit.vintage.version>5.5.2</junit.vintage.version>
 		<slf4j.version>1.7.26</slf4j.version>
 	</properties>
 
@@ -241,12 +242,19 @@
 			<version>1.4.2</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>junit</groupId> -->
-		<!-- <artifactId>junit</artifactId> -->
-		<!-- <version>4.12</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
+		<!-- https://mvnrepository.com/artifact/org.junit.vintage/junit-vintage-engine -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>${junit.vintage.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- ************* COMPILE Dependencies ************** -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
