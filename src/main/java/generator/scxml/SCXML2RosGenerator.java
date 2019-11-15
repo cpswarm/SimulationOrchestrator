@@ -1,4 +1,4 @@
-package codegen.scxml;
+package generator.scxml;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +24,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import codegen.generator.CodeGenerator;
+import generator.CodeGenerator;
 
 public class SCXML2RosGenerator implements CodeGenerator {
 

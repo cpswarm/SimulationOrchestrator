@@ -1,4 +1,4 @@
-package codegen.generator;
+package generator;
 
 public interface CodeGenerator {
 	
