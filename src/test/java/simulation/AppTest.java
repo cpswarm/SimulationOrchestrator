@@ -7,7 +7,11 @@ import java.net.UnknownHostException;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.jxmpp.jid.impl.JidCreate;
 
 import com.google.gson.Gson;
@@ -26,7 +30,8 @@ import messages.server.Server;
 /**
  * Unit test for simple App.
  */
-public class AppTest extends TestCase{
+@TestMethodOrder(OrderAnnotation.class)
+public class AppTest {
 	/**
 	 * Test running example
 	 * 
@@ -80,7 +85,9 @@ public class AppTest extends TestCase{
 	private static FrevoConfiguration optimizationConfiguration = null;
 	private int startingTimeout = Integer.parseInt(System.getProperty("starting_timeout"));
 	private static InetAddress serverIPAddress = null;
-	static {
+	
+	@BeforeAll
+	static void setUp() {
 		Gson gson = new Gson();
 		JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
 		optimizationConfiguration = gson.fromJson(reader, FrevoConfiguration.class);
@@ -92,7 +99,9 @@ public class AppTest extends TestCase{
 		}
 	}
  
+	
 	@Test
+	@Order(1)
 	public void testKubernetes() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -114,6 +123,7 @@ public class AppTest extends TestCase{
 	
 
 	@Test
+	@Order(2)
 	public void testCreation() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -138,6 +148,7 @@ public class AppTest extends TestCase{
 	}
 	
 	@Test
+	@Order(3)
 	public void testRunSimulation() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -176,6 +187,7 @@ public class AppTest extends TestCase{
 	}
 	
 	@Test
+	@Order(4)
 	public void testRunOptimization() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
