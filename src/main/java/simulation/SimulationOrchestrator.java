@@ -203,7 +203,7 @@ public class SimulationOrchestrator {
 			options.addOption(output);
 			
 			Option configuration = new Option("c", "conf", true, "folder with the configuration files");
-			configuration.setRequired(true);
+			configuration.setRequired(false);
 			options.addOption(configuration);
 
 			Option id = new Option("i", "id", true, "Task ID");
