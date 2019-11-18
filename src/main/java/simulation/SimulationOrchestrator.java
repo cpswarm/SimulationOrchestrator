@@ -279,6 +279,10 @@ public class SimulationOrchestrator {
 				inputDataFolder = cmd.getOptionValue("src");
 				outputDataFolder = cmd.getOptionValue("target");
 				taskId = cmd.getOptionValue("id");
+				if(taskId==null || taskId.isEmpty()) {
+					System.out.println("The task ID cannot be empty");
+					return;
+				}
 				dimensions = cmd.getOptionValue("dim");
 
 				maxAgents = Long.parseLong(cmd.getOptionValue("max"));
@@ -286,7 +290,7 @@ public class SimulationOrchestrator {
 				optimizationEnabled = cmd.hasOption("opt");
 
 				guiEnabled = cmd.hasOption("gui");
-
+				
 				if(cmd.getOptionValue("params")!=null) {
 					parameters = cmd.getOptionValue("params");
 				}
@@ -324,7 +328,7 @@ public class SimulationOrchestrator {
 				optConf.setGenerationCount(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
-			}			
+			}	
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = InetAddress.getByName(document.getElementsByTagName("serverURI").item(0).getTextContent());
@@ -449,6 +453,12 @@ public class SimulationOrchestrator {
 		this.scxmlPath = scxml;
 		this.adfPath = adf;
 		this.simulationEnv = env;
+		// If the SOO is run in Generation mode, it doesn't need to connect to the server, 
+		// since it doesn't need the distributed simulation managers
+		if(opMode.equals(opMode.G)) {
+			this.generateCode();
+		}
+		
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -542,9 +552,6 @@ public class SimulationOrchestrator {
 		addOptimizationToTheRoster();
 		
 		switch(opMode) {
-		case G:
-			this.generateCode();
-			break;
 		case D:
 			this.deploySimulators();
 			break;
