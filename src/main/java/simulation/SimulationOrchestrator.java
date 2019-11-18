@@ -135,7 +135,7 @@ public class SimulationOrchestrator {
 	private String adfPath;
 	private String simulationEnv;
 	
-	public static enum OP_MODE {G, D,  R, RD;
+	public static enum OP_MODE {G, D,  S, DS;
 		
 		static OP_MODE fromString(String text) {
 			switch(text) {
@@ -143,10 +143,10 @@ public class SimulationOrchestrator {
 				return OP_MODE.G;
 			case "D":
 				return OP_MODE.D;
-			case "R":
-				return OP_MODE.R;
-			case "RD":
-				return OP_MODE.RD;
+			case "S":
+				return OP_MODE.S;
+			case "DS":
+				return OP_MODE.DS;
 			default:
 				return null;
 			}
@@ -190,7 +190,7 @@ public class SimulationOrchestrator {
 		try {
 			Options options = new Options();
 
-			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "g", "d", "r","rd");
+			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "g", "d", "s","ds");
 			mode.setRequired(true);
 			options.addOption(mode);
 			
@@ -545,9 +545,9 @@ public class SimulationOrchestrator {
 		case D:
 			this.deploySimulators();
 			break;
-		case RD:
+		case DS:
 			this.deploySimulators();
-		case R:
+		case S:
 			// In case of test the evaluation is done only after that the dummy manager is started
 			if(!TEST) {
 				this.evaluateSimulationManagers();

@@ -130,7 +130,7 @@ public class AppTest {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout, null, null, null);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout, null, null, null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -165,7 +165,7 @@ public class AppTest {
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout, null, null, null);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, taskId, guiEnabled, parameters, dimensions, maxAgents, false, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout, null, null, null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -204,7 +204,7 @@ public class AppTest {
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout, null, null, null);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,serverIPAddress, serverName, serverUsername, serverPassword, orchestratorInputDataFolder, orchestratorOutputDataFolder, optimizationUser, taskId, guiEnabled, parameters, dimensions, maxAgents, true, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optimizationConfiguration, Boolean.FALSE, startingTimeout, null, null, null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
