@@ -275,7 +275,7 @@ public class SimulationOrchestrator {
 				
 			configurationFolder = cmd.getOptionValue("conf");
 			
-			if(!opMode.equals(OP_MODE.D)) {
+			if(!(opMode.equals(OP_MODE.D) || opMode.equals(OP_MODE.G))) {
 				inputDataFolder = cmd.getOptionValue("src");
 				outputDataFolder = cmd.getOptionValue("target");
 				taskId = cmd.getOptionValue("id");
@@ -349,8 +349,11 @@ public class SimulationOrchestrator {
 			if(!outputDataFolder.endsWith(File.separator)) {
 				outputDataFolder+=File.separator;
 			}
-			if(!configurationFolder.endsWith(File.separator)) {
-				configurationFolder+=File.separator;
+			// Only in generation mode the configuration is not required
+			if(!opMode.equals(OP_MODE.G)) {
+				if(!configurationFolder.endsWith(File.separator)) {
+					configurationFolder+=File.separator;
+				}
 			}
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
