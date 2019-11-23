@@ -73,7 +73,10 @@ public class PacketListenerImpl implements StanzaListener {
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
 				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					System.out.println("Removing Manager "+presence.getFrom().toString()+" to the list of the ones available");
-					parent.removeSimulationManager(presence.getFrom());
+					try {
+						parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
+					} catch (JsonSyntaxException | XmppStringprepException e) {
+					}
 				} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 					System.out.println("The Optimization Tool is offline, stop to send the state");
 					if(parent.isRecovery()) {
