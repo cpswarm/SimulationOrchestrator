@@ -60,8 +60,7 @@ public class PacketListenerImpl implements StanzaListener {
 					if(presence.getFrom().toString().startsWith("manager")) {
 						System.out.println("Adding Manager "+presence.getFrom().toString()+" to the list of the ones available");
 						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));	
-					} 
-					
+					} 	
 				} catch (JsonSyntaxException | XmppStringprepException e) {
 				}
 			} else if(presence.getType().equals(Presence.Type.unavailable)){
@@ -69,7 +68,10 @@ public class PacketListenerImpl implements StanzaListener {
 						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
 				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 					System.out.println("Removing Manager "+presence.getFrom().toString()+" to the list of the ones available");
-					parent.removeSimulationManager(presence.getFrom());
+					try {
+						parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
+					} catch (JsonSyntaxException | XmppStringprepException e) {
+					}
 				}/* else if(presence.getFrom().toString().startsWith("orchestrator") || presence.getFrom().toString().startsWith(parent.getOptimizationJid().toString())) {
 						System.out.println("The connection is disconnected, reconnect");
 						parent.reconnect();
