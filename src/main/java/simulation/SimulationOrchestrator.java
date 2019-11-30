@@ -64,6 +64,7 @@ import config.deployment.Service;
 import config.frevo.FrevoConfiguration;
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.ParameterSet;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import generation.CodeGenerator;
@@ -878,15 +879,17 @@ public class SimulationOrchestrator {
 		String candidateToSend = "";
 		try {
 			if(TEST && this.configurationFolder==null) {
-				candidateToSend = this.readFile(new File("src/main/resources/candidate.c").getAbsolutePath(), StandardCharsets.UTF_8);
+				candidateToSend = this.readFile(new File("src/main/resources/candidate.json").getAbsolutePath(), StandardCharsets.UTF_8);
 			} else {
-				candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.c", StandardCharsets.UTF_8);
+				candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.json", StandardCharsets.UTF_8);
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			return false;
 		}
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "Run simulation message", "1", simulationConfiguration, candidateToSend);
+		Gson gson = new Gson();
+		ParameterSet parameters = gson.fromJson(candidateToSend, ParameterSet.class); 
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "Run simulation message", "1", simulationConfiguration, parameters);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);

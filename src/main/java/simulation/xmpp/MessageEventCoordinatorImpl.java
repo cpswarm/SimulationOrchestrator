@@ -9,6 +9,8 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 
+import com.google.gson.Gson;
+
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationProgressMessage;
 import eu.cpswarm.optimization.messages.ReplyMessage.Status;
@@ -77,15 +79,16 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 					stopSenderThread();
 				}
 				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-				System.out.println("Final candidate: "+progress.getCandidate()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
+				System.out.println("Final candidate: "+progress.getParameterSet()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 				parent.setSimulationDone(true);
 				// The final candidate contains the optimized values for the parameters
 				// and has to be saved in the output folder of the launcher to be used as result
 				// to be passed to the deployment tool
 			    BufferedWriter writer;
 				try {
-					writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"parameters.yaml"));
-				    writer.write(progress.getCandidate());
+					writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"candidate.json"));
+					Gson gson = new Gson();
+				    writer.write(gson.toJson(progress.getParameterSet()));
 				    writer.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
