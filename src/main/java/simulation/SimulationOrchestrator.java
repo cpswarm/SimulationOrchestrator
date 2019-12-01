@@ -18,7 +18,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.ReconnectionManager.ReconnectionPolicy;
 import org.jivesoftware.smack.SmackException;
@@ -40,6 +39,7 @@ import org.jivesoftware.smack.roster.Roster.SubscriptionMode;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
@@ -67,9 +67,11 @@ import eu.cpswarm.optimization.messages.CancelOptimizationMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.ParameterSet;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-
+import generation.CodeGenerator;
+import generation.scxml.SCXML2RosGenerator;
 import messages.server.Capabilities;
 import messages.server.Server;
 import simulation.kubernetes.KubernetesUtils;
@@ -144,24 +146,29 @@ public class SimulationOrchestrator {
 	private String simulatorConfigurationfileName = null;
 	private Boolean configEnabled = null;
 	private int startingTimeout;
-	public static enum OP_MODE {D,  R, RD;
+	private String scxmlPath;
+	private String adfPath;
+	private String simulationEnv;
+	
+	public static enum OP_MODE {G, D,  S, DS;
 		
 		static OP_MODE fromString(String text) {
 			switch(text) {
+			case "G":
+				return OP_MODE.G;
 			case "D":
 				return OP_MODE.D;
-			case "R":
-				return OP_MODE.R;
-			case "RD":
-			case "DR":
-				return OP_MODE.RD;
+			case "S":
+				return OP_MODE.S;
+			case "DS":
+				return OP_MODE.DS;
 			default:
 				return null;
 			}
 		}
 	
 	}
-	
+		
 	private OP_MODE opMode;
 	
 	public static void main (String args[]) {
@@ -178,6 +185,9 @@ public class SimulationOrchestrator {
 		String scid = "";
 		String parameters = "";
 		String dimensions = "";
+		String scxml = "";
+		String adfFile = "";
+		String envSim = "";
 		Long maxAgents = null;
 		Boolean guiEnabled = false;
 		Boolean recovery = null;
@@ -196,7 +206,7 @@ public class SimulationOrchestrator {
 		try {
 			Options options = new Options();
 
-			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "d", "r","rd");
+			ChoiceOption mode = new ChoiceOption("M", "mode", true, "Running mode for the SOO", "g", "d", "s","ds");
 			mode.setRequired(true);
 			options.addOption(mode);
 			
@@ -209,7 +219,7 @@ public class SimulationOrchestrator {
 			options.addOption(output);
 			
 			Option configuration = new Option("c", "conf", true, "folder with the configuration files");
-			configuration.setRequired(true);
+			configuration.setRequired(false);
 			options.addOption(configuration);
 
 			Option id = new Option("i", "scid", true, "Simulator Configuration ID");
@@ -251,6 +261,18 @@ public class SimulationOrchestrator {
 			Option seed = new Option("se", "seed", true, "Indicates the seed to be used in the OT");
 			optimization.setRequired(false);
 			options.addOption(seed);
+
+			Option scxmlOpt = new Option("sc", "scxml", true, "State Machine file path");
+			optimization.setRequired(false);
+			options.addOption(scxmlOpt);
+			
+			Option adf = new Option("a", "adf", true, "Abstract Description file path");
+			optimization.setRequired(false);
+			options.addOption(adf);			
+
+			Option env = new Option("es", "env", true, "Environment for Simulation");
+			optimization.setRequired(false);
+			options.addOption(env);			
 			
 			CommandLineParser parser = new DefaultParser();
 			HelpFormatter formatter = new HelpFormatter();
@@ -269,10 +291,14 @@ public class SimulationOrchestrator {
 				
 			configurationFolder = cmd.getOptionValue("conf");
 			
-			if(!opMode.equals(OP_MODE.D)) {
+			if(!(opMode.equals(OP_MODE.D) || opMode.equals(OP_MODE.G))) {
 				inputDataFolder = cmd.getOptionValue("src");
 				outputDataFolder = cmd.getOptionValue("target");
 				scid = cmd.getOptionValue("scid");
+				if(scid==null || scid.isEmpty()) {
+					System.out.println("The task ID cannot be empty");
+					return;
+				}
 				dimensions = cmd.getOptionValue("dim");
 
 				maxAgents = Long.parseLong(cmd.getOptionValue("max"));
@@ -280,7 +306,7 @@ public class SimulationOrchestrator {
 				optimizationEnabled = cmd.hasOption("opt");
 
 				guiEnabled = cmd.hasOption("gui");
-
+				
 				if(cmd.getOptionValue("params")!=null) {
 					parameters = cmd.getOptionValue("params");
 				}
@@ -300,8 +326,17 @@ public class SimulationOrchestrator {
 				String se = "0";
 				if(cmd.getOptionValue("seed")!=null) {
 					se = cmd.getOptionValue("seed");
+				}		
+				if(cmd.getOptionValue("scxml")!=null) {
+					scxml = cmd.getOptionValue("scxml");
 				}
-
+				if(cmd.getOptionValue("adf")!=null) {
+					adfFile = cmd.getOptionValue("adf");
+				}
+				if(cmd.getOptionValue("env")!=null) {
+					envSim = cmd.getOptionValue("env");
+				}
+				
 				Gson gson = new Gson();
 				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
 				optConf = gson.fromJson(reader, FrevoConfiguration.class);
@@ -309,7 +344,7 @@ public class SimulationOrchestrator {
 				optConf.setGenerationCount(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
-			}			
+			}	
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = InetAddress.getByName(document.getElementsByTagName("serverURI").item(0).getTextContent());
@@ -335,8 +370,11 @@ public class SimulationOrchestrator {
 			if(!outputDataFolder.endsWith(File.separator)) {
 				outputDataFolder+=File.separator;
 			}
-			if(!configurationFolder.endsWith(File.separator)) {
-				configurationFolder+=File.separator;
+			// Only in generation mode the configuration is not required
+			if(!opMode.equals(OP_MODE.G)) {
+				if(!configurationFolder.endsWith(File.separator)) {
+					configurationFolder+=File.separator;
+				}
 			}
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
@@ -350,7 +388,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout, scxml, adfFile, envSim);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -410,6 +448,13 @@ public class SimulationOrchestrator {
 	 *       Indicates if the configuration of the simulators must be done or not
 	 * @param startingTimeout
 	 * 		Time to wait for the subscription of new Simulation Managers
+	 * @param scxml
+	 * 		Path to the state machine file to be used to generate the package for simulation
+	 * @parm adfFile
+	 * 		Path to the Abstrat Description file to be used to generate the package for simulation
+	 * @param envSim
+	 *      Environment to be used for simulation
+	 * 
 	 */
 	public SimulationOrchestrator(final OP_MODE opMode, 
 									final InetAddress serverIP, 
@@ -434,7 +479,10 @@ public class SimulationOrchestrator {
 									final String simulationManagerPath, 
 									final FrevoConfiguration optConf, 
 									final Boolean configEnabled, 
-									int startingTimeout) {
+									int startingTimeout,
+									final String scxml,
+									final String adf,
+									final String env) {
 		this.opMode = opMode;
 		this.scid = scid;
 		this.serverName = serverName;
@@ -451,6 +499,15 @@ public class SimulationOrchestrator {
 		this.optimizationConfiguration = optConf;
 		this.configEnabled = configEnabled;
 		this.startingTimeout = startingTimeout;
+		this.scxmlPath = scxml;
+		this.adfPath = adf;
+		this.simulationEnv = env;
+		// If the SOO is run in Generation mode, it doesn't need to connect to the server, 
+		// since it doesn't need the distributed simulation managers
+		if(opMode.equals(opMode.G)) {
+			this.generateCode();
+		}
+		
 		server = new Server();
 		server.setServer("Orchestrator");
 		Capabilities caps = new Capabilities();
@@ -549,9 +606,9 @@ public class SimulationOrchestrator {
 		case D:
 			this.deploySimulators();
 			break;
-		case RD:
+		case DS:
 			this.deploySimulators();
-		case R:
+		case S:
 			// In case of test the evaluation is done only after that the dummy manager is started
 			if(!TEST) {
 				this.evaluateSimulationManagers();
@@ -737,7 +794,22 @@ public class SimulationOrchestrator {
 	}
     
     
-    
+    private void generateCode() {
+    	CodeGenerator cg = null;
+    	switch(this.simulationEnv) {
+    	case "ROS":
+    		cg = new SCXML2RosGenerator(this.scxmlPath, this.outputDataFolder);
+    		break;
+    	default:
+    		cg = new SCXML2RosGenerator(this.scxmlPath, this.outputDataFolder);
+    	}
+    	if(cg.generate()) {
+    		System.out.print("Code Generated in: "+this.outputDataFolder);
+    	} else {
+    		System.out.println("Error generating simulation package");
+    	}
+    	return;
+    }    
     
     private void deploySimulators() {
 		Gson gson = new Gson();
@@ -1013,16 +1085,18 @@ public class SimulationOrchestrator {
 		String candidateToSend = "";
 		try {
 			if(TEST && this.configurationFolder==null) {
-				candidateToSend = this.readFile(new File("src/main/resources/candidate.c").getAbsolutePath(), StandardCharsets.UTF_8);
+				candidateToSend = this.readFile(new File("src/main/resources/candidate.json").getAbsolutePath(), StandardCharsets.UTF_8);
 			} else {
-				candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.c", StandardCharsets.UTF_8);
+				candidateToSend = this.readFile(this.configurationFolder+File.separator+"candidate.json", StandardCharsets.UTF_8);
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			return false;
 		}
 		//FIXME the message is not correct   /* >>>>>>>>>>>in case of single simulation, OID = null */
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", candidateToSend, "type");
+		Gson gson = new Gson();
+		ParameterSet parameters = gson.fromJson(candidateToSend, ParameterSet.class);
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", parameters.toString(), "type");
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
@@ -1101,6 +1175,14 @@ public class SimulationOrchestrator {
 
 	public Boolean isSimulationDone() {
 		return simulationDone;
+	}
+
+	public String getOutputDataFolder() {
+		return outputDataFolder;
+	}
+
+	public void setOutputDataFolder(String outputDataFolder) {
+		this.outputDataFolder = outputDataFolder;
 	}
 
 	public void setSimulationDone(boolean simulationDone) {

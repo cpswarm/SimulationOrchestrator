@@ -7,7 +7,11 @@ import java.net.UnknownHostException;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.jxmpp.jid.impl.JidCreate;
 
 import com.google.gson.Gson;
@@ -20,24 +24,18 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-/*import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
-import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;*/
-import junit.framework.TestCase;
 import messages.server.Server;
-import simulation.SimulationOrchestrator;
 
 /**
- * Unit test for simple App.
+ * Unit test for the Simulation and Optimization Orchestrator and its interaction with the other components of the Simulation and Optimization Environment.
+ * The tests for the generation of the simulation package are contained in the other test suite 
  */
-public class AppTest extends TestCase{
+@TestMethodOrder(OrderAnnotation.class)
+public class AppTest {
 	/**
 	 * Test running example
 	 * 
-	 * mvn test 
+	 * mvn test -B
 	 * -Dtest_server_ip=130.192.86.237 (IP of the XMPP server) 
 	 * -Dtest_server_name=pert-demoenergy-virtus.ismb.polito.it (name of the XMPP server) 
 	 * -Dtest_server_username=orchestrator (Username to be used by the orchestrator to authenticate in the XMPP server)
@@ -49,7 +47,6 @@ public class AppTest extends TestCase{
 	 * -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool) -- Optional
 	 * -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) -- Optional
 	 * -Drecovery=true (Flag to enable or disable the thread which monitor the progress of the optimization process)
-	 * -Dmqtt_broker=tcp://130.192.86.237:1883  (IP of the MQTT broker to be used for the monitoring)
 	 * -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
@@ -88,7 +85,9 @@ public class AppTest extends TestCase{
 	private static FrevoConfiguration optimizationConfiguration = null;
 	private int startingTimeout = Integer.parseInt(System.getProperty("starting_timeout"));
 	private static InetAddress serverIPAddress = null;
-	static {
+	
+	@BeforeAll
+	static void setUp() {
 		Gson gson = new Gson();
 		JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
 		optimizationConfiguration = gson.fromJson(reader, FrevoConfiguration.class);
@@ -100,7 +99,9 @@ public class AppTest extends TestCase{
 		}
 	}
  
+	
 	@Test
+	@Order(1)
 	public void testKubernetes() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -120,12 +121,13 @@ public class AppTest extends TestCase{
 	}
 
 	@Test
+	@Order(2)
 	public void testCreation() {
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testCreation test---------------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
 																			serverUsername, 
@@ -147,7 +149,10 @@ public class AppTest extends TestCase{
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
-																			startingTimeout);
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(1000);
@@ -166,6 +171,7 @@ public class AppTest extends TestCase{
 	}
 	
 	@Test
+	@Order(3)
 	public void testRunSimulation() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -181,7 +187,7 @@ public class AppTest extends TestCase{
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
 			Assert.assertNotNull(server);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
 																			serverUsername, 
@@ -204,7 +210,10 @@ public class AppTest extends TestCase{
 																			simulationManagerPath,
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
-																			startingTimeout);
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -228,6 +237,7 @@ public class AppTest extends TestCase{
 	}
 	
 	@Test
+	@Order(4)
 	public void testRunOptimization() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -242,7 +252,7 @@ public class AppTest extends TestCase{
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
 																			serverUsername, 
@@ -265,7 +275,10 @@ public class AppTest extends TestCase{
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
-																			startingTimeout);
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -308,7 +321,7 @@ public class AppTest extends TestCase{
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
 																			serverUsername, 
@@ -331,7 +344,10 @@ public class AppTest extends TestCase{
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
-																			startingTimeout);
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);
@@ -376,7 +392,7 @@ public class AppTest extends TestCase{
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
 					   "}\r\n", Server.class);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.R,
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
 																			serverUsername, 
@@ -399,7 +415,10 @@ public class AppTest extends TestCase{
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
-																			startingTimeout);
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
 			Assert.assertNotNull(orchestrator);
 			do {
 				Thread.sleep(10000);

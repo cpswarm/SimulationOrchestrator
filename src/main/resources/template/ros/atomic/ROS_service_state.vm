@@ -1,0 +1,28 @@
+#*************************************************************************************************
+*	Generate code for ROS Service State
+*###
+#set($request_tag = $service_content.getElementsByTagName("request").item(0))
+#set($name_tag = $service_content.getElementsByTagName("name").item(0))
+#set($srv_tag = $service_content.getElementsByTagName("srv").item(0))
+	${indent}smach_ros.ServiceState('$name_tag.getFirstChild().getNodeValue()',
+	#if($request_tag.getAttributes().item(0).getNodeValue() == "empty")
+		${indent}$srv_tag.getFirstChild().getNodeValue())#if($continue),#end
+	#elseif($request_tag.getAttributes().item(0).getNodeValue() == "fixed")
+		${indent}$srv_tag.getFirstChild().getNodeValue(),
+		#set($param_list = $goal_tag.getElementsByTagName("param"))
+		#set($last = $param_list.getLength() - 1)
+		#set($request = ${service_content.item(1).getFirstChild().getNodeValue()} + 'Request(')
+		${indent}request=$request#foreach($i in [0..$last])
+			#if($i == $last)$$param_list.item($i).getFirstChild().getNodeValue()))#if($continue),#end#else$param_list.item($i).getFirstChild().getNodeValue(), #end
+		#end
+	#elseif($request_tag.getAttributes().item(0).getNodeValue() == "userdata")
+		${indent}$srv_tag.getFirstChild().getNodeValue(),
+		#set($var_list = $goal_tag.getElementsByTagName("var"))
+		#set($last = $var_list.getLength() - 1)
+		${indent}request_slots=[#foreach($i in [0..$last])
+			#if($i == $last)'$var_list.item($i).getFirstChild().getNodeValue()'])#if($continue),#end#else'$var_list.item($i).getFirstChild().getNodeValue()', #end
+		#end
+	#elseif($request_tag.getAttributes().item(0).getNodeValue() == "callback")
+		${indent}$srv_tag.getFirstChild().getNodeValue(),
+		${indent}request_cb=$srv_tag.getFirstChild().getNodeValue().toLowerCase()_cb)#if($continue),#end
+	#end

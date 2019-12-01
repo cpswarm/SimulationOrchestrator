@@ -22,6 +22,8 @@ import eu.cpswarm.optimization.messages.OptimizationStatusMessage.Status;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
+import eu.cpswarm.optimization.messages.Parameter;
+import eu.cpswarm.optimization.messages.ParameterSet;
 
 
 /**
@@ -44,6 +46,9 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
+		ParameterSet parameters = new ParameterSet();
+		Parameter parameter = new Parameter("test", "test", 2);
+		parameters.getParameters().add(parameter);
 		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
 		if( parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
@@ -71,7 +76,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					int newSID = new Integer(parent.getSimulationID()).intValue()+1;
 					String newSimulationID = String.valueOf(newSID);
 					parent.setSimulationID(newSimulationID);
-					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, "currentCandidate", "type");
+					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, parameters.toString(), "type");
 					try {
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());
@@ -107,7 +112,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					sid += 1;  // SID increases by 1 each time
 					simulationID = String.valueOf(sid);
 					parent.setSimulationID(simulationID);
-					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, "currentCandidate", "type");
+					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, parameters.toString(), "type");
 					ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 					chat = chatManager.chatWith(manager.asEntityBareJid());
 					Gson gson = new Gson();
@@ -127,7 +132,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				} else {
 					status = Status.RUNNING;
 				}
-				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 0.8, status, 80.0, "bestController");
+				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 0.8, status, 80.0, parameters.toString());
 				String messageToSend = serializer.toJson(optimizationStatus);
 				message.setBody(messageToSend);
 				System.out.println("OptimizationTool sending optimization staus "+messageToSend);
@@ -159,11 +164,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	 */
 	public void setStopOptimization(boolean stop) {
 		this.stopOptimzation = stop;
+		ParameterSet parameters = new ParameterSet();
+		Parameter parameter = new Parameter("test", "test", 2);
+		parameters.getParameters().add(parameter);
 		System.out.println("\n set the last stop candidate\n");
 		//It sends a run simulation message to restart the optimization if it has been stopped
 		int newSID = new Integer(parent.getSimulationID()).intValue()+1;
 		String newSimulationID = String.valueOf(newSID);
-		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, "stopCandidate", "type");
+		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, parameters.toString() ,"type");
 		try {
 			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_test@"+parent.getServerName()));
