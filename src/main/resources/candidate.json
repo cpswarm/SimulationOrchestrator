@@ -1,6 +1,1 @@
-{"Parameters":
-[
-{"name":"p1","meta":"file","value":0.01},
-{"name":"p2","meta":"file","value":0.01}
-]
-}
+{"Parameters":[{"name":"test","meta":"test","value":2.0}]}
