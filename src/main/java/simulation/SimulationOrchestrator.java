@@ -490,9 +490,9 @@ public class SimulationOrchestrator {
 		this.outputDataFolder = outputDataFolder;
 		this.serverUsername = serverUsername;
 		this.serverPassword = serverPassword;
-		this.simulationManagers = new HashMap<EntityBareJid, Server>();
+		this.simulationManagers = new HashMap<EntityBareJid, Server>();		
 		this.recovery = recovery;
-		this.simulationConfiguration = "visual:=" + (guiEnabled? "true":"false") + parameters.toString();
+		this.simulationConfiguration = "gui:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
 		this.localSimulationManager = localSimulationManager;
