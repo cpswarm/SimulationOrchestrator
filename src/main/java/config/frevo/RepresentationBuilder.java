@@ -1,6 +1,7 @@
 
 package config.frevo;
 
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,15 +10,9 @@ public class RepresentationBuilder {
     @SerializedName("type")
     @Expose
     private String type;
-    @SerializedName("activationFunction")
+    @SerializedName("parameters")
     @Expose
-    private String activationFunction;
-    @SerializedName("hiddenNodeCount")
-    @Expose
-    private Integer hiddenNodeCount;
-    @SerializedName("iterationCount")
-    @Expose
-    private Integer iterationCount;
+    private List<Parameter> parameters = null;
     @SerializedName("inputCount")
     @Expose
     private Integer inputCount;
@@ -33,28 +28,12 @@ public class RepresentationBuilder {
         this.type = type;
     }
 
-    public String getActivationFunction() {
-        return activationFunction;
+    public List<Parameter> getParameters() {
+        return parameters;
     }
 
-    public void setActivationFunction(String activationFunction) {
-        this.activationFunction = activationFunction;
-    }
-
-    public Integer getHiddenNodeCount() {
-        return hiddenNodeCount;
-    }
-
-    public void setHiddenNodeCount(Integer hiddenNodeCount) {
-        this.hiddenNodeCount = hiddenNodeCount;
-    }
-
-    public Integer getIterationCount() {
-        return iterationCount;
-    }
-
-    public void setIterationCount(Integer iterationCount) {
-        this.iterationCount = iterationCount;
+    public void setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
     }
 
     public Integer getInputCount() {
