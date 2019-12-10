@@ -23,7 +23,7 @@
                 "name": "scout_count",
                 "metaInformation": "command_line",
                 "minimum": 1,
-                "maximum": 4,
+                "maximum": 2,
                 "scale": 1
             },
             {
