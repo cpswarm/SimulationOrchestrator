@@ -62,6 +62,8 @@ import config.deployment.Deployment;
 import config.deployment.DeploymentConfiguration;
 import config.deployment.Service;
 import config.frevo.FrevoConfiguration;
+import config.modelio.Parameter;
+import config.modelio.Parameters;
 import eu.cpswarm.optimization.messages.GetProgressMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.ParameterSet;
@@ -329,6 +331,7 @@ public class SimulationOrchestrator {
 				optConf.setGenerationCount(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
+				
 			}	
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
@@ -359,7 +362,23 @@ public class SimulationOrchestrator {
 				if(!configurationFolder.endsWith(File.separator)) {
 					configurationFolder+=File.separator;
 				}
-			}
+				if(opMode.equals(OP_MODE.S) && optimizationEnabled) {
+					Gson gson = new Gson();
+					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
+					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
+					List<config.frevo.Parameter> frevoParameters = new ArrayList<config.frevo.Parameter>();
+					for (Parameter param : modelledParams.getParameters()) {
+						config.frevo.Parameter frevoParaneter = new config.frevo.Parameter();
+						frevoParaneter.setName(param.getName());
+						frevoParaneter.setMetaInformation(param.getMeta());
+						frevoParaneter.setMinimum(param.getMin().intValue());
+						frevoParaneter.setMaximum(param.getMax().intValue());
+						frevoParaneter.setScale(Double.parseDouble(param.getScale()));
+						frevoParameters.add(frevoParaneter);
+					}
+					optConf.getRepresentationBuilder().setParameters(frevoParameters);
+				}
+			} 
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
 				return;

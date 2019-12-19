@@ -14,10 +14,10 @@
         "parameters": [
             {
                 "name": "step_size",
-                "metaInformation": "file",
-                "minimum": 4,
-                "maximum": 20,
-                "scale": 50
+                "metaInformation": "file:ugv_random_walk",
+                "minimum": 2,
+                "maximum": 10,
+                "scale": 1
             },
             {
                 "name": "scout_count",
