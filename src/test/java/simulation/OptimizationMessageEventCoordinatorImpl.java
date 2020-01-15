@@ -56,7 +56,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				msg1.setBody(serializer.toJson(message1));
 				ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
 				try {
-					Chat chatToUse = chatManager.chatWith(JidCreate.entityBareFrom("orchestrator@"+parent.getServerName()));
+					Chat chatToUse = chatManager.chatWith(JidCreate.entityBareFrom("orchestrator_bamboo@"+parent.getServerName()));
 					chatToUse.send(msg1);
 				} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
 					e.printStackTrace();

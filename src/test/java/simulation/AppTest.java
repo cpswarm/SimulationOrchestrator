@@ -135,11 +135,11 @@ public class AppTest {
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, taskId);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, taskId);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
-			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_test@"+serverName));
+			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_bamboo@"+serverName));
 			Assert.assertNotNull(entry);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
@@ -170,7 +170,7 @@ public class AppTest {
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, taskId);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, taskId);
 			Thread.sleep(1000);
 			
 			orchestrator.evaluateSimulationManagers(server);
@@ -209,7 +209,7 @@ public class AppTest {
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, taskId);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder, taskId);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(serverIPAddress, serverName, "server", otDataFolder, taskId);
 			Thread.sleep(1000);
 			

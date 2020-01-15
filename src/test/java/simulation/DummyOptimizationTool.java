@@ -67,7 +67,7 @@ public class DummyOptimizationTool {
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	
 	public DummyOptimizationTool(final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String optimizationId ) {
-		clientID = "optimization_test";
+		clientID = "optimization_bamboo";
 		this.optimizationID = optimizationId;
 		this.serverName = serverName;
 		if(!dataFolder.endsWith(File.separator)) {

@@ -264,14 +264,14 @@ public class DummyManager {
 			RosterGroup group = roster
 				.getGroup("orchestrator");		
 			if (group != null) {
-				if (!group.contains(JidCreate.bareFrom("orchestrator@"
+				if (!group.contains(JidCreate.bareFrom("orchestrator_bamboo@"
 						+ serverName))) {
-					roster.createEntry(JidCreate.bareFrom("orchestrator@"
+					roster.createEntry(JidCreate.bareFrom("orchestrator_bamboo@"
 							+ serverName),
 							"orchestrator", groups);
 				} 
 			} else {
-				roster.createEntry(JidCreate.bareFrom("orchestrator@"
+				roster.createEntry(JidCreate.bareFrom("orchestrator_bamboo@"
 						+ serverName),
 						"orchestrator", groups);
 			}
@@ -280,14 +280,14 @@ public class DummyManager {
 			group = roster
 				.getGroup("optimization");
 			if (group != null) {
-				if (!group.contains(JidCreate.bareFrom("optimization_test@"
+				if (!group.contains(JidCreate.bareFrom("optimization_bamboo@"
 						+ serverName))) {
-					roster.createEntry(JidCreate.bareFrom("optimization_test@"
+					roster.createEntry(JidCreate.bareFrom("optimization_bamboo@"
 							+ serverName),
 							"optimization", groups2);
 				} 
 			} else {
-				roster.createEntry(JidCreate.bareFrom("optimization_test@"
+				roster.createEntry(JidCreate.bareFrom("optimization_bamboo@"
 						+ serverName),
 						"optimization", groups2);
 			}			
@@ -336,7 +336,7 @@ public class DummyManager {
 		try {
 			System.out.println("Ready to send "+body);
 			ChatManager chatManager = ChatManager.getInstanceFor(this.getConnection());
-			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_test@"+this.serverName));
+			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_bamboo@"+this.serverName));
 			Message message = new Message();
 			message.setBody(body);
 			chat.send(message);
