@@ -24,7 +24,6 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import junit.framework.TestCase;
 import messages.server.Server;
 
 /**
@@ -62,7 +61,6 @@ public class AppTest {
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
-	private String serverIP = System.getProperty("test_server_ip");
 	private String serverName = System.getProperty("test_server_name");
 	private String serverUsername = System.getProperty("test_server_username");
 	private String serverPassword = System.getProperty("test_server_password");

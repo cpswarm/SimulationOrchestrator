@@ -1,11 +1,19 @@
 package simulation.xmpp;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
@@ -93,13 +101,23 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 					Gson gson = new Gson();
 				    writer.write(gson.toJson(progress.getParameterSet()));
 				    writer.close();
-				    List<Parameter> params = new ArrayList<Parameter>();
+				    Map<String, Parameter> params = new HashMap<String,Parameter>();
 				    for (Parameter param : progress.getParameterSet().getParameters()) {
 				    	if(param.getMeta().startsWith("file")) {
-				    		params.add(param);
+				    		params.put(param.getName(),param);
 				    	}
 				    }
-				    // Save the file
+				    if(!params.isEmpty()) {
+				    	// Check the name of the file where to save values 
+				    	// currently only one file per time is supported
+				    	// the values must be saved in one only file
+				    	List<Parameter> list = new ArrayList<Parameter>(params.values());
+				    	StringTokenizer tokens = new StringTokenizer(list.get(0).getMeta(),":");
+				    	tokens.nextToken();
+				    	String fileName = tokens.nextToken();
+					    // Save the file
+					    saveFile(params, parent.getOutputDataFolder()+fileName+".yml");
+				    }
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -129,4 +147,34 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		}
 	}
 
+	
+	private boolean saveFile(final Map<String, Parameter> params, final String parameterFilePath) {
+		List<Parameter> paramsToAdd  = new ArrayList<Parameter>(params.values());
+		File parameterFile = new File(parameterFilePath);
+		List<String> fileContent = null;
+		try {
+			if (parameterFile.exists()) {
+				fileContent = new ArrayList<>(
+						Files.readAllLines(Paths.get(parameterFilePath), StandardCharsets.UTF_8)); 
+				for (int j = 0; j < fileContent.size(); j++) {
+					StringTokenizer tokens = new StringTokenizer(fileContent.get(j).trim(),":");
+					String paramName =  tokens.nextToken();
+					if (params.containsKey(paramName)) {
+						fileContent.set(j, paramName + ": " + params.get(paramName).getValue());
+						paramsToAdd.remove(params.get(paramName));
+					}
+				}
+			} else {
+				parameterFile.createNewFile();
+			}
+			for(Parameter param : paramsToAdd) {
+				fileContent.add(param.getName()+": "+ param.getValue());
+			}
+			Files.write(Paths.get(parameterFilePath), fileContent, StandardCharsets.UTF_8);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
