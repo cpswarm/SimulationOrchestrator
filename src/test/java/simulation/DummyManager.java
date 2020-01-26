@@ -81,8 +81,8 @@ public class DummyManager {
 		try {
 
 			clientJID = JidCreate.from(clientID+"@"+serverName);
-			orchestratorJID = JidCreate.from("orchestrator@" + serverName + "/"+RESOURCE);
-			optimizationToolJID = JidCreate.from("optimization_test@" + serverName + "/"+RESOURCE);
+			orchestratorJID = JidCreate.from("orchestrator_bamboo@" + serverName + "/"+RESOURCE);
+			optimizationToolJID = JidCreate.from("optimization_bamboo@" + serverName + "/"+RESOURCE);
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
 			SmackConfiguration.DEBUG = true;
@@ -333,7 +333,7 @@ public class DummyManager {
 		try {
 			System.out.println("Ready to send "+body);
 			ChatManager chatManager = ChatManager.getInstanceFor(this.getConnection());
-			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_test@"+this.serverName));
+			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_bamboo@"+this.serverName));
 			Message message = new Message();
 			message.setBody(body);
 			chat.send(message);

@@ -9,24 +9,6 @@ public class OperatorBuilder {
     @SerializedName("type")
     @Expose
     private String type;
-    @SerializedName("initialWeightRange")
-    @Expose
-    private Double initialWeightRange;
-    @SerializedName("initialBiasRange")
-    @Expose
-    private Double initialBiasRange;
-    @SerializedName("initialRandomBiasRange")
-    @Expose
-    private Double initialRandomBiasRange;
-    @SerializedName("weightRange")
-    @Expose
-    private Double weightRange;
-    @SerializedName("biasRange")
-    @Expose
-    private Double biasRange;
-    @SerializedName("randomBiasRange")
-    @Expose
-    private Double randomBiasRange;
     @SerializedName("directMutationProbability")
     @Expose
     private Double directMutationProbability;
@@ -46,54 +28,6 @@ public class OperatorBuilder {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public Double getInitialWeightRange() {
-        return initialWeightRange;
-    }
-
-    public void setInitialWeightRange(Double initialWeightRange) {
-        this.initialWeightRange = initialWeightRange;
-    }
-
-    public Double getInitialBiasRange() {
-        return initialBiasRange;
-    }
-
-    public void setInitialBiasRange(Double initialBiasRange) {
-        this.initialBiasRange = initialBiasRange;
-    }
-
-    public Double getInitialRandomBiasRange() {
-        return initialRandomBiasRange;
-    }
-
-    public void setInitialRandomBiasRange(Double initialRandomBiasRange) {
-        this.initialRandomBiasRange = initialRandomBiasRange;
-    }
-
-    public Double getWeightRange() {
-        return weightRange;
-    }
-
-    public void setWeightRange(Double weightRange) {
-        this.weightRange = weightRange;
-    }
-
-    public Double getBiasRange() {
-        return biasRange;
-    }
-
-    public void setBiasRange(Double biasRange) {
-        this.biasRange = biasRange;
-    }
-
-    public Double getRandomBiasRange() {
-        return randomBiasRange;
-    }
-
-    public void setRandomBiasRange(Double randomBiasRange) {
-        this.randomBiasRange = randomBiasRange;
     }
 
     public Double getDirectMutationProbability() {

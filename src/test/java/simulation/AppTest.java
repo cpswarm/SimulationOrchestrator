@@ -61,7 +61,6 @@ public class AppTest {
 	 * -Djavax.xml.accessExternalDTD=all (configuration for xml parsing)
 	 * 
 	 */
-	private String serverIP = System.getProperty("test_server_ip");
 	private String serverName = System.getProperty("test_server_name");
 	private String serverUsername = System.getProperty("test_server_username");
 	private String serverPassword = System.getProperty("test_server_password");
@@ -157,11 +156,11 @@ public class AppTest {
 			do {
 				Thread.sleep(1000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			Thread.sleep(10000);
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
-			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_test@"+serverName));
+			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_bamboo@"+serverName));
 			Assert.assertNotNull(entry);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
@@ -218,7 +217,7 @@ public class AppTest {
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			Thread.sleep(1000);
 			
@@ -283,7 +282,7 @@ public class AppTest {
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", 
+			DummyManager manager = new DummyManager("manager_bamboo", 
 					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
@@ -352,7 +351,7 @@ public class AppTest {
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
@@ -423,7 +422,7 @@ public class AppTest {
 			do {
 				Thread.sleep(10000);
 			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_test", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);

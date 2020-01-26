@@ -1,5 +1,19 @@
 package simulation;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -10,6 +24,11 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+
+import javax.net.ssl.SSLContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -24,18 +43,18 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
+import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
-import org.jivesoftware.smack.StanzaListener;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.roster.Roster.SubscriptionMode;
+import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -63,6 +82,8 @@ import config.deployment.Deployment;
 import config.deployment.DeploymentConfiguration;
 import config.deployment.Service;
 import config.frevo.FrevoConfiguration;
+import config.modelio.Parameter;
+import config.modelio.Parameters;
 import eu.cpswarm.optimization.messages.CancelOptimizationMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
@@ -70,8 +91,10 @@ import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.ParameterSet;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import generation.CodeGenerator;
-import generation.scxml.SCXML2RosGenerator;
+import it.links.pert.codegen.generator.CodeGenerator;
+import it.links.pert.codegen.generator.CodeGeneratorFactory;
+import it.links.pert.codegen.generator.CodeGeneratorType;
+import it.links.pert.codegen.scxml.SCXML2RosGenerator;
 import messages.server.Capabilities;
 import messages.server.Server;
 import simulation.kubernetes.KubernetesUtils;
@@ -82,26 +105,6 @@ import simulation.xmpp.MessageEventCoordinatorImpl;
 import simulation.xmpp.OchestratorFileTransferListenerImpl;
 import simulation.xmpp.PacketListenerImpl;
 import simulation.xmpp.SubscriptionHandler;
-
-import javax.net.ssl.SSLContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.SecureRandom;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 
 public class SimulationOrchestrator {
@@ -344,6 +347,7 @@ public class SimulationOrchestrator {
 				optConf.setGenerationCount(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
+				
 			}	
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
@@ -375,7 +379,23 @@ public class SimulationOrchestrator {
 				if(!configurationFolder.endsWith(File.separator)) {
 					configurationFolder+=File.separator;
 				}
-			}
+				if(opMode.equals(OP_MODE.S) && optimizationEnabled) {
+					Gson gson = new Gson();
+					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
+					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
+					List<config.frevo.Parameter> frevoParameters = new ArrayList<config.frevo.Parameter>();
+					for (Parameter param : modelledParams.getParameters()) {
+						config.frevo.Parameter frevoParaneter = new config.frevo.Parameter();
+						frevoParaneter.setName(param.getName());
+						frevoParaneter.setMetaInformation(param.getMeta());
+						frevoParaneter.setMinimum(param.getMin().intValue());
+						frevoParaneter.setMaximum(param.getMax().intValue());
+						frevoParaneter.setScale(Double.parseDouble(param.getScale()));
+						frevoParameters.add(frevoParaneter);
+					}
+					optConf.getRepresentationBuilder().setParameters(frevoParameters);
+				}
+			} 
 			if(!new File(inputDataFolder).isDirectory()) {
 				System.out.println("src must be a folder");
 				return;
@@ -795,13 +815,18 @@ public class SimulationOrchestrator {
     
     
     private void generateCode() {
+    	//Create map for Code Generator options
+    	Map<String, String> options = new HashMap<String, String>();
+    	options.put("scxmlPath", this.scxmlPath);
+		options.put("adfPath", this.adfPath);
+		options.put("mode", "simulation");
     	CodeGenerator cg = null;
     	switch(this.simulationEnv) {
     	case "ROS":
-    		cg = new SCXML2RosGenerator(this.scxmlPath, this.outputDataFolder);
+    		cg = CodeGeneratorFactory.getInstance(CodeGeneratorType.SCXML2ROS, this.outputDataFolder, options);
     		break;
     	default:
-    		cg = new SCXML2RosGenerator(this.scxmlPath, this.outputDataFolder);
+    		cg = CodeGeneratorFactory.getInstance(CodeGeneratorType.SCXML2ROS, this.outputDataFolder, options);
     	}
     	if(cg.generate()) {
     		System.out.print("Code Generated in: "+this.outputDataFolder);

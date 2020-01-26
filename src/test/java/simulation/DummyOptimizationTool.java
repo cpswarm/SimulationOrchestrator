@@ -90,7 +90,7 @@ public class DummyOptimizationTool {
 		}
 		try {
 			clientJID = JidCreate.from(clientID+"@"+serverName+"/"+RESOURCE);
-			orchestratorJid = JidCreate.from("orchestrator@"+serverName+"/"+RESOURCE);
+			orchestratorJid = JidCreate.from("orchestrator_bamboo@"+serverName+"/"+RESOURCE);
 		} catch (final Exception me) {
 			System.out.println("msg "+me.getMessage());
 			System.out.println("loc "+me.getLocalizedMessage());

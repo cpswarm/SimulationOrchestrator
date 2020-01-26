@@ -2,29 +2,43 @@
     "simulationTimeoutSeconds": 120,
     "evolutionSeed": 0,
     "evaluationSeed": 0,
-    "generationCount": 100,
-    "candidateCount": 100,
+    "generationCount": 10,
+    "candidateCount": 10,
     "problemBuilder": {
-        "representationInputCount": 6,
-        "representationOutputCount": 2,
+        "representationInputCount": 0,
+        "representationOutputCount": 3,
         "maximumFitness": 100.0
     },
     "representationBuilder": {
-        "type": "FullyMeshedNetBuilder",
-        "activationFunction": "RELU",
-        "hiddenNodeCount": 2,
-        "iterationCount": 2,
+        "type": "ParameterSetBuilder",
+        "parameters": [
+            {
+                "name": "step_size",
+                "metaInformation": "file:ugv_random_walk",
+                "minimum": 2,
+                "maximum": 10,
+                "scale": 1
+            },
+            {
+                "name": "scout_count",
+                "metaInformation": "command_line",
+                "minimum": 1,
+                "maximum": 2,
+                "scale": 1
+            },
+            {
+                "name": "worker_count",
+                "metaInformation": "command_line",
+                "minimum": 1,
+                "maximum": 4,
+                "scale": 1
+            }
+        ],
         "inputCount": 0,
         "outputCount": 0
     },
     "operatorBuilder": {
-        "type": "FullyMeshedNetOpBuilder",
-        "initialWeightRange": 2.0,
-        "initialBiasRange": 2.0,
-        "initialRandomBiasRange": 0.0,
-        "weightRange": 10.0,
-        "biasRange": 10.0,
-        "randomBiasRange": 10.0,
+        "type": "ParameterSetOpBuilder",
         "directMutationProbability": 0.2,
         "directMutationSeverity": 0.1,
         "proportionalMutationProbability": 0.1,
@@ -33,11 +47,11 @@
     "methodBuilder": {
         "type": "NngaMethodBuilder",
         "skewFactor": 1.0,
-        "eliteWeight": 0.2,
+        "eliteWeight": 0.4,
         "randomWeight": 0.2,
         "mutatedWeight": 0.2,
         "crossedWeight": 0.2,
-        "newWeight": 0.2
+        "newWeight": 0.05
     },
     "executorBuilder": {
         "type": "PoolExecutorBuilder",

@@ -1,8 +1,19 @@
 package simulation.xmpp;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
@@ -13,6 +24,8 @@ import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.OptimizationToolConfiguredMessage;
+import eu.cpswarm.optimization.messages.Parameter;
+import eu.cpswarm.optimization.messages.ParameterSet;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -112,9 +125,40 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	
 	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
 		parent.stopGetOptimizationStateSender();
-		System.out.println("Result of the current optimization: "+reply.getOId());
-		System.out.println("Best fitness value: "+reply.getBestFitnessValue());
-		System.out.println("Best candidate: "+reply.getBestController() );		
+		System.out.println("Optimization "+reply.getOId()+ ", progress:" + reply.getProgress() + "%, fitness value: "+reply.getBestFitnessValue());
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		System.out.println("Final candidate: "+reply.getBestController()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
+		parent.setSimulationDone(true);
+		// The final candidate contains the optimized values for the parameters
+		// and has to be saved in the output folder of the launcher to be used as result
+		// to be passed to the deployment tool
+		BufferedWriter writer;
+		try {
+			writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"candidate.json"));
+			Gson gson = new Gson();
+			ParameterSet set = gson.fromJson(reply.getBestController(), ParameterSet.class);
+			writer.write(gson.toJson(reply.getBestController()));
+			writer.close();
+			Map<String, Parameter> params = new HashMap<String,Parameter>();
+			for (Parameter param : set.getParameters()) {
+				if(param.getMeta().startsWith("file")) {
+					params.put(param.getName(),param);
+				}
+			}
+			if(!params.isEmpty()) {
+				// Check the name of the file where to save values 
+				// currently only one file per time is supported
+				// the values must be saved in one only file
+				List<Parameter> list = new ArrayList<Parameter>(params.values());
+				StringTokenizer tokens = new StringTokenizer(list.get(0).getMeta(),":");
+				tokens.nextToken();
+				String fileName = tokens.nextToken();
+				// Save the file
+				saveFile(params, parent.getOutputDataFolder()+fileName+".yml");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
 		parent.setSimulationDone(true);  // after a single simulation, SM will automatically send a SimulationResult=100 with success=true
 		parent.setOptimizationId(null);
 	}
@@ -167,4 +211,34 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		}
 	}
 
+	
+	private boolean saveFile(final Map<String, Parameter> params, final String parameterFilePath) {
+		List<Parameter> paramsToAdd  = new ArrayList<Parameter>(params.values());
+		File parameterFile = new File(parameterFilePath);
+		List<String> fileContent = null;
+		try {
+			if (parameterFile.exists()) {
+				fileContent = new ArrayList<>(
+						Files.readAllLines(Paths.get(parameterFilePath), StandardCharsets.UTF_8)); 
+				for (int j = 0; j < fileContent.size(); j++) {
+					StringTokenizer tokens = new StringTokenizer(fileContent.get(j).trim(),":");
+					String paramName =  tokens.nextToken();
+					if (params.containsKey(paramName)) {
+						fileContent.set(j, paramName + ": " + params.get(paramName).getValue());
+						paramsToAdd.remove(params.get(paramName));
+					}
+				}
+			} else {
+				parameterFile.createNewFile();
+			}
+			for(Parameter param : paramsToAdd) {
+				fileContent.add(param.getName()+": "+ param.getValue());
+			}
+			Files.write(Paths.get(parameterFilePath), fileContent, StandardCharsets.UTF_8);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

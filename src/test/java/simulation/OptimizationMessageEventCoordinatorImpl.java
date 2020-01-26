@@ -1,7 +1,5 @@
 package simulation;
 
-import java.util.UUID;
-
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
@@ -22,7 +20,6 @@ import eu.cpswarm.optimization.messages.OptimizationStatusMessage.Status;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
-import eu.cpswarm.optimization.messages.Parameter;
 import eu.cpswarm.optimization.messages.ParameterSet;
 
 
@@ -46,12 +43,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		Message message = new Message();
 		MessageSerializer serializer = new MessageSerializer();
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
-		ParameterSet parameters = new ParameterSet();
-		Parameter parameter = new Parameter("test", "test", 2);
-		parameters.getParameters().add(parameter);
+		Gson gson = new Gson();
+		ParameterSet parameters = gson.fromJson("src/main/resources/candidate.json", ParameterSet.class); 
 		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
-		if( parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
+		if(parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
 					|| parent.getOptimizationID().equals(msgReceived.getOId())) {
 			if(msgReceived instanceof SimulationResultMessage) {
 				SimulationResultMessage result = (SimulationResultMessage) msgReceived;
@@ -79,8 +75,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, parameters.toString(), "type");
 					try {
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());
-						Gson gson = new Gson();						
+						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());						
 						chat.send(gson.toJson(runSimulation));
 					} catch (NullPointerException | NotConnectedException | InterruptedException e) {
 						e.printStackTrace();
@@ -115,7 +110,6 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, parameters.toString(), "type");
 					ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 					chat = chatManager.chatWith(manager.asEntityBareJid());
-					Gson gson = new Gson();
 					try {
 						chat.send(gson.toJson(runSimulation));
 					} catch (NotConnectedException | InterruptedException e) {
@@ -164,18 +158,16 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 	 */
 	public void setStopOptimization(boolean stop) {
 		this.stopOptimzation = stop;
-		ParameterSet parameters = new ParameterSet();
-		Parameter parameter = new Parameter("test", "test", 2);
-		parameters.getParameters().add(parameter);
 		System.out.println("\n set the last stop candidate\n");
 		//It sends a run simulation message to restart the optimization if it has been stopped
 		int newSID = new Integer(parent.getSimulationID()).intValue()+1;
 		String newSimulationID = String.valueOf(newSID);
+		Gson gson = new Gson();
+		ParameterSet parameters = gson.fromJson("src/main/resources/candidate.json", ParameterSet.class);
 		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, parameters.toString() ,"type");
 		try {
 			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_test@"+parent.getServerName()));
-			Gson gson = new Gson();						
+			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_bamboo@"+parent.getServerName()));				
 			chat.send(gson.toJson(runSimulation));
 		} catch (NullPointerException | NotConnectedException | InterruptedException | XmppStringprepException e) {
 			e.printStackTrace();
