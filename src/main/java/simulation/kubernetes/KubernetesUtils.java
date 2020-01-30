@@ -18,6 +18,8 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.PodSecurityContext;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.api.model.SecurityContext;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpec;
@@ -98,6 +100,38 @@ public final class KubernetesUtils {
 			container.setSecurityContext(secContext);
 			if(c.getArgs()!=null) {
 				container.setArgs(c.getArgs());
+			}
+			if(c.getResources()!=null) {
+				ResourceRequirements resources = new ResourceRequirements();
+				if(c.getResources().getRequests()!=null) {
+					Map<String, Quantity> requests = new HashMap<String, Quantity>();
+					if(c.getResources().getRequests().getCpu()!=null) {
+						Quantity quantity = new Quantity();
+						quantity.setAmount(c.getResources().getRequests().getCpu().toString());
+						requests.put("cpu", quantity);
+					}
+					if(c.getResources().getRequests().getMemory()!=null) {
+						Quantity quantity = new Quantity();
+						quantity.setAmount(c.getResources().getRequests().getMemory().toString());
+						requests.put("memory", quantity);
+					}
+					resources.setRequests(requests);
+				}
+				if(c.getResources().getLimits()!=null) {
+					Map<String, Quantity> limits = new HashMap<String, Quantity>();
+					if(c.getResources().getLimits().getCpu()!=null) {
+						Quantity quantity = new Quantity();
+						quantity.setAmount(c.getResources().getLimits().getCpu().toString());
+						limits.put("cpu", quantity);
+					}
+					if(c.getResources().getRequests().getMemory()!=null) {
+						Quantity quantity = new Quantity();
+						quantity.setAmount(c.getResources().getLimits().getMemory().toString());
+						limits.put("memory", quantity);
+					}
+					resources.setLimits(limits);
+				}
+				container.setResources(resources);
 			}
 			containersList.add(container);
 		}

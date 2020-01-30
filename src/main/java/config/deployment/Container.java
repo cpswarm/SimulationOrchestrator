@@ -45,6 +45,16 @@ public class Container {
     @Expose
     private List<String> args = null;
     /**
+     * The resources Schema
+     * <p>
+     * 
+     * (Not Required)
+     * 
+     */
+    @SerializedName("resources")
+    @Expose
+    private Resources resources;
+    /**
      * The Stdin Schema
      * <p>
      * 
@@ -121,6 +131,29 @@ public class Container {
         this.args = args;
     }
 
+    /**
+     * The Resources Schema
+     * <p>
+     * 
+     * (Not Required)
+     * 
+     */    
+    public Resources getResources() {
+        return resources;
+    }
+
+    /**
+     * The Resources Schema
+     * <p>
+     * 
+     * (Not Required)
+     * 
+     */
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+
+    
     /**
      * The Stdin Schema
      * <p>
