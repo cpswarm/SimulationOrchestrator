@@ -58,13 +58,23 @@ public class Container {
      * The Stdin Schema
      * <p>
      * 
-     * (Required)
+     * (Not Required)
      * 
      */
     @SerializedName("stdin")
     @Expose
     private String stdin = "";
-
+    /**
+     * The Stdin Schema
+     * <p>
+     * 
+     * (Not Required)
+     * 
+     */    
+    @SerializedName("env")
+    @Expose
+    private List<Env> env = null;
+    
     /**
      * The Name Schema
      * <p>
@@ -169,11 +179,32 @@ public class Container {
      * The Stdin Schema
      * <p>
      * 
-     * (Required)
+     * (Not Required)
      * 
      */
     public void setStdin(String stdin) {
         this.stdin = stdin;
     }
 
+    /**
+     * The Env Schema
+     * <p>
+     * 
+     * (Not Required)
+     * 
+     */
+    public List<Env> getEnv() {
+        return env;
+    }
+
+    /**
+     * The Env Schema
+     * <p>
+     * 
+     * (Not Required)
+     * 
+     */
+    public void setEnv(List<Env> env) {
+        this.env = env;
+    }
 }

@@ -10,8 +10,10 @@ import com.google.gson.Gson;
 
 import config.deployment.Container;
 import config.deployment.Deployment;
+import config.deployment.Env;
 import config.deployment.Port;
 import config.deployment.Service;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -100,6 +102,14 @@ public final class KubernetesUtils {
 			container.setSecurityContext(secContext);
 			if(c.getArgs()!=null) {
 				container.setArgs(c.getArgs());
+			}
+			if(c.getEnv()!=null) {
+				for (Env env : c.getEnv()) {
+					EnvVar var = new EnvVar();
+					var.setName(env.getName());
+					var.setValue(env.getValue());
+					container.getEnv().add(var);
+				}
 			}
 			if(c.getResources()!=null) {
 				ResourceRequirements resources = new ResourceRequirements();
