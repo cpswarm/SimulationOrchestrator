@@ -22,10 +22,10 @@ import com.google.gson.Gson;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
+import eu.cpswarm.optimization.parameters.Parameter;
+import eu.cpswarm.optimization.statuses.OptimizationStatusType;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.OptimizationToolConfiguredMessage;
-import eu.cpswarm.optimization.messages.Parameter;
-import eu.cpswarm.optimization.messages.ParameterSet;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -53,7 +53,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			// Check if it is a simple simulation or if it is an optimization
 			// if the ID is the one set for the current optimization
 			if (parent.getOptimizationId()==null 
-					|| message.getOId().equals(parent.getOptimizationId())) {
+					|| message.getOptimizationId().equals(parent.getOptimizationId())) {
 				if (sender.toString().startsWith("manager")) {
 					if (message instanceof SimulatorConfiguredMessage) {
 						System.out.println("Received configuration ACK="
@@ -79,7 +79,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 	
 	private void handleOptimizationStatusMessage(OptimizationStatusMessage optimizationStatus, MessageSerializer serializer) {
-		switch(optimizationStatus.getOperationStatus()) {
+		switch(optimizationStatus.getStatusType()) {
 		case STARTED:
 			handleOptimizationStarted(optimizationStatus);
 			break;
@@ -106,7 +106,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
-		if(reply.getOperationStatus().equals(OptimizationStatusMessage.Status.CANCELLED)) {
+		if(reply.getStatusType().equals(OptimizationStatusType.CANCELLED)) {
 			parent.stopGetOptimizationStateSender();
 			if(parent.getOptimizationId()!=null) {  // If COMPLETED or CANCELLED, OID=null
 				parent.setOptimizationId(null);
@@ -115,19 +115,19 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(parent.isStateSenderSuspend()) {
 				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
 			}
-			System.out.println("Status of the current optimization: " + reply.getOId());
+			System.out.println("Status of the current optimization: " + reply.getOptimizationId());
 			System.out.println("Current progress: " + reply.getProgress() + "%");
-			System.out.println("Current status: " + reply.getOperationStatus());
+			System.out.println("Current status: " + reply.getStatusType());
 			System.out.println("Current best fitness value: " + reply.getBestFitnessValue());
-			System.out.println("Current best candidate: " + reply.getBestController());
+			System.out.println("Current best candidate: " + reply.getBestParameterSet().toString());
 		}
 	}
 	
 	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
 		parent.stopGetOptimizationStateSender();
-		System.out.println("Optimization "+reply.getOId()+ ", progress:" + reply.getProgress() + "%, fitness value: "+reply.getBestFitnessValue());
+		System.out.println("Optimization "+reply.getOptimizationId()+ ", progress:" + reply.getProgress() + "%, fitness value: "+reply.getBestFitnessValue());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		System.out.println("Final candidate: "+reply.getBestController()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
+		System.out.println("Final candidate: "+reply.getBestParameterSet().toString()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 		parent.setSimulationDone(true);
 		// The final candidate contains the optimized values for the parameters
 		// and has to be saved in the output folder of the launcher to be used as result
@@ -136,11 +136,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		try {
 			writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"candidate.json"));
 			Gson gson = new Gson();
-			ParameterSet set = gson.fromJson(reply.getBestController(), ParameterSet.class);
-			writer.write(gson.toJson(reply.getBestController()));
+			writer.write(gson.toJson(reply.getBestParameterSet()));
 			writer.close();
 			Map<String, Parameter> params = new HashMap<String,Parameter>();
-			for (Parameter param : set.getParameters()) {
+			for (Parameter param : reply.getBestParameterSet().getParameters()) {
 				if(param.getMeta().startsWith("file")) {
 					params.put(param.getName(),param);
 				}

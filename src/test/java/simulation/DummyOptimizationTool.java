@@ -30,9 +30,6 @@ import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.iqregister.AccountManager;
-import org.jivesoftware.smackx.pubsub.Item;
-import org.jivesoftware.smackx.pubsub.LeafNode;
-import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
@@ -40,9 +37,7 @@ import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 
-import com.google.gson.Gson;
-
-import messages.server.Server;
+import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 
 import javax.net.ssl.SSLContext;
 
@@ -55,7 +50,7 @@ import java.security.SecureRandom;
 public class DummyOptimizationTool {
 	private static final String RESOURCE = "cpswarm";
 	private XMPPTCPConnection connection;
-	private Server server;
+	private SimulationManagerStatus status;
 	private boolean available = true;
 	private boolean started = false;
 	private boolean optimizationError = true;
@@ -362,8 +357,8 @@ public class DummyOptimizationTool {
 	}
 	
 		
-	public void setServerInfo(Server serverInfo) {
-		server = serverInfo;
+	public void setSimulationManagerInfo(SimulationManagerStatus serverInfo) {
+		status = serverInfo;
 	}
 	
 	public boolean isAvailable() {
@@ -410,20 +405,6 @@ public class DummyOptimizationTool {
 		}
 	}
 	
-	public boolean publishServer(String simulationHash) {
-		try {
-			Gson gson = new Gson();
-			String serverString = gson.toJson(server, Server.class); 
-			PubSubManager manager = PubSubManager.getInstance(connection);
-        	LeafNode node = manager.getLeafNode("server");
-        	node.publish(new Item(serverString));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	};
-
 	public boolean isStarted() {
 		return started;
 	}
@@ -458,8 +439,8 @@ public class DummyOptimizationTool {
 		return this.otDataFolder;
 	}
 
-	public Server getServer() {
-		return server;
+	public SimulationManagerStatus getSatus() {
+		return status;
 	};
 	
 	public XMPPTCPConnection getConnection() {

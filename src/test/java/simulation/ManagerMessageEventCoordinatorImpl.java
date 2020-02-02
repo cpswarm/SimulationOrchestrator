@@ -27,14 +27,14 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 		RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
 		if(sender.toString().startsWith("optimization")) {
 			System.out.println("SimulationManager received "+msg.getBody());
-			parent.setOptimizationID(runSimulation.getOId());
-			parent.setSimulationId(runSimulation.getSid());
+			parent.setOptimizationID(runSimulation.getOptimizationId());
+			parent.setSimulationId(runSimulation.getSimulationId());
 			if(parent.isOptimizationToolAvailable()) {     // in case OT is offline during simulation
 				parent.publishFitness(100.0);
 			}
 		} else if(sender.toString().startsWith("orchestrator")) {   /* for single sim, OID = null */
 			if (parent.isOrchestratorAvailable()) {
-				SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, runSimulation.getSid(), 100);
+				SimulationResultMessage message = new SimulationResultMessage(parent.getOptimizationId(), true, runSimulation.getSimulationId(), 100);
 				Message messageToSend = new Message();
 				messageToSend.setBody(serializer.toJson(message));
 				try {

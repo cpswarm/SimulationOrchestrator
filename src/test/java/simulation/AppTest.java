@@ -18,13 +18,13 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
 import config.frevo.FrevoConfiguration;
+import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import messages.server.Server;
 
 /**
  * Unit test for the Simulation and Optimization Orchestrator and its interaction with the other components of the Simulation and Optimization Environment.
@@ -74,7 +74,7 @@ public class AppTest {
 	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
 	private String parameters = System.getProperty("parameters");
 	private String dimensions = System.getProperty("dimensions");
-	private Long maxAgents = Long.valueOf(System.getProperty("max_agents"));
+	private int maxAgents = Integer.parseInt(System.getProperty("max_agents"));
 	private String configurationFolder = System.getProperty("conf_folder");
 	private Boolean localOptimization = Boolean.parseBoolean(System.getProperty("local_optimization"));
 	private String optimizationToolPath = System.getProperty("optimzation_tool_path");
@@ -177,15 +177,15 @@ public class AppTest {
 			System.out.println("--------------------Starting the testRunSimulation test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
-			Server server = gson.fromJson("{\r\n" + 
-					   "	\"server\": 1,\r\n" + 
+			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", Server.class);
-			Assert.assertNotNull(server);
+					   "}\r\n", SimulationManagerStatus.class);
+			Assert.assertNotNull(status);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
@@ -221,7 +221,7 @@ public class AppTest {
 			Assert.assertNotNull(manager);
 			Thread.sleep(1000);
 			
-			orchestrator.evaluateSimulationManagers(server);
+			orchestrator.evaluateSimulationManagers(status);
 			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
@@ -243,14 +243,14 @@ public class AppTest {
 			System.out.println("--------------------Starting the testRunOptimization test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
-			Server server = gson.fromJson("{\r\n" + 
-					   "	\"server\": 1,\r\n" + 
+			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", Server.class);
+					   "}\r\n", SimulationManagerStatus.class);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
@@ -289,7 +289,7 @@ public class AppTest {
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(server);
+			orchestrator.evaluateSimulationManagers(status);
 			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
 				Thread.sleep(1000);
 			}
@@ -312,14 +312,14 @@ public class AppTest {
 			System.out.println("--------------------Starting the testOptimizationToolRecovery1 test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
-			Server server = gson.fromJson("{\r\n" + 
-					   "	\"server\": 1,\r\n" + 
+			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", Server.class);
+					   "}\r\n", SimulationManagerStatus.class);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
@@ -357,7 +357,7 @@ public class AppTest {
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(server);
+			orchestrator.evaluateSimulationManagers(status);
 			Thread.sleep(15000);
 			optimizationTool.disconnect(false);  // immediately stop optimization after connection recovery
 			Thread.sleep(10000);
@@ -383,14 +383,14 @@ public class AppTest {
 			System.out.println("--------------------Starting the testOptimizationToolRecovery2 test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
-			Server server = gson.fromJson("{\r\n" + 
-					   "	\"server\": 1,\r\n" + 
+			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", Server.class);
+					   "}\r\n", SimulationManagerStatus.class);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
@@ -428,7 +428,7 @@ public class AppTest {
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(1000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(server);
+			orchestrator.evaluateSimulationManagers(status);
 			Thread.sleep(15000);
 			optimizationTool.disconnect(true);
 			Thread.sleep(10000);

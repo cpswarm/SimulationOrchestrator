@@ -27,20 +27,15 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
-import org.jivesoftware.smackx.pubsub.Item;
-import org.jivesoftware.smackx.pubsub.LeafNode;
-import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 
-import com.google.gson.Gson;
-
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
-import messages.server.Server;
+import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 
 import javax.net.ssl.SSLContext;
 
@@ -53,7 +48,7 @@ import java.security.SecureRandom;
 public class DummyManager {
 	private static final String RESOURCE = "cpswarm";
 	private XMPPTCPConnection connection;
-	private Server server;
+	private SimulationManagerStatus status;
 	private boolean available = true;
 	private boolean started = false;
 	private boolean optimizationToolAvailable = false;
@@ -299,8 +294,8 @@ public class DummyManager {
 	}
 	
 		
-	public void setServerInfo(Server serverInfo) {
-		server = serverInfo;
+	public void setServerInfo(SimulationManagerStatus statusInfo) {
+		status = statusInfo;
 	}
 	
 	public boolean isAvailable() {
@@ -311,21 +306,7 @@ public class DummyManager {
 		this.available = availalble;
 	}
 	
-		
-	public boolean publishServer(String simulationHash) {
-		try {
-			Gson gson = new Gson();
-			String serverString = gson.toJson(server, Server.class); 
-			PubSubManager manager = PubSubManager.getInstance(connection);
-        	LeafNode node = manager.getLeafNode("server");
-        	node.publish(new Item(serverString));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	};
-	
+			
 	public boolean publishFitness(final Double value) {
 		SimulationResultMessage result =  new SimulationResultMessage(optimizationId, true, simulationId, value.doubleValue());
 		MessageSerializer serializer = new MessageSerializer();
@@ -368,8 +349,8 @@ public class DummyManager {
 		this.SCID = SCID;
 	}
 
-	public Server getServer() {
-		return server;
+	public SimulationManagerStatus getStatus() {
+		return status;
 	};
 	
 	public XMPPTCPConnection getConnection() {

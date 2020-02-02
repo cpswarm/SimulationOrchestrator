@@ -14,17 +14,11 @@ import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
 import org.jxmpp.jid.BareJid;
 
-import com.google.gson.Gson;
-
-import messages.server.Server;
-
 /**
  * Packet listener to be used in the {@link XMPPClient} to receive presences
  *
  */
 public class OptimizationPresencePacketListener implements StanzaListener {
-	private static final int TIME_TO_WAIT = 10000;
-
 	private DummyOptimizationTool optimizationTool = null;
 
 	private final Class<? extends ManagerMessageEventCoordinatorImpl> clazz;
@@ -208,7 +202,6 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 			final String jid) {
 		assert presence != null;
 		assert jid != null;
-		Gson gson = new Gson();
 		// If the bundle has gone away, it is removed from
 		// the list of the available bundles
 		if (presence.getMode() == Presence.Mode.away) {

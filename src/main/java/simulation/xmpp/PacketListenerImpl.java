@@ -1,8 +1,5 @@
 package simulation.xmpp;
 
-import org.jivesoftware.smack.SmackException.NoResponseException;
-import org.jivesoftware.smack.SmackException.NotConnectedException;
-import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
@@ -12,7 +9,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import messages.server.Server;
+import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import simulation.SimulationOrchestrator;
 
 
@@ -63,7 +60,7 @@ public class PacketListenerImpl implements StanzaListener {
 				try {
 					if(presence.getFrom().toString().startsWith("manager")) {
 						System.out.println("Adding Manager "+presence.getFrom().toString()+" to the list of the ones available");
-						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), Server.class));	
+						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), SimulationManagerStatus.class));	
 					} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 						// if optimization was ever started(OID!=null), but OT was offline and online again, SOO sends getOptimizationStatus in OT error handling workflow
 						parent.sendGetOptimizationStatus();

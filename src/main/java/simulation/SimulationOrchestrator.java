@@ -88,15 +88,14 @@ import eu.cpswarm.optimization.messages.CancelOptimizationMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
-import eu.cpswarm.optimization.messages.ParameterSet;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
+import eu.cpswarm.optimization.parameters.ParameterSet;
+import eu.cpswarm.optimization.statuses.SimulationManagerCapabilities;
+import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import it.links.pert.codegen.generator.CodeGenerator;
 import it.links.pert.codegen.generator.CodeGeneratorFactory;
 import it.links.pert.codegen.generator.CodeGeneratorType;
-import it.links.pert.codegen.scxml.SCXML2RosGenerator;
-import messages.server.Capabilities;
-import messages.server.Server;
 import simulation.kubernetes.KubernetesUtils;
 import simulation.tools.ChoiceOption;
 import simulation.tools.Zipper;
@@ -118,7 +117,7 @@ public class SimulationOrchestrator {
 	private ConnectionListenerImpl connectionListener;
 	//private RosterListener rosterListener;
 	private String serverName = null;
-	private Map<EntityBareJid, Server> simulationManagers = null;
+	private Map<EntityBareJid, SimulationManagerStatus> simulationManagers = null;
 	private String inputDataFolder = null;
 	private String outputDataFolder = null;
 	private int managerConfigured = 0;
@@ -135,7 +134,7 @@ public class SimulationOrchestrator {
 	// TODO receive these configurations from the Launcher
 	private FrevoConfiguration optimizationConfiguration = null;
 	private String simulationConfiguration = null;
-	private Server server;
+	private SimulationManagerStatus simulationManagerStatusRequired;
 	private String scid;
 	private String serverUsername = "";
 	private String serverPassword = "";
@@ -172,7 +171,6 @@ public class SimulationOrchestrator {
 	
 	}
 		
-	private OP_MODE opMode;
 	
 	public static void main (String args[]) {
 		TEST = false;
@@ -191,7 +189,7 @@ public class SimulationOrchestrator {
 		String scxml = "";
 		String adfFile = "";
 		String envSim = "";
-		Long maxAgents = null;
+		int maxAgents = 0;
 		Boolean guiEnabled = false;
 		Boolean recovery = null;
 		Boolean optimizationEnabled = false;
@@ -304,7 +302,7 @@ public class SimulationOrchestrator {
 				}
 				dimensions = cmd.getOptionValue("dim");
 
-				maxAgents = Long.parseLong(cmd.getOptionValue("max"));
+				maxAgents = Integer.parseInt(cmd.getOptionValue("max"));
 
 				optimizationEnabled = cmd.hasOption("opt");
 
@@ -489,7 +487,7 @@ public class SimulationOrchestrator {
 									final Boolean guiEnabled, 
 									final String parameters, 
 									final String dimensions, 
-									final Long maxAgents, 
+									final int maxAgents, 
 									final Boolean optimization,
 									final String configurationFolder, 
 									final Boolean localOptimization,  
@@ -503,14 +501,13 @@ public class SimulationOrchestrator {
 									final String scxml,
 									final String adf,
 									final String env) {
-		this.opMode = opMode;
 		this.scid = scid;
 		this.serverName = serverName;
 		this.inputDataFolder = inputDataFolder;
 		this.outputDataFolder = outputDataFolder;
 		this.serverUsername = serverUsername;
 		this.serverPassword = serverPassword;
-		this.simulationManagers = new HashMap<EntityBareJid, Server>();		
+		this.simulationManagers = new HashMap<EntityBareJid, SimulationManagerStatus>();		
 		this.recovery = recovery;
 		this.simulationConfiguration = "gui:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
@@ -522,18 +519,31 @@ public class SimulationOrchestrator {
 		this.scxmlPath = scxml;
 		this.adfPath = adf;
 		this.simulationEnv = env;
+		int dims = 0;
+		switch(dimensions.toUpperCase()) {
+		case "ANY" : {
+			dims = 1;
+			break;
+		}
+		case "2D":
+		{	
+			dims = 2;
+			break;
+		}
+		case "3D": {
+			dims = 3;
+			break;
+		}
+		}
+
 		// If the SOO is run in Generation mode, it doesn't need to connect to the server, 
 		// since it doesn't need the distributed simulation managers
-		if(opMode.equals(opMode.G)) {
+		if(opMode.equals(OP_MODE.G)) {
 			this.generateCode();
 		}
 		
-		server = new Server();
-		server.setServer("Orchestrator");
-		Capabilities caps = new Capabilities();
-		caps.setDimensions(dimensions);
-		caps.setMaxAgents(maxAgents);
-		server.setCapabilities(caps);
+		SimulationManagerCapabilities caps = new SimulationManagerCapabilities(dims, maxAgents);
+		simulationManagerStatusRequired = new SimulationManagerStatus(this.scid, "id", caps);
 		try {
 			if(this.optimizationEnabled && localOptimization) {
 				String optimizationToolParameters = "-n "+ this.serverName + " -ip " + serverIP + " -p 5222 -r "+RESOURCE +" -cid "+optimizationToolUser+ " -cp "+optimizationToolPassword + " -c "+this.outputDataFolder+"candidate";
@@ -667,11 +677,11 @@ public class SimulationOrchestrator {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    	this.evaluateSimulationManagers(server);
+    	this.evaluateSimulationManagers(simulationManagerStatusRequired);
     }
     
     
-    public void evaluateSimulationManagers(Server serverCompare) {
+    public void evaluateSimulationManagers(SimulationManagerStatus statusCompare) {
     	this.managerConfigured=0;
     	this.configurationAttempts=0;
     	if(availableManagers!=null) {
@@ -702,8 +712,8 @@ public class SimulationOrchestrator {
     	}
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && 
-    				simulationManagers.get(account).compareTo(serverCompare)>0 &&
-    				StringUtils.isEmpty(simulationManagers.get(account).getSCID())) { //"" or null
+    				simulationManagers.get(account).compareTo(statusCompare)>0 &&
+    				StringUtils.isEmpty(simulationManagers.get(account).getSimulationConfigurationId())) { //"" or null
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected
@@ -1121,7 +1131,7 @@ public class SimulationOrchestrator {
 		//FIXME the message is not correct   /* >>>>>>>>>>>in case of single simulation, OID = null */
 		Gson gson = new Gson();
 		ParameterSet parameters = gson.fromJson(candidateToSend, ParameterSet.class);
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", parameters.toString(), "type");
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", parameters);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
@@ -1140,7 +1150,6 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendCancelOptimizationMessage() {
-		Gson gson = new Gson();
 		CancelOptimizationMessage cancel = new CancelOptimizationMessage(this.optimizationId);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(cancel);
@@ -1163,9 +1172,9 @@ public class SimulationOrchestrator {
 		return connection;
 	}
 	
-	public synchronized void putSimulationManager(EntityBareJid jid, Server server) {
+	public synchronized void putSimulationManager(EntityBareJid jid, SimulationManagerStatus status) {
 		System.out.println("Adding "+ jid.toString() +" to "+ Arrays.toString(simulationManagers.keySet().toArray()));
-		simulationManagers.put(jid,server);
+		simulationManagers.put(jid,status);
 		System.out.println("Available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
 	}	
 
