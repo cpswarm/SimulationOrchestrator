@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
+import eu.cpswarm.optimization.statuses.StatusSerializer;
 import simulation.SimulationOrchestrator;
 
 
@@ -54,13 +55,13 @@ public class PacketListenerImpl implements StanzaListener {
 			}
 		} else {
 			if(presence.isAvailable()) {
-				Gson gson = new Gson();
 				System.out.println(
 						"presence received from " + presence.getFrom()+ ", status: "+presence.getStatus());
 				try {
 					if(presence.getFrom().toString().startsWith("manager")) {
 						System.out.println("Adding Manager "+presence.getFrom().toString()+" to the list of the ones available");
-						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), gson.fromJson(presence.getStatus(), SimulationManagerStatus.class));	
+						StatusSerializer serializer = new StatusSerializer();
+						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), serializer.fromJson(presence.getStatus()));	
 					} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 						// if optimization was ever started(OID!=null), but OT was offline and online again, SOO sends getOptimizationStatus in OT error handling workflow
 						parent.sendGetOptimizationStatus();

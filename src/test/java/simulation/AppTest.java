@@ -19,6 +19,7 @@ import com.google.gson.stream.JsonReader;
 
 import config.frevo.FrevoConfiguration;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
+import eu.cpswarm.optimization.statuses.StatusSerializer;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
 import io.fabric8.kubernetes.client.Config;
@@ -177,14 +178,15 @@ public class AppTest {
 			System.out.println("--------------------Starting the testRunSimulation test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
-			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
 					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", SimulationManagerStatus.class);
+					   "}\r\n");
 			Assert.assertNotNull(status);
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
@@ -242,15 +244,15 @@ public class AppTest {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testRunOptimization test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			Gson gson = new Gson();
-			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
 					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", SimulationManagerStatus.class);
+					   "}\r\n");
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
@@ -312,14 +314,15 @@ public class AppTest {
 			System.out.println("--------------------Starting the testOptimizationToolRecovery1 test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
-			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
 					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", SimulationManagerStatus.class);
+					   "}\r\n");
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 
@@ -382,15 +385,15 @@ public class AppTest {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			System.out.println("--------------------Starting the testOptimizationToolRecovery2 test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
-			Gson gson = new Gson();
-			SimulationManagerStatus status = gson.fromJson("{\r\n" + 
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
 					   "	\"SID\": 1,\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
 					   "	}\r\n" + 
-					   "}\r\n", SimulationManagerStatus.class);
+					   "}\r\n");
 			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
 																			serverIPAddress, 
 																			serverName, 

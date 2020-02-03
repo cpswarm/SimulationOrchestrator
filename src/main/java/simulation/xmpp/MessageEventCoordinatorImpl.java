@@ -128,7 +128,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		System.out.println("Optimization "+reply.getOptimizationId()+ ", progress:" + reply.getProgress() + "%, fitness value: "+reply.getBestFitnessValue());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		System.out.println("Final candidate: "+reply.getBestParameterSet().toString()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
-		parent.setSimulationDone(true);
 		// The final candidate contains the optimized values for the parameters
 		// and has to be saved in the output folder of the launcher to be used as result
 		// to be passed to the deployment tool

@@ -58,7 +58,6 @@ import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
@@ -91,8 +90,10 @@ import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
 import eu.cpswarm.optimization.parameters.ParameterSet;
+import eu.cpswarm.optimization.statuses.SOOStatus;
 import eu.cpswarm.optimization.statuses.SimulationManagerCapabilities;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
+import eu.cpswarm.optimization.statuses.StatusSerializer;
 import it.links.pert.codegen.generator.CodeGenerator;
 import it.links.pert.codegen.generator.CodeGeneratorFactory;
 import it.links.pert.codegen.generator.CodeGeneratorType;
@@ -598,14 +599,8 @@ public class SimulationOrchestrator {
 			do {
 				Thread.sleep(1000);
 			}while(!connection.isConnected() || !connection.isAuthenticated());
-			
-			final Presence presence = new Presence(Presence.Type.available);
-			presence.setStatus("Pronto");
-			try {
-				connection.sendStanza(presence);
-			} catch (final NotConnectedException | InterruptedException e) {
-				e.printStackTrace();
-			}
+
+			sendPresence(null);
 		} catch (final SmackException | IOException | XMPPException e) {
 			if (e instanceof SASLErrorException) {
 				connection.disconnect();
@@ -712,8 +707,7 @@ public class SimulationOrchestrator {
     	}
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && 
-    				simulationManagers.get(account).compareTo(statusCompare)>0 &&
-    				StringUtils.isEmpty(simulationManagers.get(account).getSimulationConfigurationId())) { //"" or null
+    				simulationManagers.get(account).compareTo(statusCompare)>0) { //"" or null
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected
@@ -1131,7 +1125,7 @@ public class SimulationOrchestrator {
 		//FIXME the message is not correct   /* >>>>>>>>>>>in case of single simulation, OID = null */
 		Gson gson = new Gson();
 		ParameterSet parameters = gson.fromJson(candidateToSend, ParameterSet.class);
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "", parameters);
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "1", parameters);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
@@ -1146,7 +1140,20 @@ public class SimulationOrchestrator {
 			e.printStackTrace();
 			return false;
 		}
+		sendPresence("1");
 		return true;
+	}
+
+	public void sendPresence(final String taskID) {
+		final Presence presence = new Presence(Presence.Type.available);
+		SOOStatus status = new SOOStatus(this.scid, taskID);
+		StatusSerializer statusSerializer = new StatusSerializer();
+		presence.setStatus(statusSerializer.toJson(status));
+		try {
+			connection.sendStanza(presence);
+		} catch (final NotConnectedException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean sendCancelOptimizationMessage() {
@@ -1193,6 +1200,7 @@ public class SimulationOrchestrator {
 	
 	public void setOptimizationId(String optimizationId) {
 		this.optimizationId = optimizationId;
+		this.sendPresence(optimizationId);
 	}
 	
 	public Boolean isRecovery( ) {
@@ -1222,6 +1230,9 @@ public class SimulationOrchestrator {
 	public void setSimulationDone(boolean simulationDone) {
 		System.out.println("Set simulation done");
 		this.simulationDone = simulationDone;
+		if(optimizationId==null) {
+			this.sendPresence(null);
+		}
 	}
 	
 	public int getMAX_CONFIGURATION_ATTEMPTS() {
