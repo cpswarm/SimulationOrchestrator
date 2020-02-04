@@ -227,6 +227,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 					}
 				}
 			} else {
+				fileContent = new ArrayList<String>();
 				parameterFile.createNewFile();
 			}
 			for(Parameter param : paramsToAdd) {

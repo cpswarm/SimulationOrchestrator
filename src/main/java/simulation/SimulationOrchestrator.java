@@ -1082,7 +1082,7 @@ public class SimulationOrchestrator {
 		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
 		Gson gson = new Gson();
 		if(this.optimizationEnabled && this.optimizationId==null) {
-			this.optimizationId = scid+"!"+UUID.randomUUID();
+			this.setOptimizationId(scid+"!"+UUID.randomUUID());
 		}
 		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, gson.toJson(optimizationConfiguration), scid);
 		MessageSerializer serializer = new MessageSerializer();
