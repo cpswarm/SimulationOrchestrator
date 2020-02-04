@@ -152,7 +152,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				tokens.nextToken();
 				String fileName = tokens.nextToken();
 				// Save the file
-				saveFile(params, parent.getOutputDataFolder()+fileName+".yml");
+				saveFile(params, parent.getOutputDataFolder()+fileName+".yaml");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
