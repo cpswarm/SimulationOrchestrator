@@ -1,5 +1,10 @@
 package simulation;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
@@ -11,13 +16,14 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 
-import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import eu.cpswarm.optimization.parameters.ParameterSet;
+import eu.cpswarm.optimization.parameters.Parameter;
 import eu.cpswarm.optimization.statuses.OptimizationStatusType;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
@@ -42,7 +48,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		MessageSerializer serializer = new MessageSerializer();
 		eu.cpswarm.optimization.messages.Message msgReceived = serializer.fromJson(msg.getBody());
 		Gson gson = new Gson();
-		ParameterSet parameters = gson.fromJson("src/main/resources/candidate.json", ParameterSet.class); 
+		JsonReader reader = null;
+		try {
+			reader = new JsonReader(new FileReader("src/main/resources/candidate.json"));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		List<Parameter> parameters = gson.fromJson(reader, new TypeToken<List<Parameter>>(){}.getType()); 
 		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
 		if(parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
@@ -53,7 +66,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				if(this.stopOptimzation ||
 						parent.getSCID().equals("emergency_exit")) {
 					if(result.getFitnessValue()==100.0 && result.getSuccess()==true) {
-						OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, OptimizationStatusType.COMPLETED, 100.0, new ParameterSet());
+						OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, OptimizationStatusType.COMPLETED, 100.0, new ArrayList<Parameter>(),parent.getOptimizationConfiguration());
 						Message msg1 = new Message();
 						msg1.setBody(serializer.toJson(message1));
 						ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
@@ -70,7 +83,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					int newSID = new Integer(parent.getSimulationID()).intValue()+1;
 					String newSimulationID = String.valueOf(newSID);
 					parent.setSimulationID(newSimulationID);
-					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, parameters);
+					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, Long.valueOf(1234).longValue(), parameters);
 					try {
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 						chat = chatManager.chatWith(msg.getFrom().asEntityBareJidIfPossible());						
@@ -85,7 +98,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				parent.setOptimizationConfiguration(start.getConfiguration());
 				parent.setSCID(start.getSimulationConfigurationId());
 				System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-				OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOptimizationId(), 0.0, OptimizationStatusType.STARTED, 0.0, null);  // default values
+				OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOptimizationId(), 0.0, OptimizationStatusType.STARTED, 0.0, null, start.getConfiguration());  // default values
 				String messageToSend = serializer.toJson(reply); 
 				message.setBody(messageToSend);
 				System.out.println("Sending reply to the StartOptimization: "+messageToSend);
@@ -105,7 +118,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					sid += 1;  // SID increases by 1 each time
 					simulationID = String.valueOf(sid);
 					parent.setSimulationID(simulationID);
-					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, parameters);
+					RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, Long.valueOf(1234).longValue(), parameters);
 					ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 					chat = chatManager.chatWith(manager.asEntityBareJid());
 					try {
@@ -123,7 +136,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				} else {
 					status = OptimizationStatusType.RUNNING;
 				}
-				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 0.8, status, 80.0, parameters);
+				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 0.8, status, 80.0, parameters, parent.getOptimizationConfiguration());
 				String messageToSend = serializer.toJson(optimizationStatus);
 				message.setBody(messageToSend);
 				System.out.println("OptimizationTool sending optimization staus "+messageToSend);
@@ -133,14 +146,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					System.out.println("Error sending the optimization status");
 					e.printStackTrace();
 				}
-			} else if(msgReceived instanceof GetOptimizationStateMessage) {
-				/* Not used because the file transfer doesn't work in case of test               // configure SMs when receiving RunSimulation 
-				if(parent.sendOptimizationState()) {
-					System.out.println("Error failing to report optimization state file to SOO");
-				}
-				*/
-				return;
-			} else {
+			}  else {
 				System.out.println("Reply received: " + msg.getBody());
 			}
 
@@ -160,8 +166,15 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		int newSID = new Integer(parent.getSimulationID()).intValue()+1;
 		String newSimulationID = String.valueOf(newSID);
 		Gson gson = new Gson();
-		ParameterSet parameters = gson.fromJson("src/main/resources/candidate.json", ParameterSet.class);
-		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, parameters);
+		JsonReader reader = null;
+		try {
+			reader = new JsonReader(new FileReader("src/main/resources/candidate.json"));
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		List<Parameter> parameters = gson.fromJson(reader, new TypeToken<List<Parameter>>(){}.getType()); 
+		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, Long.valueOf(1234).longValue(), parameters);
 		try {
 			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_bamboo@"+parent.getServerName()));				

@@ -25,7 +25,6 @@ import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
 import eu.cpswarm.optimization.parameters.Parameter;
 import eu.cpswarm.optimization.statuses.OptimizationStatusType;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
-import eu.cpswarm.optimization.messages.OptimizationToolConfiguredMessage;
 import simulation.SimulationOrchestrator;
 
 /**
@@ -68,8 +67,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				} else if (sender.compareTo(parent.getOptimizationJid().asBareJid()) == 0) {
 					if (message instanceof OptimizationStatusMessage) {
 						handleOptimizationStatusMessage((OptimizationStatusMessage) message, serializer);
-					} else if (message instanceof OptimizationToolConfiguredMessage) {
-						handleOptimizationToolConfiguredMessage((OptimizationToolConfiguredMessage) message);
 					} else {
 						System.out.println("Reply received: " + msg.getBody());
 					}
@@ -119,7 +116,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			System.out.println("Current progress: " + reply.getProgress() + "%");
 			System.out.println("Current status: " + reply.getStatusType());
 			System.out.println("Current best fitness value: " + reply.getBestFitnessValue());
-			System.out.println("Current best candidate: " + reply.getBestParameterSet().toString());
+			System.out.println("Current best candidate: " + reply.getBestParameters().toString());
+			System.out.println("Current configuration: " + reply.getConfiguration().toString());
+			parent.setConfiguration(reply.getConfiguration());
 		}
 	}
 	
@@ -127,7 +126,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		parent.stopGetOptimizationStateSender();
 		System.out.println("Optimization "+reply.getOptimizationId()+ ", progress:" + reply.getProgress() + "%, fitness value: "+reply.getBestFitnessValue());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		System.out.println("Final candidate: "+reply.getBestParameterSet().toString()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
+		System.out.println("Final candidate: "+reply.getBestParameters().toString()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 		// The final candidate contains the optimized values for the parameters
 		// and has to be saved in the output folder of the launcher to be used as result
 		// to be passed to the deployment tool
@@ -135,10 +134,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		try {
 			writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"candidate.json"));
 			Gson gson = new Gson();
-			writer.write(gson.toJson(reply.getBestParameterSet()));
+			writer.write(gson.toJson(reply.getBestParameters()));
 			writer.close();
 			Map<String, Parameter> params = new HashMap<String,Parameter>();
-			for (Parameter param : reply.getBestParameterSet().getParameters()) {
+			for (Parameter param : reply.getBestParameters()) {
 				if(param.getMeta().startsWith("file")) {
 					params.put(param.getName(),param);
 				}
@@ -165,7 +164,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		parent.stopGetOptimizationStateSender();
 		// SOO try to reconfigure OT for maximum 3 times
 		while(counter>0) {
-			if(parent.sendOptimizationStateToOT()) {   /* state file transfered successfully-----if SOO wants to restart the optimization, just send OptimizationState to reconfigure the OT */
+			if(parent.sendStartOptimization()) {   
 				break;
 			} else {
 				System.out.println("Error sending OptimizationState message");
@@ -181,34 +180,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			System.out.println("Optimization tool can not be reconfigured any more!");
 		}
 	}
-	
-	
-	private void handleOptimizationToolConfiguredMessage(OptimizationToolConfiguredMessage reply) {
-		if (reply.getSuccess() != true) {
-			// SOO try to reconfigure OT for maximum 3 times
-			while (counter > 0) {
-				if (parent.sendOptimizationStateToOT()) { /* state file transfered successfully, waiting for reply */
-					break;
-				} else {
-					System.out.println("Error sending OptimizationState message");
-					counter--;
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			if (counter == 0) {
-				System.out.println("Optimization tool can not be reconfigured any more!");
-			}
-		} else {
-			this.counter = parent.getMAX_CONFIGURATION_ATTEMPTS();
-		    // use previous SMs with the same SCID
-			parent.sendStartOptimization();
-		}
-	}
-
 	
 	private boolean saveFile(final Map<String, Parameter> params, final String parameterFilePath) {
 		List<Parameter> paramsToAdd  = new ArrayList<Parameter>(params.values());

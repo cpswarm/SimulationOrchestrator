@@ -17,7 +17,7 @@ import org.jxmpp.jid.impl.JidCreate;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
-import config.frevo.FrevoConfiguration;
+import eu.cpswarm.optimization.parameters.ParameterOptimizationConfiguration;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import eu.cpswarm.optimization.statuses.StatusSerializer;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
@@ -82,7 +82,7 @@ public class AppTest {
 	private String optimizationToolPassword = System.getProperty("optimization_tool_password");
 	private Boolean localSimulationManager = Boolean.parseBoolean(System.getProperty("local_simulation_manager"));
 	private String simulationManagerPath = System.getProperty("simulation_manager_path");
-	private static FrevoConfiguration optimizationConfiguration = null;
+	private static ParameterOptimizationConfiguration optimizationConfiguration = null;
 	private int startingTimeout = Integer.parseInt(System.getProperty("starting_timeout"));
 	private static InetAddress serverIPAddress = null;
 	
@@ -90,7 +90,7 @@ public class AppTest {
 	static void setUp() {
 		Gson gson = new Gson();
 		JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
-		optimizationConfiguration = gson.fromJson(reader, FrevoConfiguration.class);
+		optimizationConfiguration = gson.fromJson(reader, ParameterOptimizationConfiguration.class);
 		try {
 			serverIPAddress = InetAddress.getByName(System.getProperty("test_server_ip"));
 		} catch (UnknownHostException e) {

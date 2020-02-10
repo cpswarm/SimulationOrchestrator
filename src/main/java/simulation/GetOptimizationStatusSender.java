@@ -1,6 +1,6 @@
 package simulation;
 
-public class GetOptimizationStateSender implements Runnable {
+public class GetOptimizationStatusSender implements Runnable {
 
 	private SimulationOrchestrator parent = null;
 	private boolean sendState = true;
@@ -8,7 +8,7 @@ public class GetOptimizationStateSender implements Runnable {
 	private final static int TIME_TO_SLEEP = 30*1000;
 	
 	
-	public GetOptimizationStateSender(final SimulationOrchestrator parent) {
+	public GetOptimizationStatusSender(final SimulationOrchestrator parent) {
 		this.parent = parent;
 	}
 	
@@ -16,7 +16,7 @@ public class GetOptimizationStateSender implements Runnable {
 	public void run() {
 		while(sendState) {
 			if(!suspendState) {
-				if(!parent.sendGetOptimizationState()) {
+				if(!parent.sendGetOptimizationStatus()) {
 					this.setSendState(false);
 				}
 			}

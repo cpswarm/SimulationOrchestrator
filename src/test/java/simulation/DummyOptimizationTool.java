@@ -37,6 +37,7 @@ import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 
+import eu.cpswarm.optimization.parameters.ParameterOptimizationConfiguration;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 
 import javax.net.ssl.SSLContext;
@@ -67,7 +68,7 @@ public class DummyOptimizationTool {
 	private String SCID = null;
 	private String simulationID = null;
 	private String otDataFolder = null;
-	private String optimizationConfiguration = null;
+	private ParameterOptimizationConfiguration optimizationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	private OptimizationMessageEventCoordinatorImpl messageListener = null;
 	
@@ -456,11 +457,11 @@ public class DummyOptimizationTool {
 	}
 
 
-	public String getOptimizationConfiguration() {
+	public ParameterOptimizationConfiguration getOptimizationConfiguration() {
 		return optimizationConfiguration;
 	}
 
-	public void setOptimizationConfiguration(String optimizationConfiguration) {
+	public void setOptimizationConfiguration(ParameterOptimizationConfiguration optimizationConfiguration) {
 		this.optimizationConfiguration = optimizationConfiguration;
 	}
 	

@@ -6,9 +6,9 @@ import org.jivesoftware.smack.packet.Stanza;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import eu.cpswarm.optimization.statuses.BaseStatus;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import eu.cpswarm.optimization.statuses.StatusSerializer;
 import simulation.SimulationOrchestrator;
@@ -57,31 +57,45 @@ public class PacketListenerImpl implements StanzaListener {
 			if(presence.isAvailable()) {
 				System.out.println(
 						"presence received from " + presence.getFrom()+ ", status: "+presence.getStatus());
-				try {
-					if(presence.getFrom().toString().startsWith("manager")) {
-						System.out.println("Adding Manager "+presence.getFrom().toString()+" to the list of the ones available");
-						StatusSerializer serializer = new StatusSerializer();
-						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), serializer.fromJson(presence.getStatus()));	
-					} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
+				StatusSerializer serializer = new StatusSerializer();
+				BaseStatus status = serializer.fromJson(presence.getStatus());
+				switch(status.getType()) {
+				case "OptimizationTool":
+					if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 						// if optimization was ever started(OID!=null), but OT was offline and online again, SOO sends getOptimizationStatus in OT error handling workflow
 						parent.sendGetOptimizationStatus();
-					} 				
-				} catch (JsonSyntaxException | XmppStringprepException e) {
-					e.printStackTrace();
-				}
-			} else if(presence.getType().equals(Presence.Type.unavailable)){
-				System.out.println(
-						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
-				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
-					System.out.println("Removing Manager "+presence.getFrom().toString()+" to the list of the ones available");
-					try {
-						parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
-					} catch (JsonSyntaxException | XmppStringprepException e) {
 					}
-				} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
-					System.out.println("The Optimization Tool is offline, stop to send the state");
-					if(parent.isRecovery()) {
-						parent.suspendGetOptimizationStateSender();
+					break;
+				case "SimulationManager":
+					try {
+						System.out.println("Adding Manager "+presence.getFrom().toString()+" to the list of the ones available");
+						SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
+						parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
+					} catch (JsonSyntaxException | XmppStringprepException e) {
+						e.printStackTrace();
+					}
+					break;
+				}		
+			} else if(presence.getType().equals(Presence.Type.unavailable)){
+				StatusSerializer serializer = new StatusSerializer();
+				BaseStatus status = serializer.fromJson(presence.getStatus());
+				switch(status.getType()) {
+				case "OptimizationTool":
+					if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
+						System.out.println("The Optimization Tool is offline, stop to send the get status");
+						if(parent.isRecovery()) {
+							parent.suspendGetOptimizationStateSender();
+						}
+					}
+				case "SimulationManager":
+					System.out.println(
+							"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
+					if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
+						System.out.println("Removing Manager "+presence.getFrom().toString()+" to the list of the ones available");
+						try {
+							parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
+						} catch (JsonSyntaxException | XmppStringprepException e) {
+						}
 					}
 				}
 			}

@@ -75,21 +75,21 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import config.deployment.Deployment;
 import config.deployment.DeploymentConfiguration;
 import config.deployment.Service;
-import config.frevo.FrevoConfiguration;
 import config.modelio.Parameter;
 import config.modelio.Parameters;
 import eu.cpswarm.optimization.messages.CancelOptimizationMessage;
-import eu.cpswarm.optimization.messages.GetOptimizationStateMessage;
 import eu.cpswarm.optimization.messages.GetOptimizationStatusMessage;
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.RunSimulationMessage;
 import eu.cpswarm.optimization.messages.StartOptimizationMessage;
-import eu.cpswarm.optimization.parameters.ParameterSet;
+import eu.cpswarm.optimization.parameters.ParameterDefinition;
+import eu.cpswarm.optimization.parameters.ParameterOptimizationConfiguration;
 import eu.cpswarm.optimization.statuses.SOOStatus;
 import eu.cpswarm.optimization.statuses.SimulationManagerCapabilities;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
@@ -112,7 +112,7 @@ public class SimulationOrchestrator {
 	public static final Semaphore SEMAPHORE = new Semaphore(1);
 	private static final int MAX_CONFIGURATION_ATTEMPTS = 3;
 	private BlockingQueue <Presence> queue;
-	private GetOptimizationStateSender getOptimizationStateSender = null;
+	private GetOptimizationStatusSender getOptimizationStateSender = null;
 	private Thread stateSenderThread = null;
 	private XMPPTCPConnection connection;
 	private ConnectionListenerImpl connectionListener;
@@ -133,7 +133,7 @@ public class SimulationOrchestrator {
 	private Boolean recovery = null;
 	// JSon containing the Optimization Configuration 
 	// TODO receive these configurations from the Launcher
-	private FrevoConfiguration optimizationConfiguration = null;
+	private ParameterOptimizationConfiguration optimizationConfiguration = null;
 	private String simulationConfiguration = null;
 	private SimulationManagerStatus simulationManagerStatusRequired;
 	private String scid;
@@ -200,7 +200,7 @@ public class SimulationOrchestrator {
 		String optimizationToolPassword = "";
 		Boolean localSimulationManager = false;
 		String simulationManagerPath = null;
-		FrevoConfiguration optConf = null;
+		ParameterOptimizationConfiguration optConf = null;
 		Boolean configEnabled = false;
 		int startingTimeout = 5000;
 		OP_MODE opMode = null;
@@ -341,7 +341,7 @@ public class SimulationOrchestrator {
 				
 				Gson gson = new Gson();
 				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
-				optConf = gson.fromJson(reader, FrevoConfiguration.class);
+				optConf = gson.fromJson(reader, ParameterOptimizationConfiguration.class);
 				optConf.setCandidateCount(Integer.parseInt(can));
 				optConf.setGenerationCount(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
@@ -382,17 +382,12 @@ public class SimulationOrchestrator {
 					Gson gson = new Gson();
 					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
 					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
-					List<config.frevo.Parameter> frevoParameters = new ArrayList<config.frevo.Parameter>();
+					List<ParameterDefinition> frevoParameters = new ArrayList<ParameterDefinition>();
 					for (Parameter param : modelledParams.getParameters()) {
-						config.frevo.Parameter frevoParaneter = new config.frevo.Parameter();
-						frevoParaneter.setName(param.getName());
-						frevoParaneter.setMetaInformation(param.getMeta());
-						frevoParaneter.setMinimum(param.getMin().intValue());
-						frevoParaneter.setMaximum(param.getMax().intValue());
-						frevoParaneter.setScale(Double.parseDouble(param.getScale()));
+						ParameterDefinition frevoParaneter = new ParameterDefinition(param.getName(), param.getMeta(), param.getMin().intValue(), param.getMax().intValue(), Float.parseFloat(param.getScale()));
 						frevoParameters.add(frevoParaneter);
 					}
-					optConf.getRepresentationBuilder().setParameters(frevoParameters);
+					optConf.setParameters(frevoParameters);
 				}
 			} 
 			if(!new File(inputDataFolder).isDirectory()) {
@@ -496,7 +491,7 @@ public class SimulationOrchestrator {
 									final String optimizationToolPassword, 
 									final Boolean localSimulationManager,  
 									final String simulationManagerPath, 
-									final FrevoConfiguration optConf, 
+									final ParameterOptimizationConfiguration optConf, 
 									final Boolean configEnabled, 
 									int startingTimeout,
 									final String scxml,
@@ -1013,65 +1008,6 @@ public class SimulationOrchestrator {
 		return true;
 	}
 	
-	public boolean sendGetOptimizationState() {    // backup of current generation
-		if(!connection.isConnected()) {
-			//the connection need to be reconnected
-			this.reconnect();
-			do {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			} while(connection.isConnected());
-		}
-		GetOptimizationStateMessage getOptimizationState = new GetOptimizationStateMessage(optimizationId);
-		ChatManager manager = ChatManager.getInstanceFor(connection);
-		Chat chat = manager.chatWith(this.optimizationToolJid.asEntityBareJidIfPossible());
-		Message message = new Message();
-		MessageSerializer serializer = new MessageSerializer();
-		String messageToSend = serializer.toJson(getOptimizationState);
-		message.setBody(messageToSend);
-		System.out.println("Sending getOptimizationState " + messageToSend);
-		try {
-			chat.send(message);
-		} catch (NotConnectedException | InterruptedException e) {
-			System.out.println("Error sending getOptimizationState message");
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-	
-	public boolean sendOptimizationStateToOT() {
-		if(TEST) {
-			// In case of test the file transfer cannot be used, so the optimization tool is considered as configured
-			sendStartOptimization();
-			return true;
-		}
-
-		// the state file called SCID will saved in the subfolder named with OID in the outputDataFolder
-		String stateFile = this.outputDataFolder + this.optimizationId + File.separator + this.scid;
-		
-		File file = new File(stateFile);
-		if (!file.exists()) {
-			System.out.println("SOO doesn't store the state file for the optimization ");
-			return false;
-		}
-		try {			
-			if (!this.transferFile(
-					JidCreate.entityFullFrom(
-							this.optimizationToolJid.asEntityBareJidIfPossible().toString() + "/" + RESOURCE), stateFile, optimizationId)) {
-				return false;
-			}
-		} catch (XmppStringprepException e) {
-				e.printStackTrace();
-				return false;
-		}	
-		return true;
-	}
-
-	
 	public boolean sendStartOptimization() {   
 		List<String> managersJid = new ArrayList<String>();
 		for(EntityBareJid availableManager : this.availableManagers) {
@@ -1079,12 +1015,10 @@ public class SimulationOrchestrator {
 				managersJid.add(availableManager.toString());
 			}
 		}
-		optimizationConfiguration.getExecutorBuilder().setThreadCount(managersJid.size());
-		Gson gson = new Gson();
 		if(this.optimizationEnabled && this.optimizationId==null) {
 			this.setOptimizationId(scid+"!"+UUID.randomUUID());
 		}
-		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, gson.toJson(optimizationConfiguration), scid);
+		StartOptimizationMessage start = new StartOptimizationMessage(this.optimizationId, optimizationConfiguration, scid);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(start);
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -1124,8 +1058,8 @@ public class SimulationOrchestrator {
 		}
 		//FIXME the message is not correct   /* >>>>>>>>>>>in case of single simulation, OID = null */
 		Gson gson = new Gson();
-		ParameterSet parameters = gson.fromJson(candidateToSend, ParameterSet.class);
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "1", parameters);
+		List<eu.cpswarm.optimization.parameters.Parameter> parameters = gson.fromJson(candidateToSend, new TypeToken<List<eu.cpswarm.optimization.parameters.Parameter>>(){}.getType());
+		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "1", Long.valueOf(1234).longValue(), parameters);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);
@@ -1286,7 +1220,7 @@ public class SimulationOrchestrator {
 
 	public void startGetOptimizationStateSender() {
 		if(this.isRecovery()) {
-			getOptimizationStateSender = new GetOptimizationStateSender(this);
+			getOptimizationStateSender = new GetOptimizationStatusSender(this);
 			// create the thread
 			stateSenderThread = new Thread(getOptimizationStateSender);
 			// run
@@ -1326,6 +1260,10 @@ public class SimulationOrchestrator {
 			return true;
 		}
 		return false;
+	}
+
+	public void setConfiguration(ParameterOptimizationConfiguration configuration) {
+		this.optimizationConfiguration = configuration;
 	}
 	
 	
