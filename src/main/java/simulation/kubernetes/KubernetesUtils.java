@@ -54,7 +54,7 @@ public final class KubernetesUtils {
 			// If something is already deployed 
 			// but the current number of replica is not equal to the desired one
 			// it scales the current deployment to reach the desired status
-			if(!currentDeployment.getStatus().getAvailableReplicas().equals(deploy.getSpec().getReplicas())) {
+			if(currentDeployment.getStatus()!=null && !currentDeployment.getStatus().getAvailableReplicas().equals(deploy.getSpec().getReplicas())) {
 				KubernetesUtils.scale(client, currentDeployment.getMetadata(), deploy.getSpec().getReplicas());
 			} 
 			return true;
@@ -134,7 +134,7 @@ public final class KubernetesUtils {
 						quantity.setAmount(c.getResources().getLimits().getCpu().toString());
 						limits.put("cpu", quantity);
 					}
-					if(c.getResources().getRequests().getMemory()!=null) {
+					if(c.getResources().getLimits().getMemory()!=null) {
 						Quantity quantity = new Quantity();
 						quantity.setAmount(c.getResources().getLimits().getMemory().toString());
 						limits.put("memory", quantity);
@@ -267,7 +267,7 @@ public final class KubernetesUtils {
 
 	private static boolean checkReplicas(final KubernetesClient client, final ObjectMeta metadata, final Integer replicas) {
 		io.fabric8.kubernetes.api.model.apps.Deployment currentDeployment = client.apps().deployments().inNamespace(metadata.getNamespace()).withName(metadata.getName()).get(); 
-		if(currentDeployment.getStatus().getAvailableReplicas()!=null) {
+		if(currentDeployment.getStatus() != null && currentDeployment.getStatus().getAvailableReplicas()!=null) {
 			return currentDeployment.getStatus().getAvailableReplicas().equals(replicas);
 		} else {
 			return false;
