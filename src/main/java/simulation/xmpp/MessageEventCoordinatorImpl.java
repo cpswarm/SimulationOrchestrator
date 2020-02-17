@@ -112,7 +112,8 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			System.out.println("Status of the current optimization: " + reply.getOptimizationId());
 			System.out.println("Current status: " + reply.getStatusType());
 			System.out.println("Current best fitness value: " + reply.getBestFitness());
-			System.out.println("Current best candidate: " + reply.getBestParameters().toString());
+			Gson gson = new Gson();
+			System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
 			System.out.println("Current configuration: " + reply.getConfiguration().toString());
 			parent.setConfiguration(reply.getConfiguration());
 		}
@@ -120,17 +121,19 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	
 	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
 		parent.stopGetOptimizationStateSender();
+		Gson gson = new Gson();
+		String parameters = gson.toJson(reply.getBestParameters());
 		System.out.println("Optimization "+reply.getOptimizationId()+ " completed with the best fitness value: "+reply.getBestFitness());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		System.out.println("Final candidate: "+reply.getBestParameters().toString()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
+		System.out.println("Final candidate: "+parameters+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 		// The final candidate contains the optimized values for the parameters
 		// and has to be saved in the output folder of the launcher to be used as result
 		// to be passed to the deployment tool
 		BufferedWriter writer;
 		try {
 			writer = new BufferedWriter(new FileWriter(parent.getOutputDataFolder()+"candidate.json"));
-			Gson gson = new Gson();
-			writer.write(gson.toJson(reply.getBestParameters()));
+			
+			writer.write(parameters);
 			writer.close();
 			Map<String, Parameter> params = new HashMap<String,Parameter>();
 			for (Parameter param : reply.getBestParameters()) {
