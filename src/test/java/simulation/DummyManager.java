@@ -35,7 +35,9 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
+import eu.cpswarm.optimization.statuses.SimulationManagerCapabilities;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
+import eu.cpswarm.optimization.statuses.StatusSerializer;
 
 import javax.net.ssl.SSLContext;
 
@@ -124,14 +126,10 @@ public class DummyManager {
 				Thread.sleep(1000);
 			}while(!connection.isConnected() || !connection.isAuthenticated());
 			final Presence presence = new Presence(Presence.Type.available);
-			presence.setStatus("{\r\n" + 
-					   "	\"server\": 1,\r\n" + 
-					   "	\"SCID\": \"\",\r\n" + 
-					   "	\"capabilities\": {\r\n" + 
-					   "	\"dimensions\": 2,\r\n" + 
-					   "    \"max_agents\": 8\r\n" +
-					   "	}\r\n" + 
-					   "}\r\n");
+			SimulationManagerCapabilities caps = new SimulationManagerCapabilities(2,8);
+			SimulationManagerStatus status = new SimulationManagerStatus("","", caps);
+			StatusSerializer serializer = new StatusSerializer();
+			presence.setStatus(serializer.toJson(status));
 			try {
 				connection.sendStanza(presence);
 			} catch (final NotConnectedException | InterruptedException e) {
