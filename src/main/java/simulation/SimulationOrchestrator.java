@@ -343,7 +343,7 @@ public class SimulationOrchestrator {
 				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
 				optConf = gson.fromJson(reader, ParameterOptimizationConfiguration.class);
 				optConf.setCandidateCount(Integer.parseInt(can));
-				optConf.setGenerationCount(Integer.parseInt(gen));
+				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
 				
@@ -387,7 +387,7 @@ public class SimulationOrchestrator {
 						ParameterDefinition frevoParaneter = new ParameterDefinition(param.getName(), param.getMeta(), param.getMin().intValue(), param.getMax().intValue(), Float.parseFloat(param.getScale()));
 						frevoParameters.add(frevoParaneter);
 					}
-					optConf.setParameters(frevoParameters);
+					optConf.setParameterDefinitions(frevoParameters);
 				}
 			} 
 			if(!new File(inputDataFolder).isDirectory()) {
@@ -702,7 +702,7 @@ public class SimulationOrchestrator {
     	}
     	for(EntityBareJid account : simulationManagers.keySet()) {
     		if(simulationManagers.get(account)!=null && 
-    				simulationManagers.get(account).compareTo(statusCompare)>0) { //"" or null
+    				simulationManagers.get(account).compareTo(statusCompare)>=0) { //"" or null
     			if(!availableManagers.contains(account)) {
     				availableManagers.add(account);
     				// If there is not optimization the first simulator available is selected
@@ -799,7 +799,7 @@ public class SimulationOrchestrator {
 				System.out.println("Retrying to configure the simulation manager: " + toBeReconfiguredManager);
 				try {
 					if (!this.transferFile(
-							JidCreate.entityFullFrom(toBeReconfiguredManager.toString() + "/" + RESOURCE), this.simulatorConfigurationfileName, optimizationId + "," + scid + "," + simulationConfiguration)) {
+							JidCreate.entityFullFrom(toBeReconfiguredManager.toString() + "/" + RESOURCE), this.simulatorConfigurationfileName, scid + "," + simulationConfiguration)) {
 						this.handleACK(toBeReconfiguredManager, false);
 					}
 				} catch (XmppStringprepException e) {

@@ -84,13 +84,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		case CANCELLED:
 			handleOptimizationRunningOrStopped(optimizationStatus);
 			break;
-		case COMPLETED:
+		case COMPLETE:
 			handleOptimizationCompleted(optimizationStatus);
 			break;
-		case ERROR_BAD_CONFIGURATION: /* it's a reply to the StartOptimizationMessage, because of the bad frevo configuration here we can not call to the handleOptimizationError() method, because no State file ever stored locally, SOO has to check the FrevoConfiguration */
-			System.out.println("Optimization tool received a bad configuration");
-			break;
-		case ERROR_OPTIMIZAZION_FAILED: /* error occurs, optimization is not ongoing, but still online, it automatically reports the error status to SOO, then SOO needs to send back OptimizationState to OT for restarting */
+		case ERROR: /* error occurs, optimization is not ongoing, but still online, it automatically reports the error status to SOO, then SOO needs to send back OptimizationState to OT for restarting */
 			handleOptimizationError(optimizationStatus);
 			break;
 		default:
@@ -113,9 +110,8 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
 			}
 			System.out.println("Status of the current optimization: " + reply.getOptimizationId());
-			System.out.println("Current progress: " + reply.getProgress() + "%");
 			System.out.println("Current status: " + reply.getStatusType());
-			System.out.println("Current best fitness value: " + reply.getBestFitnessValue());
+			System.out.println("Current best fitness value: " + reply.getBestFitness());
 			System.out.println("Current best candidate: " + reply.getBestParameters().toString());
 			System.out.println("Current configuration: " + reply.getConfiguration().toString());
 			parent.setConfiguration(reply.getConfiguration());
@@ -124,7 +120,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	
 	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
 		parent.stopGetOptimizationStateSender();
-		System.out.println("Optimization "+reply.getOptimizationId()+ ", progress:" + reply.getProgress() + "%, fitness value: "+reply.getBestFitnessValue());
+		System.out.println("Optimization "+reply.getOptimizationId()+ " completed with the best fitness value: "+reply.getBestFitness());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		System.out.println("Final candidate: "+reply.getBestParameters().toString()+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 		// The final candidate contains the optimized values for the parameters
@@ -162,9 +158,11 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	
 	private void handleOptimizationError(OptimizationStatusMessage reply) {
 		parent.stopGetOptimizationStateSender();
+		parent.setConfiguration(reply.getConfiguration());
 		// SOO try to reconfigure OT for maximum 3 times
 		while(counter>0) {
-			if(parent.sendStartOptimization()) {   
+			if(parent.sendStartOptimization()) {  // directly reply with the frevoConfiguration sent back through OptimizationStatusMessage
+				counter = parent.getMAX_CONFIGURATION_ATTEMPTS();
 				break;
 			} else {
 				System.out.println("Error sending OptimizationState message");
