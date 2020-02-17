@@ -180,8 +180,9 @@ public class AppTest {
 			Gson gson = new Gson();
 			StatusSerializer serializer = new StatusSerializer();
 			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
-					   "	\"SID\": 1,\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" + 
 					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" + 
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
@@ -246,8 +247,9 @@ public class AppTest {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			StatusSerializer serializer = new StatusSerializer();
 			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
-					   "	\"SID\": 1,\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" +
 					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" +
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
@@ -316,8 +318,9 @@ public class AppTest {
 			Gson gson = new Gson();
 			StatusSerializer serializer = new StatusSerializer();
 			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
-					   "	\"SID\": 1,\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" +
 					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" +
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +
@@ -387,8 +390,9 @@ public class AppTest {
 			System.out.println("-----------------------------------------------------------------------------------------");
 			StatusSerializer serializer = new StatusSerializer();
 			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
-					   "	\"SID\": 1,\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" +
 					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" +
 					   "	\"capabilities\": {\r\n" + 
 					   "		\"dimensions\": 2,\r\n" + 
 					   "        \"max_agents\": 8\r\n" +

@@ -137,11 +137,7 @@ public class DummyOptimizationTool {
 			// Adds the listener for the incoming messages
 			messageListener  = new OptimizationMessageEventCoordinatorImpl(this);
 			ChatManager.getInstanceFor(connection).addIncomingListener(messageListener);
-			
-			FileTransferManager.getInstanceFor(connection)
-			.addFileTransferListener(new OptimiztionFileTransferListenerImpl(this));
 
-			
 			connection.login(clientID, serverPassword , Resourcepart.from(RESOURCE));
 			Thread.sleep(2000);
 		} catch (final SmackException | IOException | XMPPException e) {

@@ -59,14 +59,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 		// CHeck if the optimization ID has not been yet set (before the start optimization 
 		// or if the optimization ID is equal to the one set
 		if(parent.getOptimizationID()==null   // before receiving StartOptimization, OID = null
-					|| parent.getOptimizationID().equals(msgReceived.getOptimizationId())) {
+					|| (parent.getOptimizationID()!=null && parent.getOptimizationID().equals(msgReceived.getOptimizationId()))) {
 			if(msgReceived instanceof SimulationResultMessage) {
 				SimulationResultMessage result = (SimulationResultMessage) msgReceived;
 				// emergency_exit SCID is used to test simulations that conclude immediately
 				if(this.stopOptimzation ||
 						parent.getSCID().equals("emergency_exit")) {
 					if(result.getFitnessValue()==100.0 && result.getSuccess()==true) {
-						OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), 1.0, OptimizationStatusType.COMPLETED, 100.0, new ArrayList<Parameter>(),parent.getOptimizationConfiguration());
+						OptimizationStatusMessage message1 = new OptimizationStatusMessage(parent.getOptimizationID(), OptimizationStatusType.COMPLETE, 100.0, parent.getOptimizationConfiguration().getMaximumGeneration(), parent.getOptimizationConfiguration().getMaximumGeneration(), parameters, parent.getOptimizationConfiguration());
 						Message msg1 = new Message();
 						msg1.setBody(serializer.toJson(message1));
 						ChatManager chatManager = org.jivesoftware.smack.chat2.ChatManager.getInstanceFor(parent.getConnection());
@@ -98,7 +98,7 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				parent.setOptimizationConfiguration(start.getConfiguration());
 				parent.setSCID(start.getSimulationConfigurationId());
 				System.out.println("OptimizationTool received StartOptimization: "+msg.getBody());
-				OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOptimizationId(), 0.0, OptimizationStatusType.STARTED, 0.0, null, start.getConfiguration());  // default values
+				OptimizationStatusMessage reply = new OptimizationStatusMessage(start.getOptimizationId(), OptimizationStatusType.STARTED, 0.0, start.getConfiguration().getGeneration(),start.getConfiguration().getMaximumGeneration(), new ArrayList<Parameter>(), start.getConfiguration());  // default values
 				String messageToSend = serializer.toJson(reply); 
 				message.setBody(messageToSend);
 				System.out.println("Sending reply to the StartOptimization: "+messageToSend);
@@ -132,11 +132,11 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				System.out.println("OptimizationTool received GetOptimizationStatus: "+serializer.toJson(getOptimizationStatus));
 				OptimizationStatusType status = null;
 				if(parent.isOptimizationError()) {
-					status = OptimizationStatusType.ERROR_OPTIMIZAZION_FAILED;
+					status = OptimizationStatusType.ERROR;
 				} else {
 					status = OptimizationStatusType.RUNNING;
 				}
-				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), 0.8, status, 80.0, parameters, parent.getOptimizationConfiguration());
+				OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(parent.getOptimizationID(), status, 80.0, 2, parent.getOptimizationConfiguration().getMaximumGeneration(), parameters, parent.getOptimizationConfiguration());
 				String messageToSend = serializer.toJson(optimizationStatus);
 				message.setBody(messageToSend);
 				System.out.println("OptimizationTool sending optimization staus "+messageToSend);
