@@ -848,8 +848,10 @@ public class SimulationOrchestrator {
 		for (Deployment deployment: deployConf.getDeployments()) {
 			KubernetesUtils.deploy(deployment);
 		}
-		for (Service service : deployConf.getServices()) {
-			KubernetesUtils.installService(service);
+		if(deployConf.getServices()!=null) {
+			for (Service service : deployConf.getServices()) {
+				KubernetesUtils.installService(service);
+			}
 		}
     }
     
