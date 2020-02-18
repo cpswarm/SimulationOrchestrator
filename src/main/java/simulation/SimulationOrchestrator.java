@@ -315,15 +315,6 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("seed")!=null) {
 					se = cmd.getOptionValue("seed");
 				}		
-				if(cmd.getOptionValue("scxml")!=null) {
-					scxml = cmd.getOptionValue("scxml");
-				}
-				if(cmd.getOptionValue("adf")!=null) {
-					adfFile = cmd.getOptionValue("adf");
-				}
-				if(cmd.getOptionValue("env")!=null) {
-					envSim = cmd.getOptionValue("env");
-				}
 				
 				Gson gson = new Gson();
 				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
@@ -334,6 +325,17 @@ public class SimulationOrchestrator {
 				optConf.setEvaluationSeed(Integer.parseInt(se));
 				
 			}	
+			if(opMode.equals(OP_MODE.G)) {
+				if(cmd.getOptionValue("scxml")!=null) {
+					scxml = cmd.getOptionValue("scxml");
+				}
+				if(cmd.getOptionValue("adf")!=null) {
+					adfFile = cmd.getOptionValue("adf");
+				}
+				if(cmd.getOptionValue("env")!=null) {
+					envSim = cmd.getOptionValue("env");
+				}				
+			}
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = InetAddress.getByName(document.getElementsByTagName("serverURI").item(0).getTextContent());
