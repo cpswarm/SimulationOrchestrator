@@ -326,6 +326,7 @@ public class SimulationOrchestrator {
 				
 			}	
 			if(opMode.equals(OP_MODE.G)) {
+				outputDataFolder = cmd.getOptionValue("target");
 				if(cmd.getOptionValue("scxml")!=null) {
 					scxml = cmd.getOptionValue("scxml");
 				}
@@ -334,7 +335,7 @@ public class SimulationOrchestrator {
 				}
 				if(cmd.getOptionValue("env")!=null) {
 					envSim = cmd.getOptionValue("env");
-				}				
+				}
 			}
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
