@@ -480,6 +480,7 @@ public class SimulationOrchestrator {
 		// since it doesn't need the distributed simulation managers
 		if(opMode.equals(opMode.G)) {
 			this.generateCode();
+			return;
 		}
 		
 		server = new Server();
