@@ -307,7 +307,7 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("gen")!=null) {
 					gen = cmd.getOptionValue("gen");
 				}
-				String sim = "1200";
+				String sim = "1500"; // 25 mins
 				if(cmd.getOptionValue("sim")!=null) {
 					sim = cmd.getOptionValue("sim");
 				}
@@ -366,7 +366,7 @@ public class SimulationOrchestrator {
 				if(!configurationFolder.endsWith(File.separator)) {
 					configurationFolder+=File.separator;
 				}
-				if(opMode.equals(OP_MODE.S) && optimizationEnabled) {
+				if((opMode.equals(OP_MODE.S) || opMode.equals(OP_MODE.DS)) && optimizationEnabled) {
 					Gson gson = new Gson();
 					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
 					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
