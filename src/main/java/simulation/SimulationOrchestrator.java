@@ -303,7 +303,7 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("can")!=null) {
 					can = cmd.getOptionValue("can");
 				}
-				String gen = "100";
+				String gen = "4";
 				if(cmd.getOptionValue("gen")!=null) {
 					gen = cmd.getOptionValue("gen");
 				}
