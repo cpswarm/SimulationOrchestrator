@@ -20,17 +20,17 @@
                 "scale": 1
             },
             {
-                "name": "scout_count",
+                "name": "scouts",
                 "metaInformation": "command_line",
                 "minimum": 1,
                 "maximum": 2,
                 "scale": 1
             },
             {
-                "name": "worker_count",
+                "name": "workers",
                 "metaInformation": "command_line",
                 "minimum": 1,
-                "maximum": 4,
+                "maximum": 5,
                 "scale": 1
             }
         ],

@@ -317,11 +317,11 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("can")!=null) {
 					can = cmd.getOptionValue("can");
 				}
-				String gen = "100";
+				String gen = "4";
 				if(cmd.getOptionValue("gen")!=null) {
 					gen = cmd.getOptionValue("gen");
 				}
-				String sim = "1200";
+				String sim = "1500"; // 25 mins
 				if(cmd.getOptionValue("sim")!=null) {
 					sim = cmd.getOptionValue("sim");
 				}
@@ -329,15 +329,6 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("seed")!=null) {
 					se = cmd.getOptionValue("seed");
 				}		
-				if(cmd.getOptionValue("scxml")!=null) {
-					scxml = cmd.getOptionValue("scxml");
-				}
-				if(cmd.getOptionValue("adf")!=null) {
-					adfFile = cmd.getOptionValue("adf");
-				}
-				if(cmd.getOptionValue("env")!=null) {
-					envSim = cmd.getOptionValue("env");
-				}
 				
 				Gson gson = new Gson();
 				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
@@ -348,6 +339,18 @@ public class SimulationOrchestrator {
 				optConf.setEvaluationSeed(Integer.parseInt(se));
 				
 			}	
+			if(opMode.equals(OP_MODE.G)) {
+				outputDataFolder = cmd.getOptionValue("target");
+				if(cmd.getOptionValue("scxml")!=null) {
+					scxml = cmd.getOptionValue("scxml");
+				}
+				if(cmd.getOptionValue("adf")!=null) {
+					adfFile = cmd.getOptionValue("adf");
+				}
+				if(cmd.getOptionValue("env")!=null) {
+					envSim = cmd.getOptionValue("env");
+				}
+			}
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(SimulationOrchestrator.class.getResourceAsStream("/orchestrator.xml"));
 			serverURI = InetAddress.getByName(document.getElementsByTagName("serverURI").item(0).getTextContent());
@@ -378,7 +381,7 @@ public class SimulationOrchestrator {
 				if(!configurationFolder.endsWith(File.separator)) {
 					configurationFolder+=File.separator;
 				}
-				if(opMode.equals(OP_MODE.S) && optimizationEnabled) {
+				if((opMode.equals(OP_MODE.S) || opMode.equals(OP_MODE.DS)) && optimizationEnabled) {
 					Gson gson = new Gson();
 					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
 					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
@@ -536,6 +539,7 @@ public class SimulationOrchestrator {
 		// since it doesn't need the distributed simulation managers
 		if(opMode.equals(OP_MODE.G)) {
 			this.generateCode();
+			return;
 		}
 		
 		SimulationManagerCapabilities caps = new SimulationManagerCapabilities(dims, maxAgents);
