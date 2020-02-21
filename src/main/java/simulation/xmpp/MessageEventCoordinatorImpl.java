@@ -97,12 +97,13 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 
 	private void handleOptimizationStarted(OptimizationStatusMessage reply) {
 		parent.startGetOptimizationStateSender();
+		parent.evaluateSimulationManagers();
 	}
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
 		if(reply.getStatusType().equals(OptimizationStatusType.CANCELLED)) {
 			parent.stopGetOptimizationStateSender();
-			if(parent.getOptimizationId()!=null) {  // If COMPLETED or CANCELLED, OID=null
+			if(parent.getOptimizationId()!=null) {
 				parent.setOptimizationId(null);
 			}
 		}else {
@@ -116,6 +117,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
 			System.out.println("Current configuration: " + reply.getConfiguration().toString());
 			parent.setConfiguration(reply.getConfiguration());
+			parent.evaluateSimulationManagers();
 		}
 	}
 	
@@ -160,6 +162,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 	
 	private void handleOptimizationError(OptimizationStatusMessage reply) {
+		System.out.println("Handling Optimization tool Error");
 		parent.stopGetOptimizationStateSender();
 		parent.setConfiguration(reply.getConfiguration());
 		// SOO try to reconfigure OT for maximum 3 times
@@ -168,7 +171,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				counter = parent.getMAX_CONFIGURATION_ATTEMPTS();
 				break;
 			} else {
-				System.out.println("Error sending OptimizationState message");
+				System.out.println("Error sending StartOptimization message");
 				counter--;
 				try {
 					Thread.sleep(5000);
@@ -178,7 +181,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			}
 		}
 		if(counter == 0) {
-			System.out.println("Optimization tool can not be reconfigured any more!");
+			System.out.println("Optimization tool can not be reconfigured any more! Exit Optimization");
 		}
 	}
 	

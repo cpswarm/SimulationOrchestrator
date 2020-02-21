@@ -68,6 +68,7 @@ public class DummyOptimizationTool {
 	private String SCID = null;
 	private String simulationID = null;
 	private String otDataFolder = null;
+	private boolean isOffline = false;
 	private ParameterOptimizationConfiguration optimizationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	private OptimizationMessageEventCoordinatorImpl messageListener = null;
@@ -366,8 +367,13 @@ public class DummyOptimizationTool {
 		this.available = availalble;
 	}
 	
+	public boolean isOffline() {
+		return isOffline;
+	}
+	
 	
 	public void disconnect(boolean error) {
+		this.isOffline = true;
 		this.optimizationError = error;
 		final Presence presence = new Presence(Presence.Type.unavailable);
 		try {
@@ -378,17 +384,18 @@ public class DummyOptimizationTool {
 	}
 	
 	public void reconnect() {
+		this.isOffline = false;
 		final Presence presence = new Presence(Presence.Type.available);
 		try {
 			connection.sendStanza(presence);
 		} catch (final NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("reconnect: sending avaolable msg.... ");
+		System.out.println("reconnect: sending available msg.... ");
 		// If it is the test of the recovery after error 
-		// it waits 10 seconds before to stop the optimization
+		// it waits 10 seconds before to stop the optimization, during the period, SOO will try to restart the optimization
 		if(this.optimizationError) {
-			System.out.println("optimizationError: waiting for 10 sed.... ");
+			System.out.println("optimizationError: waiting for 10 seconds.... ");
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
 				public void run() {

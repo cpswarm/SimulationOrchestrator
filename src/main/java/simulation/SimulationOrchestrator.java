@@ -337,7 +337,7 @@ public class SimulationOrchestrator {
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
-				
+
 			}	
 			if(opMode.equals(OP_MODE.G)) {
 				outputDataFolder = cmd.getOptionValue("target");
@@ -676,6 +676,7 @@ public class SimulationOrchestrator {
     
     
     public void evaluateSimulationManagers(SimulationManagerStatus statusCompare) {
+    	if(simulationManagers.size()!=0) {
     	this.managerConfigured=0;
     	this.configurationAttempts=0;
     	if(availableManagers!=null) {
@@ -740,6 +741,9 @@ public class SimulationOrchestrator {
 				this.handleACK(availableManager,true);
 			}
 		}
+    	} else {
+    		System.out.println("There is not any new simulaton managers");
+    	}
     }
 
     
@@ -780,6 +784,7 @@ public class SimulationOrchestrator {
 
 	
 	private void closeConfiguration() {
+		simulationManagers.clear();
     	if(!TEST || configEnabled) {
     		//It deletes the zip file
     		File file = new File(simulatorConfigurationfileName);
@@ -994,7 +999,7 @@ public class SimulationOrchestrator {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			} while(connection.isConnected());
+			} while(!connection.isConnected());
 		}
 		GetOptimizationStatusMessage getOptimizationStatus = new GetOptimizationStatusMessage(optimizationId);
 		ChatManager manager = ChatManager.getInstanceFor(connection);
@@ -1226,7 +1231,7 @@ public class SimulationOrchestrator {
 
 	public void startGetOptimizationStateSender() {
 		if(this.isRecovery()) {
-			getOptimizationStateSender = new GetOptimizationStatusSender(this);
+			this.getOptimizationStateSender = new GetOptimizationStatusSender(this);
 			// create the thread
 			stateSenderThread = new Thread(getOptimizationStateSender);
 			// run
@@ -1262,8 +1267,8 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean isStateSenderSuspend() {
-		if(getOptimizationStateSender!=null && getOptimizationStateSender.isSuspendState()) {
-			return true;
+		if(getOptimizationStateSender!=null) {
+			return getOptimizationStateSender.isSuspendState();
 		}
 		return false;
 	}

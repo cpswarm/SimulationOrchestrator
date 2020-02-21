@@ -335,7 +335,7 @@ public class AppTest {
 																			orchestratorOutputDataFolder,
 																			optimizationUser, 
 																			recovery,
-																			"cpswarm_sar", // This uses cpswarm_sar and not emergency_exit to indicated that neeed a test optimization that doesn't finish immediately, to test the OT recovery
+																			"cpswarm_sar", // This uses cpswarm_sar and not emergency_exit to indicated that need a test optimization that doesn't finish immediately, to test the OT recovery
 																			guiEnabled, 
 																			parameters, 
 																			dimensions, 

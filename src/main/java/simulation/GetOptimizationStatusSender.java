@@ -17,7 +17,7 @@ public class GetOptimizationStatusSender implements Runnable {
 		while(sendState) {
 			if(!suspendState) {
 				if(!parent.sendGetOptimizationStatus()) {
-					this.setSendState(false);
+					this.setSuspendState(true);
 				}
 			}
 			try {

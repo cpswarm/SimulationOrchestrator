@@ -114,7 +114,14 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 					sid = new Integer(parent.getSimulationID()).intValue();
 				}
 				for(EntityFullJid manager : parent.getManagers()) {
-			//		simulationID = UUID.randomUUID().toString();
+					while(parent.isOffline()) {
+						System.out.println("OT is offline, waiting..........\n");
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 					sid += 1;  // SID increases by 1 each time
 					simulationID = String.valueOf(sid);
 					parent.setSimulationID(simulationID);
