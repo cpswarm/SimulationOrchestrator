@@ -73,6 +73,7 @@ public class PacketListenerImpl implements StanzaListener {
 							System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
 							SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
 							parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
+							parent.evaluateSimulationManagers();
 						} catch (JsonSyntaxException | XmppStringprepException e) {
 							e.printStackTrace();
 						}

@@ -97,7 +97,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 
 	private void handleOptimizationStarted(OptimizationStatusMessage reply) {
 		parent.startGetOptimizationStateSender();
-		parent.evaluateSimulationManagers();
 	}
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
@@ -117,7 +116,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
 			System.out.println("Current configuration: " + reply.getConfiguration().toString());
 			parent.setConfiguration(reply.getConfiguration());
-			parent.evaluateSimulationManagers();
 		}
 	}
 	
