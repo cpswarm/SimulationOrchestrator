@@ -136,6 +136,7 @@ public class SimulationOrchestrator {
 	private ParameterOptimizationConfiguration optimizationConfiguration = null;
 	private String simulationConfiguration = null;
 	private SimulationManagerStatus simulationManagerStatusRequired;
+
 	private String scid;
 	private String serverUsername = "";
 	private String serverPassword = "";
@@ -152,6 +153,8 @@ public class SimulationOrchestrator {
 	private String scxmlPath;
 	private String adfPath;
 	private String simulationEnv;
+	private boolean started = false;
+	private boolean newManagerHandled = false;
 	
 	public static enum OP_MODE {G, D,  S, DS;
 		
@@ -671,7 +674,7 @@ public class SimulationOrchestrator {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    	this.evaluateSimulationManagers(simulationManagerStatusRequired);
+    	this.evaluateSimulationManagers(this.simulationManagerStatusRequired);
     }
     
     
@@ -784,7 +787,7 @@ public class SimulationOrchestrator {
 
 	
 	private void closeConfiguration() {
-		simulationManagers.clear();
+		//simulationManagers.clear();
     	if(!TEST || configEnabled) {
     		//It deletes the zip file
     		File file = new File(simulatorConfigurationfileName);
@@ -794,12 +797,17 @@ public class SimulationOrchestrator {
     			System.out.println("Delete operation is failed.");
     		}
     	}
-		if(optimizationEnabled) {
-			sendStartOptimization();
-		} else {
-			sendRunSimulation();
-		}
-
+    	// The first configuration is finished, now on every new Manager online will need to be reconfigured
+    	if(!started) {
+	    	this.started=true;
+			if(optimizationEnabled) {
+				sendStartOptimization();
+			} else {
+				sendRunSimulation();
+			}
+    	} else {
+    		this.newManagerHandled=true;
+    	}
 	}
     
 	public void evaluateToBeReconfiguredManagers() {
@@ -1128,6 +1136,10 @@ public class SimulationOrchestrator {
 		System.out.println("Adding "+ jid.toString() +" to "+ Arrays.toString(simulationManagers.keySet().toArray()));
 		simulationManagers.put(jid,status);
 		System.out.println("Available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
+		if(this.started) {
+			this.newManagerHandled = false;
+			evaluateSimulationManagers(this.simulationManagerStatusRequired);
+		}
 	}	
 
 	public void removeSimulationManager(Jid jid) {
@@ -1277,5 +1289,15 @@ public class SimulationOrchestrator {
 		this.optimizationConfiguration = configuration;
 	}
 	
-	
+	public SimulationManagerStatus getSimulationManagerStatusRequired() {
+		return simulationManagerStatusRequired;
+	}
+
+	public boolean isNewManagerHandled() {
+		return newManagerHandled;
+	}
+
+	public List<EntityBareJid> getAvailableManagers() {
+		return availableManagers;
+	}
 }

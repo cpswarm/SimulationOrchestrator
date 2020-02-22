@@ -99,6 +99,9 @@ public class AppTest {
 		}
 	}
  
+
+	
+
 	
 	@Test
 	@Order(1)
@@ -170,6 +173,7 @@ public class AppTest {
 		}  
 	}
 	
+	
 	@Test
 	@Order(3)
 	public void testRunSimulation() {	
@@ -237,6 +241,9 @@ public class AppTest {
 			Assert.fail();
 		}  
 	}
+	
+	
+	
 	
 	@Test
 	@Order(4)
@@ -310,6 +317,89 @@ public class AppTest {
 	
 
 	@Test
+	@Order(5)
+	public void testAddSimulationManager() {	
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testAddSimulationManager test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" +
+					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" +
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n");
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword,
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder,
+																			optimizationUser, 
+																			recovery, 
+																			"emergency_exit", 
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_bamboo", 
+					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
+			Assert.assertNotNull(optimizationTool);
+			Thread.sleep(1000);
+			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			orchestrator.evaluateSimulationManagers(status);
+			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(orchestrator.isSimulationDone());
+			DummyManager manager2 = new DummyManager("manager2_bamboo", 
+					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager2);
+			
+			while(!orchestrator.isNewManagerHandled()) {
+				Thread.sleep(1000);
+			}
+			
+			Assert.assertTrue(orchestrator.getAvailableManagers().size()==2);
+			
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			optimizationTool.getConnection().disconnect();
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+
+	
+	
+	@Test
+	@Order(6)
 	public void testOptimizationToolRecoveryConnection() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -383,6 +473,7 @@ public class AppTest {
 	}
 	
 	@Test
+	@Order(7)
 	public void testOptimizationToolRecoveryError() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
