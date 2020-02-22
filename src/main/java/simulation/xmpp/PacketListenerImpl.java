@@ -42,60 +42,59 @@ public class PacketListenerImpl implements StanzaListener {
 	@Override
 	public void processStanza(final Stanza packet) {
 		final Presence presence = (Presence) packet;
-		// If the presence indicates that another user is trying to add the orchestrator
-		// to its roster, it puts the presence in the queue of the ones to be handled
-		if (presence.getType() == Presence.Type.subscribe) {
-			try {
+		try {
+			// If the presence indicates that another user is trying to add the orchestrator
+			// to its roster, it puts the presence in the queue of the ones to be handled
+			if (presence.getType() == Presence.Type.subscribe) {
+
 				SimulationOrchestrator.SEMAPHORE.acquire();
 				parent.putSubscribeRequest(presence);
 				SimulationOrchestrator.SEMAPHORE.release();
-			} catch (InterruptedException e) {
-				System.out.println("error adding the new presence in Queue : from " + presence.getFrom());
-				e.printStackTrace();
-			}
-		} else {
-			if (presence.isAvailable()) {
-				System.out
-						.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
-				if (presence.getStatus() != null) {
-					StatusSerializer serializer = new StatusSerializer();
-					BaseStatus status = serializer.fromJson(presence.getStatus());
-					switch (status.getType()) {
-					case "OptimizationTool":
-						if (parent.getOptimizationId() != null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
-							// if optimization was ever started(OID!=null), but OT was offline and online
-							// again, SOO sends getOptimizationStatus in OT error handling workflow
-							parent.sendGetOptimizationStatus();
+			} else {
+				if (presence.isAvailable()) {
+					System.out
+					.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
+					if (presence.getStatus() != null) {
+						StatusSerializer serializer = new StatusSerializer();
+						BaseStatus status = serializer.fromJson(presence.getStatus());
+						switch (status.getType()) {
+						case "OptimizationTool":
+							if (parent.getOptimizationId() != null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
+								// if optimization was ever started(OID!=null), but OT was offline and online
+								// again, SOO sends getOptimizationStatus in OT error handling workflow
+								parent.sendGetOptimizationStatus();
+							}
+							break;
+						case "SimulationManager":
+							try {
+								System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
+								SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
+								parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
+								SimulationOrchestrator.SEMAPHORE.acquire();
+								parent.evaluateSimulationManagers();
+								SimulationOrchestrator.SEMAPHORE.release();
+							} catch (JsonSyntaxException | XmppStringprepException e) {
+								e.printStackTrace();
+							}
+							break;
 						}
-						break;
-					case "SimulationManager":
+					}
+				} else if(presence.getType().equals(Presence.Type.unavailable)){
+					System.out.println(
+							"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
+					if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
+						System.out.println("Removing Manager "+presence.getFrom().toString()+" from the list of the ones available");
 						try {
-							System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
-							SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
-							parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
-							parent.evaluateSimulationManagers();
+							parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
 						} catch (JsonSyntaxException | XmppStringprepException e) {
-							e.printStackTrace();
 						}
-						break;
+					} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
+						System.out.println("The Optimization Tool is offline, stop to request the state");
+						if(parent.isRecovery()) {
+							parent.suspendGetOptimizationStateSender();
+						}
 					}
-				}
-			} else if(presence.getType().equals(Presence.Type.unavailable)){
-				System.out.println(
-						"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
-				if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
-					System.out.println("Removing Manager "+presence.getFrom().toString()+" from the list of the ones available");
-					try {
-						parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
-					} catch (JsonSyntaxException | XmppStringprepException e) {
-					}
-				} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
-					System.out.println("The Optimization Tool is offline, stop to request the state");
-					if(parent.isRecovery()) {
-						parent.suspendGetOptimizationStateSender();
-					}
-				}
-			/*	StatusSerializer serializer = new StatusSerializer();
+					/*	StatusSerializer serializer = new StatusSerializer();
 				BaseStatus status = serializer.fromJson(presence.getStatus());
 				switch(status.getType()) {
 				case "OptimizationTool":
@@ -116,7 +115,11 @@ public class PacketListenerImpl implements StanzaListener {
 						}
 					}
 				}*/
+				}
 			}
+		} catch (InterruptedException e) {
+			System.out.println("error adding the new presence in Queue : from " + presence.getFrom());
+			e.printStackTrace();
 		}
 	}
 }
