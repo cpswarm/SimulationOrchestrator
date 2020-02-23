@@ -51,7 +51,7 @@ public class PacketListenerImpl implements StanzaListener {
 				parent.putSubscribeRequest(presence);
 				SimulationOrchestrator.SEMAPHORE.release();
 			} else {
-				if (presence.isAvailable()) {
+				if (presence.getType().equals(Presence.Type.available)) {
 					System.out
 					.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
 					if (presence.getStatus() != null) {
@@ -69,7 +69,7 @@ public class PacketListenerImpl implements StanzaListener {
 							try {
 								System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
 								SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
-								if(smStatus.getSimulationConfigurationId() != null) {
+								if(smStatus.getSimulationConfigurationId() == null) {
 									parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
 								}
 							} catch (JsonSyntaxException | XmppStringprepException e) {

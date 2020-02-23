@@ -316,11 +316,11 @@ public class SimulationOrchestrator {
 					parameters = cmd.getOptionValue("params");
 				}
 
-				String can = "100";
+				String can = "2";
 				if(cmd.getOptionValue("can")!=null) {
 					can = cmd.getOptionValue("can");
 				}
-				String gen = "4";
+				String gen = "2";
 				if(cmd.getOptionValue("gen")!=null) {
 					gen = cmd.getOptionValue("gen");
 				}
@@ -340,6 +340,7 @@ public class SimulationOrchestrator {
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
+				optConf.setVariantCount(2);
 			}	
 			if(opMode.equals(OP_MODE.G)) {
 				outputDataFolder = cmd.getOptionValue("target");
@@ -384,14 +385,18 @@ public class SimulationOrchestrator {
 					configurationFolder+=File.separator;
 				}
 				if((opMode.equals(OP_MODE.S) || opMode.equals(OP_MODE.DS)) && optimizationEnabled) {
-					Gson gson = new Gson();
+				/*	Gson gson = new Gson();
 					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
 					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
 					List<ParameterDefinition> frevoParameters = new ArrayList<ParameterDefinition>();
 					for (Parameter param : modelledParams.getParameters()) {
 						ParameterDefinition frevoParaneter = new ParameterDefinition(param.getName(), param.getMeta(), param.getMin().intValue(), param.getMax().intValue(), Float.parseFloat(param.getScale()));
 						frevoParameters.add(frevoParaneter);
-					}
+					}*/
+					List<ParameterDefinition> frevoParameters = new ArrayList<ParameterDefinition>();
+					frevoParameters.add(new ParameterDefinition("step_size", "file:ugv_random_walk", 2, 10, Float.parseFloat("1.0")));
+					frevoParameters.add(new ParameterDefinition("scouts", "command_line", 1, 2, Float.parseFloat("1.0")));
+					frevoParameters.add(new ParameterDefinition("workers", "command_line", 1, 5, Float.parseFloat("1.0")));
 					optConf.setParameterDefinitions(frevoParameters);
 				}
 			} 
@@ -1027,12 +1032,6 @@ public class SimulationOrchestrator {
 	}
 	
 	public boolean sendStartOptimization() {   
-		List<String> managersJid = new ArrayList<String>();
-		for(EntityBareJid availableManager : this.availableManagers) {
-			if(!this.blacklistedManagers.contains(availableManager)) {
-				managersJid.add(availableManager.toString());
-			}
-		}
 		if(this.optimizationEnabled && this.optimizationId==null) {
 			this.setOptimizationId(scid+"!"+UUID.randomUUID());
 		}
@@ -1270,7 +1269,9 @@ public class SimulationOrchestrator {
 	}
 	
 	public void suspendGetOptimizationStateSender() {
-		this.getOptimizationStateSender.setSuspendState(true);		
+		if(this.stateSenderThread!=null) {
+			this.getOptimizationStateSender.setSuspendState(true);	
+		}
 	}
 	
 	public void restartGetOptimizationStateSender() {
