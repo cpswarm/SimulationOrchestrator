@@ -384,7 +384,7 @@ public class AppTest {
 				Thread.sleep(1000);
 			}
 			
-			Assert.assertTrue(orchestrator.getAvailableManagers().size()==2);
+			Assert.assertTrue(orchestrator.getAvailableManagers().size()==1);
 			
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();

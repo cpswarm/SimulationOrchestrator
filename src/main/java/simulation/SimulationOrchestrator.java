@@ -786,7 +786,7 @@ public class SimulationOrchestrator {
 
 	
 	private void closeConfiguration() {
-		//simulationManagers.clear();
+		simulationManagers.clear();
     	if(!TEST || configEnabled) {
     		//It deletes the zip file
     		File file = new File(simulatorConfigurationfileName);
