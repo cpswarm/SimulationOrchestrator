@@ -1,5 +1,6 @@
 package simulation.xmpp;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
@@ -67,9 +68,9 @@ public class PacketListenerImpl implements StanzaListener {
 							break;
 						case "SimulationManager":
 							try {
-								System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
 								SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
-								if(smStatus.getSimulationConfigurationId().isEmpty()) {
+								if(StringUtils.isEmpty(smStatus.getSimulationConfigurationId())) {
+									System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
 									parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
 								}
 							} catch (JsonSyntaxException | XmppStringprepException e) {

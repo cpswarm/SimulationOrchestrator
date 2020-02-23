@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
@@ -51,25 +52,22 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
 			// Check if it is a simple simulation or if it is an optimization
 			// if the ID is the one set for the current optimization
-			if (parent.getOptimizationId()==null 
-					|| message.getOptimizationId().equals(parent.getOptimizationId())) {
-				if (sender.toString().startsWith("manager")) {
-					if (message instanceof SimulatorConfiguredMessage) {
-						System.out.println("Received configuration ACK="
-								+ ((SimulatorConfiguredMessage) message).getSuccess() + " from " + sender.toString());
-						parent.handleACK(sender, ((SimulatorConfiguredMessage) message).getSuccess());
-					} else if (message instanceof SimulationResultMessage) {
-						if (((SimulationResultMessage) message).getSuccess()) {
-							System.out.println("Received simulation result from " + sender.toString());
-							parent.setSimulationDone(true);
-						}
+			if (sender.toString().startsWith("manager")) {
+				if (message instanceof SimulatorConfiguredMessage) {
+					System.out.println("Received configuration ACK="
+							+ ((SimulatorConfiguredMessage) message).getSuccess() + " from " + sender.toString());
+					parent.handleACK(sender, ((SimulatorConfiguredMessage) message).getSuccess());
+				} else if (message instanceof SimulationResultMessage) {
+					if (((SimulationResultMessage) message).getSuccess()) {
+						System.out.println("Received simulation result from " + sender.toString());
+						parent.setSimulationDone(true);
 					}
-				} else if (sender.compareTo(parent.getOptimizationJid().asBareJid()) == 0) {
-					if (message instanceof OptimizationStatusMessage) {
-						handleOptimizationStatusMessage((OptimizationStatusMessage) message, serializer);
-					} else {
-						System.out.println("Reply received: " + msg.getBody());
-					}
+				}
+			} else if (sender.compareTo(parent.getOptimizationJid().asBareJid()) == 0) {
+				if (message instanceof OptimizationStatusMessage) {
+					handleOptimizationStatusMessage((OptimizationStatusMessage) message, serializer);
+				} else {
+					System.out.println("Reply received: " + msg.getBody());
 				}
 			}
 		}
