@@ -30,8 +30,8 @@ public class SubscriptionHandler implements Runnable {
 		while (run) {
 			Presence presence = null;
 			try {
-				SimulationOrchestrator.SEMAPHORE.acquire();
 				presence = parent.getSubscriptionRequest();
+				SimulationOrchestrator.SEMAPHORE.acquire();
 				System.out.println(
 						"subscription request received from " + presence.getFrom());
 				final Presence answerPresence = new Presence(
