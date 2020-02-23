@@ -101,223 +101,8 @@ public class AppTest {
  
 
 	
-
-	
 	@Test
 	@Order(1)
-	public void testKubernetes() {
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testKubernetes test-------------------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			Config config = new ConfigBuilder().build();
-			KubernetesClient client = new DefaultKubernetesClient(config);
-			
-			ReplicaSetList list = client.apps().replicaSets().inAnyNamespace().list();
-			for (ReplicaSet item : list.getItems()) {
-				System.out.println(item.getMetadata().getName());
-			}
-			client.close();
-		} catch (Exception e) {
-			Assert.fail();
-		}
-	}
-
-	@Test
-	@Order(2)
-	public void testCreation() {
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testCreation test---------------------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
-																			serverIPAddress, 
-																			serverName, 
-																			serverUsername, 
-																			serverPassword, 
-																			orchestratorInputDataFolder, 
-																			orchestratorOutputDataFolder, 
-																			optimizationUser, 
-																			recovery, "emergency_exit", 
-																			guiEnabled, 
-																			parameters, 
-																			dimensions, 
-																			maxAgents, 
-																			true, 
-																			configurationFolder, 
-																			localOptimization, 
-																			optimizationToolPath, 
-																			optimizationToolPassword, 
-																			localSimulationManager, 
-																			simulationManagerPath, 
-																			optimizationConfiguration, 
-																			Boolean.FALSE, 
-																			startingTimeout,
-																			null,
-																			null,
-																			null);
-			Assert.assertNotNull(orchestrator);
-			do {
-				Thread.sleep(1000);
-			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
-			Assert.assertNotNull(manager);
-			Thread.sleep(10000);
-			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
-			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_bamboo@"+serverName));
-			Assert.assertNotNull(entry);
-			orchestrator.getConnection().disconnect();
-			manager.getConnection().disconnect();
-		} catch (Exception e) {
-			Assert.fail();
-		}  
-	}
-	
-	
-	@Test
-	@Order(3)
-	public void testRunSimulation() {	
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testRunSimulation test----------------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			Gson gson = new Gson();
-			StatusSerializer serializer = new StatusSerializer();
-			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
-					"	\"type\": \"SimulationManager\",\r\n" + 
-					   "	\"SCID\": \"\",\r\n" + 
-					   "	\"SID\": 1,\r\n" + 
-					   "	\"capabilities\": {\r\n" + 
-					   "		\"dimensions\": 2,\r\n" + 
-					   "        \"max_agents\": 8\r\n" +
-					   "	}\r\n" + 
-					   "}\r\n");
-			Assert.assertNotNull(status);
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
-																			serverIPAddress, 
-																			serverName, 
-																			serverUsername, 
-																			serverPassword, 
-																			orchestratorInputDataFolder, 
-																			orchestratorOutputDataFolder, 
-																			optimizationUser, 
-																			recovery, 
-																			"emergency_exit",
-																			guiEnabled, 
-																			parameters,
-																			dimensions, 
-																			maxAgents, 
-																			false, 
-																			configurationFolder, 
-																			localOptimization, 
-																			optimizationToolPath, 
-																			optimizationToolPassword, 
-																			localSimulationManager,
-																			simulationManagerPath,
-																			optimizationConfiguration, 
-																			Boolean.FALSE, 
-																			startingTimeout,
-																			null,
-																			null,
-																			null);
-			Assert.assertNotNull(orchestrator);
-			do {
-				Thread.sleep(10000);
-			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
-			Assert.assertNotNull(manager);
-			Thread.sleep(1000);
-			
-			orchestrator.evaluateSimulationManagers(status);
-			while(!orchestrator.isSimulationDone()) {
-				Thread.sleep(1000);
-			}
-			Assert.assertTrue(orchestrator.isSimulationDone());
-			orchestrator.getConnection().disconnect();
-			manager.getConnection().disconnect();
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail();
-		}  
-	}
-	
-	
-	
-	
-	@Test
-	@Order(4)
-	public void testRunOptimization() {	
-		try {
-			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testRunOptimization test----------------------------------");
-			System.out.println("-----------------------------------------------------------------------------------------");
-			StatusSerializer serializer = new StatusSerializer();
-			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
-					"	\"type\": \"SimulationManager\",\r\n" +
-					   "	\"SCID\": \"\",\r\n" + 
-					   "	\"SID\": 1,\r\n" +
-					   "	\"capabilities\": {\r\n" + 
-					   "		\"dimensions\": 2,\r\n" + 
-					   "        \"max_agents\": 8\r\n" +
-					   "	}\r\n" + 
-					   "}\r\n");
-			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
-																			serverIPAddress, 
-																			serverName, 
-																			serverUsername, 
-																			serverPassword,
-																			orchestratorInputDataFolder, 
-																			orchestratorOutputDataFolder,
-																			optimizationUser, 
-																			recovery, 
-																			"emergency_exit", 
-																			guiEnabled, 
-																			parameters, 
-																			dimensions, 
-																			maxAgents, 
-																			true, 
-																			configurationFolder, 
-																			localOptimization, 
-																			optimizationToolPath, 
-																			optimizationToolPassword, 
-																			localSimulationManager, 
-																			simulationManagerPath, 
-																			optimizationConfiguration, 
-																			Boolean.FALSE, 
-																			startingTimeout,
-																			null,
-																			null,
-																			null);
-			Assert.assertNotNull(orchestrator);
-			do {
-				Thread.sleep(10000);
-			}while(!orchestrator.getConnection().isConnected());
-			DummyManager manager = new DummyManager("manager_bamboo", 
-					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
-			Assert.assertNotNull(manager);
-			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
-			Assert.assertNotNull(optimizationTool);
-			Thread.sleep(1000);
-			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
-			orchestrator.evaluateSimulationManagers(status);
-			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
-				Thread.sleep(1000);
-			}
-			Assert.assertTrue(orchestrator.isSimulationDone());
-			orchestrator.getConnection().disconnect();
-			manager.getConnection().disconnect();
-			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail();
-		}  
-	}
-	
-
-	@Test
-	@Order(5)
 	public void testAddSimulationManager() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
@@ -395,6 +180,221 @@ public class AppTest {
 			Assert.fail();
 		}  
 	}
+	
+	@Test
+	@Order(2)
+	public void testKubernetes() {
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testKubernetes test-------------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			Config config = new ConfigBuilder().build();
+			KubernetesClient client = new DefaultKubernetesClient(config);
+			
+			ReplicaSetList list = client.apps().replicaSets().inAnyNamespace().list();
+			for (ReplicaSet item : list.getItems()) {
+				System.out.println(item.getMetadata().getName());
+			}
+			client.close();
+		} catch (Exception e) {
+			Assert.fail();
+		}
+	}
+
+	@Test
+	@Order(3)
+	public void testCreation() {
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testCreation test---------------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword, 
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder, 
+																			optimizationUser, 
+																			recovery, "emergency_exit", 
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(1000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager);
+			Thread.sleep(10000);
+			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
+			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_bamboo@"+serverName));
+			Assert.assertNotNull(entry);
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+		} catch (Exception e) {
+			Assert.fail();
+		}  
+	}
+	
+	
+	@Test
+	@Order(4)
+	public void testRunSimulation() {	
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testRunSimulation test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			Gson gson = new Gson();
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" + 
+					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" + 
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n");
+			Assert.assertNotNull(status);
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword, 
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder, 
+																			optimizationUser, 
+																			recovery, 
+																			"emergency_exit",
+																			guiEnabled, 
+																			parameters,
+																			dimensions, 
+																			maxAgents, 
+																			false, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager,
+																			simulationManagerPath,
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager);
+			Thread.sleep(1000);
+			
+			orchestrator.evaluateSimulationManagers(status);
+			while(!orchestrator.isSimulationDone()) {
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(orchestrator.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+	
+	
+	
+	
+	@Test
+	@Order(5)
+	public void testRunOptimization() {	
+		try {
+			System.out.println("-----------------------------------------------------------------------------------------");
+			System.out.println("--------------------Starting the testRunOptimization test----------------------------------");
+			System.out.println("-----------------------------------------------------------------------------------------");
+			StatusSerializer serializer = new StatusSerializer();
+			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
+					"	\"type\": \"SimulationManager\",\r\n" +
+					   "	\"SCID\": \"\",\r\n" + 
+					   "	\"SID\": 1,\r\n" +
+					   "	\"capabilities\": {\r\n" + 
+					   "		\"dimensions\": 2,\r\n" + 
+					   "        \"max_agents\": 8\r\n" +
+					   "	}\r\n" + 
+					   "}\r\n");
+			SimulationOrchestrator orchestrator = new SimulationOrchestrator(SimulationOrchestrator.OP_MODE.S,
+																			serverIPAddress, 
+																			serverName, 
+																			serverUsername, 
+																			serverPassword,
+																			orchestratorInputDataFolder, 
+																			orchestratorOutputDataFolder,
+																			optimizationUser, 
+																			recovery, 
+																			"emergency_exit", 
+																			guiEnabled, 
+																			parameters, 
+																			dimensions, 
+																			maxAgents, 
+																			true, 
+																			configurationFolder, 
+																			localOptimization, 
+																			optimizationToolPath, 
+																			optimizationToolPassword, 
+																			localSimulationManager, 
+																			simulationManagerPath, 
+																			optimizationConfiguration, 
+																			Boolean.FALSE, 
+																			startingTimeout,
+																			null,
+																			null,
+																			null);
+			Assert.assertNotNull(orchestrator);
+			do {
+				Thread.sleep(10000);
+			}while(!orchestrator.getConnection().isConnected());
+			DummyManager manager = new DummyManager("manager_bamboo", 
+					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
+			Assert.assertNotNull(manager);
+			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
+			Assert.assertNotNull(optimizationTool);
+			Thread.sleep(1000);
+			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			orchestrator.evaluateSimulationManagers(status);
+			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue(orchestrator.isSimulationDone());
+			orchestrator.getConnection().disconnect();
+			manager.getConnection().disconnect();
+			optimizationTool.getConnection().disconnect();
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}  
+	}
+	
+
+
 
 	
 	

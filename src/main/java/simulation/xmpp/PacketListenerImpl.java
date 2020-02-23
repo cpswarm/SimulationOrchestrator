@@ -42,14 +42,14 @@ public class PacketListenerImpl implements StanzaListener {
 	@Override
 	public void processStanza(final Stanza packet) {
 		final Presence presence = (Presence) packet;
-		try {
+		//try {
 			// If the presence indicates that another user is trying to add the orchestrator
 			// to its roster, it puts the presence in the queue of the ones to be handled
 			if (presence.getType() == Presence.Type.subscribe) {
 
-				SimulationOrchestrator.SEMAPHORE.acquire();
+				//SimulationOrchestrator.SEMAPHORE.acquire();
 				parent.putSubscribeRequest(presence);
-				SimulationOrchestrator.SEMAPHORE.release();
+				//SimulationOrchestrator.SEMAPHORE.release();
 			} else {
 				if (presence.getType().equals(Presence.Type.available)) {
 					System.out
@@ -69,7 +69,7 @@ public class PacketListenerImpl implements StanzaListener {
 							try {
 								System.out.println("Adding Manager " + presence.getFrom().toString() + " to the list of the ones available");
 								SimulationManagerStatus smStatus = (SimulationManagerStatus) status;
-								if(smStatus.getSimulationConfigurationId() == null) {
+								if(smStatus.getSimulationConfigurationId().isEmpty()) {
 									parent.putSimulationManager(JidCreate.entityBareFrom(presence.getFrom()), smStatus);
 								}
 							} catch (JsonSyntaxException | XmppStringprepException e) {
@@ -116,9 +116,9 @@ public class PacketListenerImpl implements StanzaListener {
 				}*/
 				}
 			}
-		} catch (InterruptedException e) {
+		/*} catch (InterruptedException e) {
 			System.out.println("error adding the new presence in Queue : from " + presence.getFrom());
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
