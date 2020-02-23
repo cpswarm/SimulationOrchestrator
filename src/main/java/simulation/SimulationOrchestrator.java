@@ -340,7 +340,6 @@ public class SimulationOrchestrator {
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
-
 			}	
 			if(opMode.equals(OP_MODE.G)) {
 				outputDataFolder = cmd.getOptionValue("target");
