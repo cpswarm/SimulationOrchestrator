@@ -317,11 +317,11 @@ public class SimulationOrchestrator {
 					parameters = cmd.getOptionValue("params");
 				}
 
-				String can = "2";
+				String can = "8";
 				if(cmd.getOptionValue("can")!=null) {
 					can = cmd.getOptionValue("can");
 				}
-				String gen = "2";
+				String gen = "4";
 				if(cmd.getOptionValue("gen")!=null) {
 					gen = cmd.getOptionValue("gen");
 				}
@@ -341,9 +341,9 @@ public class SimulationOrchestrator {
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
-				optConf.setVariantCount(2);
+				optConf.setVariantCount(5);
+				optConf.setEliteWeight(0.4);
 				optConf.setMaximumFitness(100);
-				System.out.println("gc="+ optConf.getMaximumGeneration()+", gener="+optConf.getGeneration()+", cc="+optConf.getCandidateCount()+", vc="+optConf.getVariantCount()+", max-fit="+optConf.getMaximumFitness());
 			}	
 			if(opMode.equals(OP_MODE.G)) {
 				outputDataFolder = cmd.getOptionValue("target");
@@ -1024,7 +1024,7 @@ public class SimulationOrchestrator {
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(getOptimizationStatus);
 		message.setBody(messageToSend);
-		System.out.println("Sending getOptimizationStatus "+messageToSend);
+	//	System.out.println("Sending getOptimizationStatus "+messageToSend);
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
@@ -1244,7 +1244,7 @@ public class SimulationOrchestrator {
 	}
 
 	public void startGetOptimizationStateSender() {
-		if(this.isRecovery()) {
+		if(this.isRecovery() && stateSenderThread == null) {
 			this.getOptimizationStateSender = new GetOptimizationStatusSender(this);
 			// create the thread
 			stateSenderThread = new Thread(getOptimizationStateSender);

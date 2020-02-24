@@ -56,8 +56,7 @@ public class PacketListenerImpl implements StanzaListener {
 				SimulationOrchestrator.SEMAPHORE.release();
 			} else {
 				if (presence.getType().equals(Presence.Type.available)) {
-					System.out
-					.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
+			//		System.out.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
 					if (presence.getStatus() != null) {
 						StatusSerializer serializer = new StatusSerializer();
 						BaseStatus status = serializer.fromJson(presence.getStatus());
@@ -67,8 +66,6 @@ public class PacketListenerImpl implements StanzaListener {
 									&& presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 								// if optimization was ever started(OID!=null), but OT was offline and online
 								// again, SOO sends getOptimizationStatus in OT error handling workflow
-								// parent.sendGetOptimizationStatus();
-								System.out.println("tasks LIST in status = "+((OptimizationToolStatus) status).getTasks().size());
 								if (status instanceof OptimizationToolStatus) {
 									if(((OptimizationToolStatus) status).getTasks().size()!=0 && ((OptimizationToolStatus)status ).getTasks().get(0).getStatusType().equals(OptimizationStatusType.STARTED)) {
 										parent.startGetOptimizationStateSender();
@@ -104,27 +101,6 @@ public class PacketListenerImpl implements StanzaListener {
 							parent.suspendGetOptimizationStateSender();
 						}
 					}
-					/*	StatusSerializer serializer = new StatusSerializer();
-				BaseStatus status = serializer.fromJson(presence.getStatus());
-				switch(status.getType()) {
-				case "OptimizationTool":
-					if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
-						System.out.println("The Optimization Tool is offline, stop to send the get status");
-						if(parent.isRecovery()) {
-							parent.suspendGetOptimizationStateSender();
-						}
-					}
-				case "SimulationManager":
-					System.out.println(
-							"presence received from " + presence.getFrom()+", type: "+presence.getType().toString());
-					if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
-						System.out.println("Removing Manager "+presence.getFrom().toString()+" to the list of the ones available");
-						try {
-							parent.removeSimulationManager(JidCreate.entityBareFrom(presence.getFrom()));
-						} catch (JsonSyntaxException | XmppStringprepException e) {
-						}
-					}
-				}*/
 				}
 			}
 		} catch (InterruptedException e) {
