@@ -9,7 +9,10 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import com.google.gson.JsonSyntaxException;
 
+import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.statuses.BaseStatus;
+import eu.cpswarm.optimization.statuses.OptimizationStatusType;
+import eu.cpswarm.optimization.statuses.OptimizationToolStatus;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import eu.cpswarm.optimization.statuses.StatusSerializer;
 import simulation.SimulationOrchestrator;
@@ -60,10 +63,17 @@ public class PacketListenerImpl implements StanzaListener {
 						BaseStatus status = serializer.fromJson(presence.getStatus());
 						switch (status.getType()) {
 						case "OptimizationTool":
-							if (parent.getOptimizationId() != null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
+							if (parent.getOptimizationId() != null
+									&& presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 								// if optimization was ever started(OID!=null), but OT was offline and online
 								// again, SOO sends getOptimizationStatus in OT error handling workflow
-								parent.sendGetOptimizationStatus();
+								// parent.sendGetOptimizationStatus();
+								System.out.println("tasks LIST in status = "+((OptimizationToolStatus) status).getTasks().size());
+								if (status instanceof OptimizationToolStatus) {
+									if(((OptimizationToolStatus) status).getTasks().size()!=0 && ((OptimizationToolStatus)status ).getTasks().get(0).getStatusType().equals(OptimizationStatusType.STARTED)) {
+										parent.startGetOptimizationStateSender();
+									}
+								}
 							}
 							break;
 						case "SimulationManager":

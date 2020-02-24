@@ -155,6 +155,7 @@ public class SimulationOrchestrator {
 	private String simulationEnv;
 	private boolean started = false;
 	private boolean newManagerHandled = false;
+	private MessageEventCoordinatorImpl messageEventCoordinatorImpl =null;
 	
 	public static enum OP_MODE {G, D,  S, DS;
 		
@@ -341,6 +342,8 @@ public class SimulationOrchestrator {
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
 				optConf.setEvaluationSeed(Integer.parseInt(se));
 				optConf.setVariantCount(2);
+				optConf.setMaximumFitness(100);
+				System.out.println("gc="+ optConf.getMaximumGeneration()+", gener="+optConf.getGeneration()+", cc="+optConf.getCandidateCount()+", vc="+optConf.getVariantCount()+", max-fit="+optConf.getMaximumFitness());
 			}	
 			if(opMode.equals(OP_MODE.G)) {
 				outputDataFolder = cmd.getOptionValue("target");
@@ -597,7 +600,8 @@ public class SimulationOrchestrator {
 			reconnectionManager.setReconnectionPolicy(ReconnectionPolicy.RANDOM_INCREASING_DELAY);
 
 			// Adds the listener for the incoming messages
-			ChatManager.getInstanceFor(connection).addIncomingListener(new MessageEventCoordinatorImpl(this));
+			messageEventCoordinatorImpl = new MessageEventCoordinatorImpl(this);
+			ChatManager.getInstanceFor(connection).addIncomingListener(messageEventCoordinatorImpl);
 
 			FileTransferManager.getInstanceFor(connection)
 					.addFileTransferListener(new OchestratorFileTransferListenerImpl(this, outputDataFolder));
@@ -1299,5 +1303,9 @@ public class SimulationOrchestrator {
 
 	public List<EntityBareJid> getAvailableManagers() {
 		return availableManagers;
+	}
+	
+	public MessageEventCoordinatorImpl getMessageEventCoordinatorImpl() {
+		return messageEventCoordinatorImpl;
 	}
 }

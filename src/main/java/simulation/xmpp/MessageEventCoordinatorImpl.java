@@ -45,6 +45,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	@Override
 	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
 		// The message is sent from a manager
+		System.out.println("RECEIVED msg from ......."+msg.getFrom() +" msg= "+msg.getBody());
 		MessageSerializer serializer = new MessageSerializer();
 		if(msg.getBody().equals("error")) {
 			System.out.println("error received from "+msg.getFrom());
@@ -52,6 +53,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			eu.cpswarm.optimization.messages.Message message = serializer.fromJson(msg.getBody());
 			// Check if it is a simple simulation or if it is an optimization
 			// if the ID is the one set for the current optimization
+		//	if (parent.getOptimizationId()==null || message.getOptimizationId()==null) {
 			if (sender.toString().startsWith("manager")) {
 				if (message instanceof SimulatorConfiguredMessage) {
 					System.out.println("Received configuration ACK="
@@ -65,11 +67,14 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				}
 			} else if (sender.compareTo(parent.getOptimizationJid().asBareJid()) == 0) {
 				if (message instanceof OptimizationStatusMessage) {
+					System.out.println("status= "+((OptimizationStatusMessage) message).getStatusType());
 					handleOptimizationStatusMessage((OptimizationStatusMessage) message, serializer);
 				} else {
 					System.out.println("Reply received: " + msg.getBody());
 				}
 			}
+		//	}
+			
 		}
 	}
 	
@@ -94,7 +99,8 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 
 	private void handleOptimizationStarted(OptimizationStatusMessage reply) {
-		parent.startGetOptimizationStateSender();
+		System.out.println(" received started msg..... ");
+	//	parent.startGetOptimizationStateSender();
 	}
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
