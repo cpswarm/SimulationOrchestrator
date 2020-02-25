@@ -204,7 +204,7 @@ public class SimulationOrchestrator {
 		String optimizationToolPassword = "";
 		Boolean localSimulationManager = false;
 		String simulationManagerPath = null;
-		ParameterOptimizationConfiguration optConf = null;
+		ParameterOptimizationConfiguration optConf = new ParameterOptimizationConfiguration();;
 		Boolean configEnabled = false;
 		int startingTimeout = 5000;
 		OP_MODE opMode = null;
@@ -333,10 +333,6 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("seed")!=null) {
 					se = cmd.getOptionValue("seed");
 				}		
-				
-				Gson gson = new Gson();
-				JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
-				optConf = gson.fromJson(reader, ParameterOptimizationConfiguration.class);
 				optConf.setCandidateCount(Integer.parseInt(can));
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
@@ -1024,7 +1020,6 @@ public class SimulationOrchestrator {
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(getOptimizationStatus);
 		message.setBody(messageToSend);
-	//	System.out.println("Sending getOptimizationStatus "+messageToSend);
 		try {
 			chat.send(message);
 		} catch (NotConnectedException | InterruptedException e) {
