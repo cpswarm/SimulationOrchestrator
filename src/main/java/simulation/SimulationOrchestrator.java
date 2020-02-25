@@ -1077,10 +1077,9 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return false;
 		}
-		//FIXME the message is not correct   /* >>>>>>>>>>>in case of single simulation, OID = null */
 		Gson gson = new Gson();
 		List<eu.cpswarm.optimization.parameters.Parameter> parameters = gson.fromJson(candidateToSend, new TypeToken<List<eu.cpswarm.optimization.parameters.Parameter>>(){}.getType());
-		RunSimulationMessage run = new RunSimulationMessage(this.optimizationId, "1", Long.valueOf(1234).longValue(), parameters);
+		RunSimulationMessage run = new RunSimulationMessage(null, "1", Long.valueOf(1234).longValue(), parameters);
 		MessageSerializer serializer = new MessageSerializer();
 		String messageToSend = serializer.toJson(run);
 		System.out.println("Sending RunSimulation message: "+messageToSend);

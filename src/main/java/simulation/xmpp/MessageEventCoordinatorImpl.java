@@ -86,7 +86,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		case COMPLETE:
 			handleOptimizationCompleted(optimizationStatus);
 			break;
-		case ERROR: /* error occurs, optimization is not ongoing, but still online, it automatically reports the error status to SOO, then SOO needs to send back OptimizationState to OT for restarting */
+		case ERROR: /* error occurs, optimization is not ongoing, but still online, it automatically reports the error status to SOO, then SOO needs to send back Optimization configuration to OT for restarting */
 			handleOptimizationError(optimizationStatus);
 			break;
 		default:
@@ -108,12 +108,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(parent.isStateSenderSuspend()) {
 				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
 			}
-			System.out.println("Status of the current optimization: " + reply.getOptimizationId());
-			System.out.println("Current status: " + reply.getStatusType());
-			System.out.println("Current best fitness value: " + reply.getBestFitness());
+			System.out.println("current optimization: " + reply.getOptimizationId()+", status: " + reply.getStatusType()+", best fitness value: " + reply.getBestFitness());
 			Gson gson = new Gson();
 			System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
-			System.out.println("Current configuration: " + reply.getConfiguration().toString());
 			parent.setConfiguration(reply.getConfiguration());
 		}
 	}
