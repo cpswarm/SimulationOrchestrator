@@ -142,6 +142,7 @@ public class AppTest {
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
 																			startingTimeout,
+																			1200,
 																			null,
 																			null,
 																			null);
@@ -231,6 +232,7 @@ public class AppTest {
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
 																			startingTimeout,
+																			1200,
 																			null,
 																			null,
 																			null);
@@ -295,6 +297,7 @@ public class AppTest {
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
 																			startingTimeout,
+																			1200,
 																			null,
 																			null,
 																			null);
@@ -364,6 +367,7 @@ public class AppTest {
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
 																			startingTimeout,
+																			1200,
 																			null,
 																			null,
 																			null);
@@ -440,6 +444,7 @@ public class AppTest {
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
 																			startingTimeout,
+																			1200,
 																			null,
 																			null,
 																			null);
@@ -513,6 +518,7 @@ public class AppTest {
 																			optimizationConfiguration, 
 																			Boolean.FALSE, 
 																			startingTimeout,
+																			1200,
 																			null,
 																			null,
 																			null);

@@ -743,7 +743,7 @@ public class SimulationOrchestrator {
     			if(simulationManagers.containsKey(availableManager)) {
     				System.out.println("Configuring the simulation manager: "+availableManager);
     				try {
-    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), this.simulatorConfigurationfileName, /*optimizationId+","+*/scid+","+simulationConfiguration)) {
+    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), this.simulatorConfigurationfileName, scid+","+simulationConfiguration)) {
     						this.handleACK(availableManager, false);
     					}
     				} catch (XmppStringprepException e) {

@@ -36,7 +36,6 @@ public class OchestratorFileTransferListenerImpl implements FileTransferListener
 			System.out.println("Simulation orchestrator: Transfer refused");
 			return;
 		}
-		//	System.out.println("SOO fileToReceive = "+fileToReceive);
 		try {
 			transfer.receiveFile(new File(fileToReceive));
 
