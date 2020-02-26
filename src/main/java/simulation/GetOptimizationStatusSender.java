@@ -5,11 +5,12 @@ public class GetOptimizationStatusSender implements Runnable {
 	private SimulationOrchestrator parent = null;
 	private boolean sendState = true;
 	private boolean suspendState = false;
-	private final static int TIME_TO_SLEEP = 300*1000;
+	private final int TIME_TO_SLEEP;
 	
 	
 	public GetOptimizationStatusSender(final SimulationOrchestrator parent) {
 		this.parent = parent;
+		this.TIME_TO_SLEEP = (int) (parent.getSimulationTimeoutSeconds()*0.2*1000);
 	}
 	
 	@Override

@@ -95,7 +95,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 
 	private void handleOptimizationStarted(OptimizationStatusMessage reply) {
-		System.out.println(" SOO received Optimization started message");
+		System.out.println("Optimization status: "+reply.getStatusType());
 	}
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
@@ -108,9 +108,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			if(parent.isStateSenderSuspend()) {
 				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
 			}
-			System.out.println("current optimization: " + reply.getOptimizationId()+", status: " + reply.getStatusType()+", best fitness value: " + reply.getBestFitness());
-			Gson gson = new Gson();
-			System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
+			System.out.println("Current optimization update: " + reply.getOptimizationId()+" status: " + reply.getStatusType()+", best fitness value: " + reply.getBestFitness());
+		//	Gson gson = new Gson();
+		//	System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
 			parent.setConfiguration(reply.getConfiguration());
 		}
 	}

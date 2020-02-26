@@ -150,6 +150,7 @@ public class SimulationOrchestrator {
 	private String simulatorConfigurationfileName = null;
 	private Boolean configEnabled = null;
 	private int startingTimeout;
+	private int simulationTimeoutSeconds = 1200;
 	private String scxmlPath;
 	private String adfPath;
 	private String simulationEnv;
@@ -208,6 +209,7 @@ public class SimulationOrchestrator {
 		ParameterOptimizationConfiguration optConf = new ParameterOptimizationConfiguration();;
 		Boolean configEnabled = false;
 		int startingTimeout = 5000;
+		int simulationTimeoutSeconds = 1200;
 		OP_MODE opMode = null;
 			
 		try {
@@ -334,9 +336,9 @@ public class SimulationOrchestrator {
 				if(cmd.getOptionValue("gen")!=null && !cmd.getOptionValue("gen").equals("0")) {
 					gen = cmd.getOptionValue("gen");
 				}
-				String sim = "1500"; // 25 mins
+				// 20 mins
 				if(cmd.getOptionValue("sim")!=null && !cmd.getOptionValue("sim").equals("0")) {
-					sim = cmd.getOptionValue("sim");
+					simulationTimeoutSeconds = Integer.parseInt(cmd.getOptionValue("sim"));
 				}
 				String se = "0";
 				if(cmd.getOptionValue("seed")!=null) {
@@ -344,7 +346,7 @@ public class SimulationOrchestrator {
 				}		
 				optConf.setCandidateCount(Integer.parseInt(can));
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
-				optConf.setSimulationTimeoutSeconds(Integer.parseInt(sim));
+				optConf.setSimulationTimeoutSeconds(simulationTimeoutSeconds);
 				optConf.setEvaluationSeed(Integer.parseInt(se));
 				optConf.setVariantCount(5);
 				optConf.setEliteWeight(0.4);
@@ -420,7 +422,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout, scxml, adfFile, envSim);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout, simulationTimeoutSeconds, scxml, adfFile, envSim);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -512,6 +514,7 @@ public class SimulationOrchestrator {
 									final ParameterOptimizationConfiguration optConf, 
 									final Boolean configEnabled, 
 									int startingTimeout,
+									int simulationTimeoutSeconds,
 									final String scxml,
 									final String adf,
 									final String env) {
@@ -530,6 +533,7 @@ public class SimulationOrchestrator {
 		this.optimizationConfiguration = optConf;
 		this.configEnabled = configEnabled;
 		this.startingTimeout = startingTimeout;
+		this.simulationTimeoutSeconds = simulationTimeoutSeconds;
 		this.scxmlPath = scxml;
 		this.adfPath = adf;
 		this.simulationEnv = env;
@@ -1150,6 +1154,10 @@ public class SimulationOrchestrator {
 	public void removeSimulationManager(Jid jid) {
 		simulationManagers.remove(jid);
 		
+	}
+	
+	public int getSimulationTimeoutSeconds() {
+		return simulationTimeoutSeconds;
 	}
 	
 	public Jid getOptimizationJid() {
