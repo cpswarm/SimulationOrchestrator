@@ -189,6 +189,7 @@ public class SimulationOrchestrator {
 		String outputDataFolder = "";
 		String optimizationToolUser = "";
 		String scid = "";
+		String taskId = null;
 		String parameters = "";
 		String dimensions = "";
 		String scxml = "";
@@ -228,9 +229,13 @@ public class SimulationOrchestrator {
 			configuration.setRequired(false);
 			options.addOption(configuration);
 
-			Option id = new Option("i", "scid", true, "Simulator Configuration ID");
+			Option id = new Option("i", "id", true, "Task ID: Simulation package name");
 			id.setRequired(false);
 			options.addOption(id);
+			
+			Option si = new Option("si", "scid", true, "Simulator Configuration ID");
+			si.setRequired(false);
+			options.addOption(si);
 			
 			Option gui = new Option("g", "gui", false, "GUI to be used or not for the simulation");
 			gui.setRequired(false);
@@ -301,9 +306,13 @@ public class SimulationOrchestrator {
 				inputDataFolder = cmd.getOptionValue("src");
 				outputDataFolder = cmd.getOptionValue("target");
 				scid = cmd.getOptionValue("scid");
-				if(scid==null || scid.isEmpty()) {
-					System.out.println("The task ID cannot be empty");
+				taskId = cmd.getOptionValue("id");
+				if(taskId==null || taskId.isEmpty()) {
+					System.out.println("Task ID can not be empty");
 					return;
+				}
+				if(scid==null || scid.isEmpty()) {
+					scid = taskId;
 				}
 				dimensions = cmd.getOptionValue("dim");
 
@@ -318,15 +327,15 @@ public class SimulationOrchestrator {
 				}
 
 				String can = "8";
-				if(cmd.getOptionValue("can")!=null) {
+				if(cmd.getOptionValue("can")!=null && !cmd.getOptionValue("can").equals("0")) {
 					can = cmd.getOptionValue("can");
 				}
 				String gen = "4";
-				if(cmd.getOptionValue("gen")!=null) {
+				if(cmd.getOptionValue("gen")!=null && !cmd.getOptionValue("gen").equals("0")) {
 					gen = cmd.getOptionValue("gen");
 				}
 				String sim = "1500"; // 25 mins
-				if(cmd.getOptionValue("sim")!=null) {
+				if(cmd.getOptionValue("sim")!=null && !cmd.getOptionValue("sim").equals("0")) {
 					sim = cmd.getOptionValue("sim");
 				}
 				String se = "0";
@@ -1093,9 +1102,9 @@ public class SimulationOrchestrator {
 		return true;
 	}
 
-	public void sendPresence(final String taskID) {
+	public void sendPresence(final String presenceInfo) {
 		final Presence presence = new Presence(Presence.Type.available);
-		SOOStatus status = new SOOStatus(this.scid, taskID);
+		SOOStatus status = new SOOStatus(this.scid, presenceInfo);
 		StatusSerializer statusSerializer = new StatusSerializer();
 		presence.setStatus(statusSerializer.toJson(status));
 		try {
