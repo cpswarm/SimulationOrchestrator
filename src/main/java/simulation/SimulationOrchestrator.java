@@ -156,6 +156,7 @@ public class SimulationOrchestrator {
 	private String simulationEnv;
 	private boolean started = false;
 	private boolean newManagerHandled = false;
+	private boolean frevoOngoing = false;
 	private MessageEventCoordinatorImpl messageEventCoordinatorImpl =null;
 	
 	public static enum OP_MODE {G, D,  S, DS;
@@ -1150,6 +1151,13 @@ public class SimulationOrchestrator {
 			evaluateSimulationManagers(this.simulationManagerStatusRequired);
 		}
 	}	
+	
+	public boolean getFrevoOngoing( ) {
+		return frevoOngoing;
+	}
+	public void setFrevoOngoing(boolean frevoOngoing ) {
+		this.frevoOngoing = frevoOngoing;
+	}
 
 	public void removeSimulationManager(Jid jid) {
 		simulationManagers.remove(jid);

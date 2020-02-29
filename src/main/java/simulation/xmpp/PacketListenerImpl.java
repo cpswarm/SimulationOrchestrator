@@ -56,7 +56,7 @@ public class PacketListenerImpl implements StanzaListener {
 				SimulationOrchestrator.SEMAPHORE.release();
 			} else {
 				if (presence.getType().equals(Presence.Type.available)) {
-			//		System.out.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
+					System.out.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
 					if (presence.getStatus() != null) {
 						StatusSerializer serializer = new StatusSerializer();
 						BaseStatus status = serializer.fromJson(presence.getStatus());
@@ -67,8 +67,22 @@ public class PacketListenerImpl implements StanzaListener {
 								// if optimization was ever started(OID!=null), but OT was offline and online
 								// again, SOO sends getOptimizationStatus in OT error handling workflow
 								if (status instanceof OptimizationToolStatus) {
-									if(((OptimizationToolStatus) status).getTasks().size()!=0 && ((OptimizationToolStatus)status ).getTasks().get(0).getStatusType().equals(OptimizationStatusType.STARTED)) {
-										parent.startGetOptimizationStateSender();
+									System.out.println("tasks size = "+((OptimizationToolStatus) status).getTasks().size());
+									if(((OptimizationToolStatus) status).getTasks().size()!=0 && ((OptimizationToolStatus)status ).getTasks().get(0).getOptimizationId().equals(parent.getOptimizationId())) {
+										parent.startGetOptimizationStateSender();//(OptimizationToolStatus)status ).getTasks().get(0).getStatusType().equals(OptimizationStatusType.STARTED)
+										if(parent.isStateSenderSuspend()) {
+											parent.restartGetOptimizationStateSender();
+										}
+									} else {
+										parent.sendGetOptimizationStatus();
+										try {
+											Thread.sleep(10000);
+										} catch (InterruptedException e1) {
+											e1.printStackTrace();
+										}
+										if(!parent.getFrevoOngoing()) {
+											parent.sendStartOptimization();
+										}
 									}
 								}
 							}
@@ -97,8 +111,13 @@ public class PacketListenerImpl implements StanzaListener {
 						}
 					} else if(parent.getOptimizationId()!=null && presence.getFrom().compareTo(parent.getOptimizationJid()) == 0) {
 						System.out.println("The Optimization Tool is offline, stop to request the state");
+						if(parent.getFrevoOngoing()) {
+							parent.setFrevoOngoing(false);
+						}
 						if(parent.isRecovery()) {
 							parent.suspendGetOptimizationStateSender();
+						} else {
+							parent.stopGetOptimizationStateSender();
 						}
 					}
 				}

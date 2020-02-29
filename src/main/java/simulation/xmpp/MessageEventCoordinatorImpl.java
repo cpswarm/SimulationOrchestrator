@@ -44,7 +44,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	
 	@Override
 	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
-		// The message is sent from a manager
 		MessageSerializer serializer = new MessageSerializer();
 		if(msg.getBody().equals("error")) {
 			System.out.println("error received from "+msg.getFrom());
@@ -75,6 +74,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	}
 	
 	private void handleOptimizationStatusMessage(OptimizationStatusMessage optimizationStatus, MessageSerializer serializer) {
+		if(!parent.getFrevoOngoing()) {
+			parent.setFrevoOngoing(true);
+		}
 		switch(optimizationStatus.getStatusType()) {
 		case STARTED:
 			handleOptimizationStarted(optimizationStatus);
