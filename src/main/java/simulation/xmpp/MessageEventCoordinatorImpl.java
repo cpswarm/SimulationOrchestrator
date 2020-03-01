@@ -24,6 +24,7 @@ import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.messages.SimulatorConfiguredMessage;
 import eu.cpswarm.optimization.parameters.Parameter;
+import eu.cpswarm.optimization.parameters.ParameterOptimizationConfiguration;
 import eu.cpswarm.optimization.statuses.OptimizationStatusType;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import simulation.SimulationOrchestrator;
@@ -111,9 +112,10 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
 			}
 			System.out.println("Current optimization update: " + reply.getOptimizationId()+" status: " + reply.getStatusType()+", best fitness value: " + reply.getBestFitness());
-		//	Gson gson = new Gson();
-		//	System.out.println("Current best candidate: " + gson.toJson(reply.getBestParameters()));
-			parent.setConfiguration(reply.getConfiguration());
+			ParameterOptimizationConfiguration config = reply.getConfiguration();
+			parent.setConfiguration(config);
+			System.out.println("Generation = "+config.getGeneration()+", maximumGeneration = " +config.getMaximumGeneration()+", evolutionSeed = " +(int)config.getEvolutionSeed()+", evaluationSeed = " +(int)config.getEvaluationSeed());
+			config = null;
 		}
 	}
 	
@@ -124,6 +126,9 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		System.out.println("Optimization "+reply.getOptimizationId()+ " completed with the best fitness value: "+reply.getBestFitness());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		System.out.println("Final candidate: "+parameters+" received at "+SimulationOrchestrator.sdf.format(timestamp));
+		ParameterOptimizationConfiguration config = reply.getConfiguration();
+		System.out.println("Generation = "+config.getGeneration()+", maximumGeneration = " +config.getMaximumGeneration()+", evolutionSeed = " +(int)config.getEvolutionSeed()+", evaluationSeed = " +(int)config.getEvaluationSeed());
+		config = null;
 		// The final candidate contains the optimized values for the parameters
 		// and has to be saved in the output folder of the launcher to be used as result
 		// to be passed to the deployment tool
