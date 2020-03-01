@@ -128,6 +128,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 		System.out.println("Final candidate: "+parameters+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 		ParameterOptimizationConfiguration config = reply.getConfiguration();
 		System.out.println("Generation = "+config.getGeneration()+", maximumGeneration = " +config.getMaximumGeneration()+", evolutionSeed = " +(int)config.getEvolutionSeed()+", evaluationSeed = " +(int)config.getEvaluationSeed());
+		System.out.println("\nFinal OptimizationStatusMessage is: "+gson.toJson(config));
 		config = null;
 		// The final candidate contains the optimized values for the parameters
 		// and has to be saved in the output folder of the launcher to be used as result

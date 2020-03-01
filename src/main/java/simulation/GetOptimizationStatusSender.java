@@ -17,7 +17,6 @@ public class GetOptimizationStatusSender implements Runnable {
 	public void run() {
 		while(sendState) {
 			if(!suspendState) {
-			//	System.out.println("status sender is asking for the status.....");
 				if(!parent.sendGetOptimizationStatus()) {
 					this.setSuspendState(true);
 				}

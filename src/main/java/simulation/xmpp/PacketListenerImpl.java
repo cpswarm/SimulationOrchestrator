@@ -1,5 +1,7 @@
 package simulation.xmpp;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.packet.Presence;
@@ -12,6 +14,7 @@ import com.google.gson.JsonSyntaxException;
 import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.statuses.BaseStatus;
 import eu.cpswarm.optimization.statuses.OptimizationStatusType;
+import eu.cpswarm.optimization.statuses.OptimizationTaskStatus;
 import eu.cpswarm.optimization.statuses.OptimizationToolStatus;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import eu.cpswarm.optimization.statuses.StatusSerializer;
@@ -68,8 +71,8 @@ public class PacketListenerImpl implements StanzaListener {
 								// again, SOO sends getOptimizationStatus in OT error handling workflow
 								if (status instanceof OptimizationToolStatus) {
 									System.out.println("tasks size = "+((OptimizationToolStatus) status).getTasks().size());
-									if(((OptimizationToolStatus) status).getTasks().size()!=0 && ((OptimizationToolStatus)status ).getTasks().get(0).getOptimizationId().equals(parent.getOptimizationId())) {
-										parent.startGetOptimizationStateSender();//(OptimizationToolStatus)status ).getTasks().get(0).getStatusType().equals(OptimizationStatusType.STARTED)
+									if(((OptimizationToolStatus) status).getTasks().size()!=0 && containOptimization((OptimizationToolStatus) status, parent.getOptimizationId())) {
+										parent.startGetOptimizationStateSender();
 										if(parent.isStateSenderSuspend()) {
 											parent.restartGetOptimizationStateSender();
 										}
@@ -86,6 +89,8 @@ public class PacketListenerImpl implements StanzaListener {
 									}
 								}
 							}
+							serializer = null;
+							status = null;
 							break;
 						case "SimulationManager":
 							try {
@@ -126,5 +131,19 @@ public class PacketListenerImpl implements StanzaListener {
 			System.out.println("error adding the new presence in Queue : from " + presence.getFrom());
 			e.printStackTrace();
 		}
+	}
+	
+	private boolean containOptimization(OptimizationToolStatus status, String optimizationID) {
+		boolean optExist = false;
+		List<OptimizationTaskStatus> list = status.getTasks();
+		for(OptimizationTaskStatus task : list) {
+			if(task.getOptimizationId().equals(optimizationID)) {
+				optExist = true;
+				task = null;
+				break;
+			}
+		}
+		list = null;
+		return optExist;
 	}
 }
