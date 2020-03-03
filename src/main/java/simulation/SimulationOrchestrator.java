@@ -272,7 +272,7 @@ public class SimulationOrchestrator {
 			optimization.setRequired(false);
 			options.addOption(simulationTimeout);
 
-			Option seed = new Option("se", "seed", true, "Indicates the seed to be used in the OT");
+			Option seed = new Option("se", "seed", true, "Indicates the evaluation seed to be used in the OT");
 			optimization.setRequired(false);
 			options.addOption(seed);
 
@@ -329,11 +329,11 @@ public class SimulationOrchestrator {
 					parameters = cmd.getOptionValue("params");
 				}
 
-				String can = "8";
+				String can = "8";//8
 				if(cmd.getOptionValue("can")!=null && !cmd.getOptionValue("can").equals("0")) {
 					can = cmd.getOptionValue("can");
 				}
-				String gen = "4";
+				String gen = "4";//4
 				if(cmd.getOptionValue("gen")!=null && !cmd.getOptionValue("gen").equals("0")) {
 					gen = cmd.getOptionValue("gen");
 				}
@@ -349,7 +349,8 @@ public class SimulationOrchestrator {
 				optConf.setMaximumGeneration(Integer.parseInt(gen));
 				optConf.setSimulationTimeoutSeconds(simulationTimeoutSeconds);
 				optConf.setEvaluationSeed(Integer.parseInt(se));
-				optConf.setVariantCount(5);
+				optConf.setEvolutionSeed(1);
+				optConf.setVariantCount(5); //5
 				optConf.setEliteWeight(0.4);
 				optConf.setMaximumFitness(100);
 			}	

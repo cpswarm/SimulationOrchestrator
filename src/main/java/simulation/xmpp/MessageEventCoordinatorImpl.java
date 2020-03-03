@@ -103,27 +103,24 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 
 	private void handleOptimizationRunningOrStopped(OptimizationStatusMessage reply) {
 		if(reply.getStatusType().equals(OptimizationStatusType.CANCELLED)) {
-			parent.stopGetOptimizationStateSender();
 			if(parent.getOptimizationId()!=null) {
 				parent.setOptimizationId(null);
 			}
 		}else {
-			if(parent.isStateSenderSuspend()) {
-				parent.restartGetOptimizationStateSender();  // when OT is online again, restart the state sender
-			}
 			System.out.println("Current optimization update: " + reply.getOptimizationId()+" status: " + reply.getStatusType()+", best fitness value: " + reply.getBestFitness());
 			ParameterOptimizationConfiguration config = reply.getConfiguration();
 			parent.setConfiguration(config);
 			System.out.println("Generation = "+config.getGeneration()+", maximumGeneration = " +config.getMaximumGeneration()+", evolutionSeed = " +(int)config.getEvolutionSeed()+", evaluationSeed = " +(int)config.getEvaluationSeed());
+			Gson gson = new Gson();
+			System.out.println("getting Running Status is: "+gson.toJson(config));
 			config = null;
 		}
 	}
 	
 	private void handleOptimizationCompleted(OptimizationStatusMessage reply) {
-		parent.stopGetOptimizationStateSender();
 		Gson gson = new Gson();
 		String parameters = gson.toJson(reply.getBestParameters());
-		System.out.println("Optimization "+reply.getOptimizationId()+ " completed with the best fitness value: "+reply.getBestFitness());
+		System.out.println("\nOptimization "+reply.getOptimizationId()+ " : status:  " + reply.getStatusType()+", best fitness value: "+reply.getBestFitness());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		System.out.println("Final candidate: "+parameters+" received at "+SimulationOrchestrator.sdf.format(timestamp));
 		ParameterOptimizationConfiguration config = reply.getConfiguration();
@@ -165,8 +162,6 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 	
 	private void handleOptimizationError(OptimizationStatusMessage reply) {
 		System.out.println("Handling Optimization tool Error");
-		parent.stopGetOptimizationStateSender();
-		parent.setConfiguration(reply.getConfiguration());
 		// SOO try to reconfigure OT for maximum 3 times
 		while(counter>0) {
 			if(parent.sendStartOptimization()) {  // directly reply with the frevoConfiguration sent back through OptimizationStatusMessage

@@ -59,7 +59,8 @@ public class PacketListenerImpl implements StanzaListener {
 				SimulationOrchestrator.SEMAPHORE.release();
 			} else {
 				if (presence.getType().equals(Presence.Type.available)) {
-					System.out.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
+					if( presence.getFrom().compareTo(parent.getOptimizationJid()) == 0)
+						System.out.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
 					if (presence.getStatus() != null) {
 						StatusSerializer serializer = new StatusSerializer();
 						BaseStatus status = serializer.fromJson(presence.getStatus());
@@ -71,21 +72,16 @@ public class PacketListenerImpl implements StanzaListener {
 								// again, SOO sends getOptimizationStatus in OT error handling workflow
 								if (status instanceof OptimizationToolStatus) {
 									System.out.println("tasks size = "+((OptimizationToolStatus) status).getTasks().size());
-									if(((OptimizationToolStatus) status).getTasks().size()!=0 && containOptimization((OptimizationToolStatus) status, parent.getOptimizationId())) {
-										parent.startGetOptimizationStateSender();
-										if(parent.isStateSenderSuspend()) {
-											parent.restartGetOptimizationStateSender();
-										}
-									} else {
+									if(updateOptimizationStatus((OptimizationToolStatus) status, parent.getOptimizationId())) {
 										parent.sendGetOptimizationStatus();
-										try {
-											Thread.sleep(10000);
-										} catch (InterruptedException e1) {
-											e1.printStackTrace();
-										}
-										if(!parent.getFrevoOngoing()) {
-											parent.sendStartOptimization();
-										}
+									}
+									try {
+										Thread.sleep(10000);
+									} catch (InterruptedException e1) {
+										e1.printStackTrace();
+									}
+									if(!parent.getFrevoOngoing()) {
+										parent.sendStartOptimization();
 									}
 								}
 							}
@@ -119,11 +115,6 @@ public class PacketListenerImpl implements StanzaListener {
 						if(parent.getFrevoOngoing()) {
 							parent.setFrevoOngoing(false);
 						}
-						if(parent.isRecovery()) {
-							parent.suspendGetOptimizationStateSender();
-						} else {
-							parent.stopGetOptimizationStateSender();
-						}
 					}
 				}
 			}
@@ -133,17 +124,28 @@ public class PacketListenerImpl implements StanzaListener {
 		}
 	}
 	
-	private boolean containOptimization(OptimizationToolStatus status, String optimizationID) {
+	private boolean updateOptimizationStatus(OptimizationToolStatus status, String optimizationID) {
+		boolean update = false;
 		boolean optExist = false;
+		
+		if(status.getTasks().size()==0) {
+			return true;
+		}
 		List<OptimizationTaskStatus> list = status.getTasks();
 		for(OptimizationTaskStatus task : list) {
 			if(task.getOptimizationId().equals(optimizationID)) {
 				optExist = true;
-				task = null;
-				break;
+				if (!task.getStatusType().equals(OptimizationStatusType.STARTED)) {
+					update = true;
+					task = null;
+					break;
+				}
 			}
 		}
 		list = null;
-		return optExist;
+		if(update || !optExist) {
+			return true;
+		}
+		return false;
 	}
 }
