@@ -698,74 +698,77 @@ public class SimulationOrchestrator {
     
     
     public void evaluateSimulationManagers(SimulationManagerStatus statusCompare) {
-    	if(simulationManagers.size()!=0) {
-    	this.managerConfigured=0;
-    	this.configurationAttempts=0;
-    	if(availableManagers!=null) {
-    		this.availableManagers.clear();
-    		this.toBeReconfiguredNowManagers.clear();
-    		this.toBeReconfiguredNextManagers.clear();
-    		this.blacklistedManagers.clear();
-    	} else {
-    		availableManagers = new ArrayList<EntityBareJid>();
-    		toBeReconfiguredNowManagers = new ArrayList<EntityBareJid>();
-    		toBeReconfiguredNextManagers = new ArrayList<EntityBareJid>();
-    		blacklistedManagers = new ArrayList<EntityBareJid>();
-    	}
-    	System.out.println("Evaluating available managers: "+ Arrays.toString(simulationManagers.keySet().toArray()));
-    	if((TEST && (inputDataFolder == null || configurationFolder==null)) || !configEnabled) {
-    		File file = new File("src/main/resources/file.xsd");
-    		simulatorConfigurationfileName = file.getAbsolutePath();
-    	} else {
-    		Zipper zipper = new Zipper(inputDataFolder);
-    		zipper.generateFileList(new File(inputDataFolder));
-    		zipper.updateSourceFolder(configurationFolder);
-    		zipper.generateFileList(new File(configurationFolder));
-    		String[] fileNameParts = (inputDataFolder+"test.zip").split("\\.");
-    		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
-    		Date date = new Date();
-    		simulatorConfigurationfileName = fileNameParts[0] + "_" + dateFormat.format(date) + "." + fileNameParts[1];
-    		zipper.zipIt(simulatorConfigurationfileName);
-    	}
-    	for(EntityBareJid account : simulationManagers.keySet()) {
-    		if(simulationManagers.get(account)!=null && 
-    				simulationManagers.get(account).compareTo(statusCompare)>=0) { //"" or null
-    			if(!availableManagers.contains(account)) {
-    				availableManagers.add(account);
-    				// If there is not optimization the first simulator available is selected
-    				if(!optimizationEnabled) {
-    					break;
-    				}
-    			}
-    		}
-    	}
-    	if(!TEST && configEnabled) {
-			for (EntityBareJid availableManager : availableManagers) {
-				// Check if the manager is still online (it can be gone offline in the meanwhile)
-    			if(simulationManagers.containsKey(availableManager)) {
-    				System.out.println("Configuring the simulation manager: "+availableManager);
-    				try {
-    					if(!this.transferFile(JidCreate.entityFullFrom(availableManager.toString()+"/"+RESOURCE), this.simulatorConfigurationfileName, scid+","+simulationConfiguration)) {
-    						this.handleACK(availableManager, false);
-    					}
-    				} catch (XmppStringprepException e) {
-    					e.printStackTrace();
-    					this.handleACK(availableManager, false);
-    				}
-    			// if the manager is no more online, it is put in the list of the ones to be evaluated 
-    			// in the next iteration or blacklisted
-    			} else {
-    				this.handleACK(availableManager, false);
-    			}
+		if (simulationManagers.size() != 0) {
+			this.managerConfigured = 0;
+			this.configurationAttempts = 0;
+			if (availableManagers != null) {
+				this.availableManagers.clear();
+				this.toBeReconfiguredNowManagers.clear();
+				this.toBeReconfiguredNextManagers.clear();
+				this.blacklistedManagers.clear();
+			} else {
+				availableManagers = new ArrayList<EntityBareJid>();
+				toBeReconfiguredNowManagers = new ArrayList<EntityBareJid>();
+				toBeReconfiguredNextManagers = new ArrayList<EntityBareJid>();
+				blacklistedManagers = new ArrayList<EntityBareJid>();
+			}
+			System.out.println("Evaluating available managers: " + Arrays.toString(simulationManagers.keySet().toArray()));
+			if ((TEST && (inputDataFolder == null || configurationFolder == null)) || !configEnabled) {
+				File file = new File("src/main/resources/file.xsd");
+				simulatorConfigurationfileName = file.getAbsolutePath();
+			} else {
+				Zipper zipper = new Zipper(inputDataFolder);
+				zipper.generateFileList(new File(inputDataFolder));
+				zipper.updateSourceFolder(configurationFolder);
+				zipper.generateFileList(new File(configurationFolder));
+				String[] fileNameParts = (inputDataFolder + "test.zip").split("\\.");
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss");
+				Date date = new Date();
+				simulatorConfigurationfileName = fileNameParts[0] + "_" + dateFormat.format(date) + "."
+						+ fileNameParts[1];
+				zipper.zipIt(simulatorConfigurationfileName);
+			}
+			for (EntityBareJid account : simulationManagers.keySet()) {
+				if (simulationManagers.get(account) != null
+						&& simulationManagers.get(account).compareTo(statusCompare) >= 0) { // "" or null
+					if (!availableManagers.contains(account)) {
+						availableManagers.add(account);
+						// If there is not optimization the first simulator available is selected
+						if (!optimizationEnabled) {
+							break;
+						}
+					}
+				}
+			}
+			if (!TEST && configEnabled) {
+				for (EntityBareJid availableManager : availableManagers) {
+					// Check if the manager is still online (it can be gone offline in the
+					// meanwhile)
+					if (simulationManagers.containsKey(availableManager)) {
+						System.out.println("Configuring the simulation manager: " + availableManager);
+						try {
+							if (!this.transferFile(JidCreate.entityFullFrom(availableManager.toString() + "/" + RESOURCE), this.simulatorConfigurationfileName, scid + "," + simulationConfiguration)) {
+								this.handleACK(availableManager, false);
+							}
+						} catch (XmppStringprepException e) {
+							e.printStackTrace();
+							this.handleACK(availableManager, false);
+						}
+						// if the manager is no more online, it is put in the list of the ones to be
+						// evaluated
+						// in the next iteration or blacklisted
+					} else {
+						this.handleACK(availableManager, false);
+					}
+				}
+			} else {
+				for (EntityBareJid availableManager : availableManagers) {
+					this.handleACK(availableManager, true);
+				}
 			}
 		} else {
-			for (EntityBareJid availableManager : availableManagers) {
-				this.handleACK(availableManager,true);
-			}
+			System.out.println("There is not any new simulaton managers");
 		}
-    	} else {
-    		System.out.println("There is not any new simulaton managers");
-    	}
     }
 
     
