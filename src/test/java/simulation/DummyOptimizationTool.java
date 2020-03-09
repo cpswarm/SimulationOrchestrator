@@ -37,7 +37,14 @@ import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 
+import com.google.gson.Gson;
+
+import eu.cpswarm.optimization.messages.MessageSerializer;
+import eu.cpswarm.optimization.messages.OptimizationStatusMessage;
 import eu.cpswarm.optimization.parameters.ParameterOptimizationConfiguration;
+import eu.cpswarm.optimization.statuses.OptimizationStatusType;
+import eu.cpswarm.optimization.statuses.OptimizationTaskStatus;
+import eu.cpswarm.optimization.statuses.OptimizationToolStatus;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 
 import javax.net.ssl.SSLContext;
@@ -54,10 +61,9 @@ public class DummyOptimizationTool {
 	private SimulationManagerStatus status;
 	private boolean available = true;
 	private boolean started = false;
-	private boolean optimizationError = true;
+	private String optimizationError = null;
 	private OptimizationConnectionListenerImpl connectionListener;
 	private StanzaListener packetListener;
-	//private RosterListener rosterListener;
 	private Jid clientJID = null;
 	private String serverName = null;
 	private InetAddress serverIP = null;
@@ -66,12 +72,17 @@ public class DummyOptimizationTool {
 	private String optimizationID = null;
 	private Jid orchestratorJid = null;
 	private String SCID = null;
-	private String simulationID = null;
+	private String simulationID = "0";
 	private String otDataFolder = null;
 	private boolean isOffline = false;
 	private ParameterOptimizationConfiguration optimizationConfiguration = null;
 	private List<EntityFullJid> managers = new ArrayList<EntityFullJid>();
 	private OptimizationMessageEventCoordinatorImpl messageListener = null;
+	private List<OptimizationTaskStatus> tasksList = new ArrayList<>();
+	private int generation = 0;
+	private int maxGeneration = 2;
+	private int variantCount = 2;
+	private int candidateCount = 2;
 	
 	public DummyOptimizationTool(String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder) {
 		this.clientID = clientID;
@@ -372,9 +383,9 @@ public class DummyOptimizationTool {
 	}
 	
 	
-	public void disconnect(boolean error) {
+	public void disconnect() {
+		System.out.println("OptimizationTool disconnected.......... ");
 		this.isOffline = true;
-		this.optimizationError = error;
 		final Presence presence = new Presence(Presence.Type.unavailable);
 		try {
 			connection.sendStanza(presence);
@@ -391,22 +402,82 @@ public class DummyOptimizationTool {
 		} catch (final NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("reconnect: sending available msg.... ");
+		System.out.println("\nreconnect: sending available msg.... ");
 		// If it is the test of the recovery after error 
 		// it waits 10 seconds before to stop the optimization, during the period, SOO will try to restart the optimization
-		if(this.optimizationError) {
-			System.out.println("optimizationError: waiting for 10 seconds.... ");
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-				public void run() {
-					messageListener.setStopOptimization(true);
-				}
-			}, 10000);
-		// if it is the test of the simple recovery of the connection
-		// it stops immediately
-		} else {
-			this.messageListener.setStopOptimization(true);
+		if(new Boolean(this.optimizationError)) {
+			sendPresence(OptimizationStatusType.ERROR);
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	public void sendPresence(OptimizationStatusType statusType) {
+		System.out.println("send presence at sid = "+simulationID +"  TYPE:"+statusType);
+		final Presence presence = new Presence(Presence.Type.available);
+		OptimizationTaskStatus taskStatus = null;
+		if(statusType.equals(OptimizationStatusType.STARTED)) {
+			taskStatus = new OptimizationTaskStatus(optimizationID, statusType, -1.0, 0, optimizationConfiguration.getMaximumGeneration());
+		} else if(statusType.equals(OptimizationStatusType.COMPLETE)){
+			taskStatus = new OptimizationTaskStatus(optimizationID, statusType, 98.0, generation, maxGeneration);
+		} else {
+			taskStatus = new OptimizationTaskStatus(optimizationID, statusType, 80.0, generation, maxGeneration);
+		}
+		this.optimizationConfiguration.setGeneration(generation);
+		if(tasksList.size()>0)
+			tasksList.remove(0);
+		tasksList.add(taskStatus);
+		OptimizationToolStatus status = new OptimizationToolStatus(tasksList);
+		Gson gson = new Gson();
+		presence.setStatus(gson.toJson(status));
+		try {
+			connection.sendStanza(presence);
+		} catch (final NotConnectedException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		status = null;
+		
+	}
+	
+	public void reLogin() {
+		try {
+			connection.disconnect();
+			Thread.sleep(5000);
+			connection.connect();
+			connection.login(this.clientID, this.serverPassword , Resourcepart.from(RESOURCE));
+			System.out.println("Connected to server");	
+		} catch (SmackException | IOException | XMPPException | InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+/*	public void sendOptimizationStatus(OptimizationStatusType statusType) {
+		MessageSerializer serializer = new MessageSerializer();
+		OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(optimizationID, status, 80.0, 1, parent.getOptimizationConfiguration().getMaximumGeneration(), parameters, parent.getOptimizationConfiguration());
+		String messageToSend = serializer.toJson(optimizationStatus);
+		message.setBody(messageToSend);
+		System.out.println("OptimizationTool sending optimizationStaus "+messageToSend);
+		try {
+			chat.send(message);
+		} catch (NotConnectedException | InterruptedException e) {
+			System.out.println("Error sending the optimization status");
+			e.printStackTrace();
+		}
+	}*/
+	
+	public List<OptimizationTaskStatus> getTasksList(){
+		return tasksList;
+	}
+	
+	public void addOptimizationTask(OptimizationTaskStatus taskStatus) {
+		tasksList.add(taskStatus);
+	}
+	
+	public OptimizationMessageEventCoordinatorImpl getMessageListener() {
+		return this.messageListener;
 	}
 	
 	public boolean isStarted() {
@@ -466,12 +537,43 @@ public class DummyOptimizationTool {
 
 	public void setOptimizationConfiguration(ParameterOptimizationConfiguration optimizationConfiguration) {
 		this.optimizationConfiguration = optimizationConfiguration;
+		this.generation = optimizationConfiguration.getGeneration();
+		this.maxGeneration = optimizationConfiguration.getMaximumGeneration();
+		this.variantCount = optimizationConfiguration.getVariantCount();
+		this.candidateCount = optimizationConfiguration.getCandidateCount();
 	}
 	
 	public String getServerName() {
 		return serverName;
 	}
+	
+	public int getGeneration() {
+		return this.generation;
+	}
+	
+	public int getMaxGeneration() {
+		return this.maxGeneration;
+	}
+	
+	public int getVariantCount() {
+		return variantCount;
+	}
+	public int getCandidateCount() {
+		return candidateCount;
+	}
+	public void setGeneration(int generation) {
+		this.generation = generation;
+	}
 
+	public void setMaxGeneration(int maxGeneration) {
+		this.maxGeneration = maxGeneration;
+	}
+	public void setVariantCount(int variantCount) {
+		this.variantCount = variantCount;
+	}
+	public void setCandidateCount(int candidateCount) {
+		this.candidateCount = candidateCount;
+	}
 
 	public List<EntityFullJid> getManagers() {
 		return managers;
@@ -485,8 +587,11 @@ public class DummyOptimizationTool {
 		managers.remove(jid);
 	}
 
-
-	public boolean isOptimizationError() {
+	public String getOptimizationError() {
 		return optimizationError;
+	}
+	
+	public void setOptimizationError(String error) {
+		this.optimizationError = error;
 	}
 }

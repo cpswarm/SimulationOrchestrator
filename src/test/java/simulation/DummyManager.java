@@ -33,6 +33,8 @@ import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 
+import com.google.gson.Gson;
+
 import eu.cpswarm.optimization.messages.MessageSerializer;
 import eu.cpswarm.optimization.messages.SimulationResultMessage;
 import eu.cpswarm.optimization.statuses.SimulationManagerCapabilities;
@@ -67,13 +69,12 @@ public class DummyManager {
 	private String SCID = null;
 	private String simulationId = null;
 	private String simulationConfiguration = null;
+	private SimulationManagerCapabilities capabilities = null;
 	
 	public DummyManager(final String clientID, final InetAddress serverIP, final String serverName, final String serverPassword, String dataFolder, final String rosFolder) {
 		this.clientID = clientID;
 		this.serverName = serverName;
-		if(!dataFolder.endsWith(File.separator)) {
-			dataFolder+=File.separator;
-		}
+		capabilities = new SimulationManagerCapabilities(2, 8);
 			
 		try {
 
@@ -104,7 +105,7 @@ public class DummyManager {
 			final FileTransferManager manager = FileTransferManager
 					.getInstanceFor(connection);
 			
-			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder, JidCreate.entityBareFrom("orchestrator@"+serverName+"/"+RESOURCE)));
+			manager.addFileTransferListener(new ManagerFileTransferListenerImpl(this, dataFolder, rosFolder));
 			
 			//rosterListener = new RosterListenerImpl(this);
 			// Adds a roster listener
@@ -306,19 +307,33 @@ public class DummyManager {
 		MessageSerializer serializer = new MessageSerializer();
 		String body = serializer.toJson(result);
 		try {
-			System.out.println("Ready to send "+body);
 			ChatManager chatManager = ChatManager.getInstanceFor(this.getConnection());
 			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("optimization_bamboo@"+this.serverName));
 			Message message = new Message();
 			message.setBody(body);
-			chat.send(message);
-			System.out.println("fitness score: "+ value + " sent");
+			if(isOptimizationToolAvailable()) {
+				chat.send(message);
+			}
+			System.out.println("fitness score: "+ body + " sent");
 		} catch (NotConnectedException | InterruptedException | XmppStringprepException e) {
 			System.out.println("Error sending the result of the simulation: "+body);
 			e.printStackTrace();
 			return false;
 		} 
 		return true;
+	}
+	
+	public void sendPresence() {
+		final Presence presence = new Presence(Presence.Type.available);
+		Gson gson = new Gson();
+		SimulationManagerStatus simulationManagerStatus = new SimulationManagerStatus(SCID, simulationId, capabilities);
+		presence.setStatus(gson.toJson(simulationManagerStatus));
+		try {
+			connection.sendStanza(presence);
+		} catch (final NotConnectedException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		simulationManagerStatus =null;
 	}
 	
 	public boolean isStarted() {
@@ -329,9 +344,7 @@ public class DummyManager {
 		return optimizationId;
 	}
 
-
 	public void setOptimizationID(final String optimizationId) {
-		System.out.println("Setting Optimization ID to "+optimizationId);
 		this.optimizationId = optimizationId;
 	}
 	
@@ -341,6 +354,7 @@ public class DummyManager {
 
 	public void setSCID(final String SCID) {
 		this.SCID = SCID;
+		sendPresence();
 	}
 
 	public SimulationManagerStatus getStatus() {

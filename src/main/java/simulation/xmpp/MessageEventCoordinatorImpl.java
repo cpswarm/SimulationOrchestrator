@@ -112,7 +112,7 @@ public final class MessageEventCoordinatorImpl implements IncomingChatMessageLis
 			parent.setConfiguration(config);
 			System.out.println("Generation = "+config.getGeneration()+", maximumGeneration = " +config.getMaximumGeneration()+", evolutionSeed = " +(int)config.getEvolutionSeed()+", evaluationSeed = " +(int)config.getEvaluationSeed());
 			Gson gson = new Gson();
-			System.out.println("getting Running Status is: "+gson.toJson(config));
+		//	System.out.println("getting Running Status is: "+gson.toJson(config));
 			config = null;
 		}
 	}

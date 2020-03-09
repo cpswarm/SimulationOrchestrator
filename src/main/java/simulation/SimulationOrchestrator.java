@@ -329,11 +329,11 @@ public class SimulationOrchestrator {
 					parameters = cmd.getOptionValue("params");
 				}
 
-				String can = "8";//8
+				String can = "2";//8
 				if(cmd.getOptionValue("can")!=null && !cmd.getOptionValue("can").equals("0")) {
 					can = cmd.getOptionValue("can");
 				}
-				String gen = "4";//4
+				String gen = "2";//4
 				if(cmd.getOptionValue("gen")!=null && !cmd.getOptionValue("gen").equals("0")) {
 					gen = cmd.getOptionValue("gen");
 				}
@@ -350,7 +350,7 @@ public class SimulationOrchestrator {
 				optConf.setSimulationTimeoutSeconds(simulationTimeoutSeconds);
 				optConf.setEvaluationSeed(Integer.parseInt(se));
 				optConf.setEvolutionSeed(1);
-				optConf.setVariantCount(5); //5
+				optConf.setVariantCount(2); //5
 				optConf.setEliteWeight(0.4);
 				optConf.setMaximumFitness(100);
 			}	
@@ -713,10 +713,10 @@ public class SimulationOrchestrator {
 				blacklistedManagers = new ArrayList<EntityBareJid>();
 			}
 			System.out.println("Evaluating available managers: " + Arrays.toString(simulationManagers.keySet().toArray()));
-			if ((TEST && (inputDataFolder == null || configurationFolder == null)) || !configEnabled) {
+			if ((TEST && (inputDataFolder == null || configurationFolder == null)) && configEnabled) {
 				File file = new File("src/main/resources/file.xsd");
 				simulatorConfigurationfileName = file.getAbsolutePath();
-			} else {
+			} else if(!TEST && configEnabled){
 				Zipper zipper = new Zipper(inputDataFolder);
 				zipper.generateFileList(new File(inputDataFolder));
 				zipper.updateSourceFolder(configurationFolder);
@@ -728,6 +728,7 @@ public class SimulationOrchestrator {
 						+ fileNameParts[1];
 				zipper.zipIt(simulatorConfigurationfileName);
 			}
+			
 			for (EntityBareJid account : simulationManagers.keySet()) {
 				if (simulationManagers.get(account) != null
 						&& simulationManagers.get(account).compareTo(statusCompare) >= 0) { // "" or null
@@ -740,7 +741,7 @@ public class SimulationOrchestrator {
 					}
 				}
 			}
-			if (!TEST && configEnabled) {
+			if (configEnabled) {
 				for (EntityBareJid availableManager : availableManagers) {
 					// Check if the manager is still online (it can be gone offline in the
 					// meanwhile)
@@ -804,13 +805,12 @@ public class SimulationOrchestrator {
 			// If the number of configuration attempts have finished, it closes the configuration
 			closeConfiguration();
 		}
-
 	}
 
 	
 	private void closeConfiguration() {
 		simulationManagers.clear();
-    	if(!TEST || configEnabled) {
+    	if(!TEST && configEnabled) {
     		//It deletes the zip file
     		File file = new File(simulatorConfigurationfileName);
     		if(file.delete()){
@@ -956,6 +956,10 @@ public class SimulationOrchestrator {
 				}
 			} catch (final SmackException | InterruptedException e) {
 				e.printStackTrace();
+				return false;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
 			}
 			Exception ex = transfer.getException();
 			if(ex!=null) {

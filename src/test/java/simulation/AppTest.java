@@ -88,9 +88,11 @@ public class AppTest {
 	
 	@BeforeAll
 	static void setUp() {
-		Gson gson = new Gson();
-		JsonReader reader = new JsonReader(new InputStreamReader(SimulationOrchestrator.class.getResourceAsStream("/frevoConfiguration.json")));
-		optimizationConfiguration = gson.fromJson(reader, ParameterOptimizationConfiguration.class);
+		optimizationConfiguration = new ParameterOptimizationConfiguration();
+		optimizationConfiguration.setMaximumFitness(100);
+		optimizationConfiguration.setCandidateCount(2);
+		optimizationConfiguration.setMaximumGeneration(2);
+		optimizationConfiguration.setVariantCount(2);
 		try {
 			serverIPAddress = InetAddress.getByName(System.getProperty("test_server_ip"));
 		} catch (UnknownHostException e) {
@@ -140,7 +142,7 @@ public class AppTest {
 																			localSimulationManager, 
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
-																			Boolean.FALSE, 
+																			Boolean.TRUE, 
 																			startingTimeout,
 																			1200,
 																			null,
@@ -165,17 +167,16 @@ public class AppTest {
 			DummyManager manager2 = new DummyManager("manager2_bamboo", 
 					serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager2);
-			
+			Thread.sleep(5000);
+			orchestrator.evaluateSimulationManagers(status);
 			while(!orchestrator.isNewManagerHandled()) {
 				Thread.sleep(1000);
-			}
-			
+			}		
 			Assert.assertTrue(orchestrator.getAvailableManagers().size()==1);
-			
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
+			Thread.sleep(2000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -308,7 +309,6 @@ public class AppTest {
 			DummyManager manager = new DummyManager("manager_bamboo", serverIPAddress, serverName, "server", managerDataFolder, rosFolder);
 			Assert.assertNotNull(manager);
 			Thread.sleep(1000);
-			
 			orchestrator.evaluateSimulationManagers(status);
 			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
@@ -365,7 +365,7 @@ public class AppTest {
 																			localSimulationManager, 
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
-																			Boolean.FALSE, 
+																			Boolean.TRUE, 
 																			startingTimeout,
 																			1200,
 																			null,
@@ -380,14 +380,15 @@ public class AppTest {
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
-			Thread.sleep(1000);
+			Thread.sleep(5000);
 			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
 			orchestrator.evaluateSimulationManagers(status);
-			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
 			orchestrator.getConnection().disconnect();
+			Thread.sleep(2000);
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
 			Thread.sleep(5000);
@@ -442,7 +443,7 @@ public class AppTest {
 																			localSimulationManager, 
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
-																			Boolean.FALSE, 
+																			Boolean.TRUE, 
 																			startingTimeout,
 																			1200,
 																			null,
@@ -456,21 +457,17 @@ public class AppTest {
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
-			Thread.sleep(1000);
-			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			optimizationTool.setOptimizationError("false");
+			Thread.sleep(3000);
 			orchestrator.evaluateSimulationManagers(status);
-			Thread.sleep(15000);
-			optimizationTool.disconnect(false);  // immediately stop optimization after connection recovery
-			Thread.sleep(10000);
-			optimizationTool.reconnect();
-			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
-			orchestrator.getConnection().disconnect();
+			Thread.sleep(3000);
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
+			orchestrator.getConnection().disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -516,7 +513,7 @@ public class AppTest {
 																			localSimulationManager, 
 																			simulationManagerPath, 
 																			optimizationConfiguration, 
-																			Boolean.FALSE, 
+																			Boolean.TRUE, 
 																			startingTimeout,
 																			1200,
 																			null,
@@ -530,21 +527,17 @@ public class AppTest {
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
-			Thread.sleep(1000);
-			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
+			optimizationTool.setOptimizationError("true");
+			Thread.sleep(3000);
 			orchestrator.evaluateSimulationManagers(status);
-			Thread.sleep(15000);
-			optimizationTool.disconnect(true);
-			Thread.sleep(10000);
-			optimizationTool.reconnect();
-			while(!orchestrator.isSimulationDone()) {  // right: after a while value +=10, SOO directly receives a status=COMPLETED, it will set simulation is done 
+			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
+			Thread.sleep(3000);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();

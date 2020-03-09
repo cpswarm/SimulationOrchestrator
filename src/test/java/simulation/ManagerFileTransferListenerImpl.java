@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
@@ -25,13 +26,11 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	private String dataFolder = null;
 	private String rosFolder = null;
 	private DummyManager parent = null;
-	private EntityBareJid orchestrator = null;
 	
-	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder, final EntityBareJid orchestrator) {
+	public ManagerFileTransferListenerImpl(final DummyManager manager, final String dataFolder, final String rosFolder) {
 		this.dataFolder = dataFolder;
 		this.rosFolder = rosFolder;
 		this.parent = manager;
-		this.orchestrator = orchestrator;
 	}
 	
 	@Override
@@ -40,37 +39,21 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 		String fileToReceive = null;
 		System.out.println(" description in transfer() is: "+request.getDescription());
 		// The configuration files are stored in the simulator folder, instead the candidate in the rosFolder
-		if(request.getRequestor().toString().startsWith("orchestrator")) {
-			fileToReceive = dataFolder+request.getFileName();
-		} else {
-			fileToReceive = rosFolder + request.getFileName();
-		}
 		try {
-			transfer.receiveFile(new File(fileToReceive));
-
-			while (!transfer.isDone()) {
-				if (transfer.getStatus() == Status.refused) {
-					System.out.println("Transfer refused");
-				}
-				Thread.sleep(1000);
-			}
-			System.out.println("Simulation Manager "+fileToReceive+" received");
-			Thread.sleep(1000);
 			// If it's the configuration from the Simulation Orchestrator
-			if(request.getRequestor().toString().startsWith("orchestrator")) {
+			if(request.getRequestor().compareTo(parent.getOrchestratorJID()) == 0) {
 				final ChatManager chatmanager = ChatManager.getInstanceFor(parent.getConnection());
-				final Chat newChat = chatmanager.chatWith(orchestrator);
-				if(dataFolder==null || rosFolder==null || unzipFiles(fileToReceive)) {
-					System.out.println("SimulationManager configured for optimization "+request.getDescription());
+				final Chat newChat = chatmanager.chatWith(parent.getOrchestratorJID().asEntityBareJidIfPossible());
+				if(StringUtils.isEmpty(dataFolder)|| StringUtils.isEmpty(rosFolder)) {
 					String otherSimulationConfiguration = request.getDescription();  // Format is: SCID,visual:=false,....
 					String[] simConfigs = otherSimulationConfiguration.split(",");
-				//	this.parent.setOptimizationID(simConfigs[0]);
 					this.parent.setSCID(simConfigs[0]);
 					String parameters = "";
 					for(int i=1; i<Arrays.asList(simConfigs).size(); i++) {
 						parameters += simConfigs[i];
 					}			
 					this.parent.setSimulationConfiguration(parameters);	
+					System.out.println("SimulationManager configured for optimization task: "+parent.getSCID());
 					SimulatorConfiguredMessage reply = new SimulatorConfiguredMessage(parent.getOptimizationId(), true);
 					MessageSerializer serializer = new MessageSerializer();
 					newChat.send(serializer.toJson(reply));
@@ -81,9 +64,10 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 					newChat.send(serializer.toJson(reply));
 				}
 			}
-		} catch (final SmackException | IOException | InterruptedException e) {
+		} catch (final SmackException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	

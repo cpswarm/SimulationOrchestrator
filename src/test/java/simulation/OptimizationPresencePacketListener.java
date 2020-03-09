@@ -2,6 +2,7 @@ package simulation;
 
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.SmackException.NoResponseException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.SmackException.NotLoggedInException;
@@ -13,6 +14,10 @@ import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
 import org.jxmpp.jid.BareJid;
+
+import eu.cpswarm.optimization.statuses.BaseStatus;
+import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
+import eu.cpswarm.optimization.statuses.StatusSerializer;
 
 /**
  * Packet listener to be used in the {@link XMPPClient} to receive presences
@@ -74,9 +79,10 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 				if (!optimizationTool.getConnection().isConnected()) {
 					return;
 				}
-				System.out.println(
-						"OptimizationTool "+optimizationTool.getJid()+", Presence received: " + presence.getFrom()
-								+ " " + presence);
+				if( presence.getFrom().compareTo(optimizationTool.getJid()) != 0)
+					System.out.println(
+						"OptimizationTool "+optimizationTool.getJid()+", Presence received from: " + presence.getFrom()
+						+"  type: "+presence.getType().toString()+ "  status: " + presence.getStatus());
 				// Stores the bare JID without resource, because the roster
 				// returns that info as user of a RosterEntry
 				final StringTokenizer bareJID = new StringTokenizer(
@@ -90,8 +96,8 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 				} else if (presence.getType() == Presence.Type.unavailable) {
 					handlePrenceUnavailable(presence, jid, roster);
 				}
-				System.out.println(
-						"OptimizationTool "+optimizationTool.getJid()+"," + presence.getFrom() + " managed");
+				if( presence.getFrom().compareTo(optimizationTool.getJid()) != 0)
+					System.out.println("OptimizationTool "+optimizationTool.getJid()+", " + presence.getFrom() + " managed");
 			} catch (final IllegalStateException e) {
 				// The client is disconnected
 				System.out.println(
@@ -205,8 +211,8 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 		// If the bundle has gone away, it is removed from
 		// the list of the available bundles
 		if (presence.getMode() == Presence.Mode.away) {
-			System.out.println(
-					optimizationTool.getJid()+"----------- " + presence.getFrom() +" is offline");
+			if( presence.getFrom().compareTo(optimizationTool.getJid()) != 0)
+				System.out.println(optimizationTool.getJid()+"----------- " + presence.getFrom() +" is offline");
 			if (!presence.getFrom().equals(optimizationTool.getOrchestratorJid())
 					&& !presence.getFrom().equals(optimizationTool.getJid())) {				
 			/*	Server server = gson.fromJson(presence.getStatus(), Server.class);    
@@ -219,11 +225,18 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 			// it is inserted in the list of those available
 		} else if ((presence.getMode() == Presence.Mode.available)
 				|| (presence.getMode() == null)) {
-			System.out.println(
-					optimizationTool.getJid()+"---------- " + presence.getFrom() +" is online");
+			if( presence.getFrom().compareTo(optimizationTool.getJid()) != 0)
+				System.out.println(optimizationTool.getJid()+"---------- " + presence.getFrom() +" is online");
 			if(!presence.getFrom().equals(optimizationTool.getOrchestratorJid())
 					&& !presence.getFrom().equals(optimizationTool.getJid())) {
-				optimizationTool.setManager(presence.getFrom().asEntityFullJidIfPossible());
+				if (presence.getStatus() != null) {
+					StatusSerializer serializer = new StatusSerializer();
+					BaseStatus status = serializer.fromJson(presence.getStatus());
+					if(!StringUtils.isEmpty(((SimulationManagerStatus)status).getSimulationConfigurationId())) {
+						System.out.println("\n frevo adding manager to list..........");
+						optimizationTool.setManager(presence.getFrom().asEntityFullJidIfPossible());
+					}
+				}
 			}
 		}
 	}
@@ -245,8 +258,8 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 	 */
 	private void handlePrenceUnavailable(final Presence presence,
 			final String jid, final Roster roster) {
-		System.out.println(
-				"OptimizationTool "+optimizationTool.getJid()+","+ presence.getFrom() + "is offline");
+		if( presence.getFrom().compareTo(optimizationTool.getJid()) != 0)
+			System.out.println("OptimizationTool "+optimizationTool.getJid()+", "+ presence.getFrom() + "is offline");
 		//TODO
 		// handle orchestrator and manager offline
 		if(presence.getType().equals(Presence.Type.unavailable)){
