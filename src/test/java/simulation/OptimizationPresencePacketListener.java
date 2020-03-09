@@ -233,7 +233,7 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 					StatusSerializer serializer = new StatusSerializer();
 					BaseStatus status = serializer.fromJson(presence.getStatus());
 					if(!StringUtils.isEmpty(((SimulationManagerStatus)status).getSimulationConfigurationId())) {
-						System.out.println("\n frevo adding manager to list..........");
+						System.out.println("\nfrevo adding manager to list..........");
 						optimizationTool.setManager(presence.getFrom().asEntityFullJidIfPossible());
 					}
 				}
@@ -266,9 +266,8 @@ public class OptimizationPresencePacketListener implements StanzaListener {
 			if(presence.getFrom()!=null && presence.getFrom().toString().startsWith("manager")) {
 				optimizationTool.removeManager(presence.getFrom().asEntityFullJidIfPossible());
 			}else if(presence.getFrom().equals(optimizationTool.getOrchestratorJid())) {
-				System.out.println("Orchestrator is offline");  // TODO >>>>>> how to proceed? 
+				System.out.println("Orchestrator is offline");
 			}
-			
 		}
 	}
 

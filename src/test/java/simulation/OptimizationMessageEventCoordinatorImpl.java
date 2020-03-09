@@ -41,7 +41,6 @@ import eu.cpswarm.optimization.messages.SimulationResultMessage;
  */
 public final class OptimizationMessageEventCoordinatorImpl implements IncomingChatMessageListener {
 	private DummyOptimizationTool parent = null;
-	private Boolean stopOptimzation = false; 
 	private int resultID = 1;
 	private List<Parameter> parameters = null;
 	private OptimizationRunSimulationSender sender = null;
@@ -77,7 +76,6 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				if(runSimulationSenderThread != null) {
 					this.sender.setCanRun(false);
 					try {
-					//	Thread.sleep(5000);
 						runSimulationSenderThread.join();
 						sender = null;
 					} catch (InterruptedException e) {
@@ -99,7 +97,6 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 				if(parent.getGeneration() == parent.getMaxGeneration()) {
 					status = OptimizationStatusType.COMPLETE;
 				} else if(parent.getTasksList().get(0).getStatusType().equals(OptimizationStatusType.ERROR)) {
-					System.out.println("\n opt error...................................."  );
 					status = OptimizationStatusType.ERROR;
 				} else {
 					if(parent.getTasksList().get(0).getStatusType().equals(OptimizationStatusType.RUNNING)) {
@@ -125,41 +122,6 @@ public final class OptimizationMessageEventCoordinatorImpl implements IncomingCh
 			}  else {
 				System.out.println("OptimizationTool received message: " + msg.getBody());
 			}
-		}
-	}
-	
-	/**
-	 * This is the method used to indicate that the optimization ongoing has to be stopped or started again
-	 * it is used to stop the optimization after that the Optimization Tool has returned online after have gone offline
-	 * 
-	 * @param stop - true to stop, false to start
-	 */
-	public void setStopOptimization(boolean stop) {
-		this.stopOptimzation = stop;
-		System.out.println("\n set the last stop candidate\n");
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		//It sends a run simulation message to restart the optimization if it has been stopped
-		int newSID = new Integer(parent.getSimulationID()).intValue()+1;
-		String newSimulationID = String.valueOf(newSID);
-		Gson gson = new Gson();
-		JsonReader reader = null;
-		try {
-			reader = new JsonReader(new FileReader("src/main/resources/candidate.json"));
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		List<Parameter> parameters = gson.fromJson(reader, new TypeToken<List<Parameter>>(){}.getType()); 
-		RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), newSimulationID, Long.valueOf(1234).longValue(), parameters);
-		try {
-			ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
-			Chat chat = chatManager.chatWith(JidCreate.entityBareFrom("manager_bamboo@"+parent.getServerName()));				
-			chat.send(gson.toJson(runSimulation));
-		} catch (NullPointerException | NotConnectedException | InterruptedException | XmppStringprepException e) {
-			e.printStackTrace();
 		}
 	}
 	

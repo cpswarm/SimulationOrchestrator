@@ -402,9 +402,9 @@ public class DummyOptimizationTool {
 		} catch (final NotConnectedException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("\nreconnect: sending available msg.... ");
+		System.out.println("\nreconnect: sending available presence.... ");
 		// If it is the test of the recovery after error 
-		// it waits 10 seconds before to stop the optimization, during the period, SOO will try to restart the optimization
+		// it waits 5 seconds, during the period, SOO will try to restart the optimization
 		if(new Boolean(this.optimizationError)) {
 			sendPresence(OptimizationStatusType.ERROR);
 			try {
@@ -416,7 +416,6 @@ public class DummyOptimizationTool {
 	}
 	
 	public void sendPresence(OptimizationStatusType statusType) {
-		System.out.println("send presence at sid = "+simulationID +"  TYPE:"+statusType);
 		final Presence presence = new Presence(Presence.Type.available);
 		OptimizationTaskStatus taskStatus = null;
 		if(statusType.equals(OptimizationStatusType.STARTED)) {
@@ -453,20 +452,6 @@ public class DummyOptimizationTool {
 			e.printStackTrace();
 		}
 	}
-	
-/*	public void sendOptimizationStatus(OptimizationStatusType statusType) {
-		MessageSerializer serializer = new MessageSerializer();
-		OptimizationStatusMessage optimizationStatus = new OptimizationStatusMessage(optimizationID, status, 80.0, 1, parent.getOptimizationConfiguration().getMaximumGeneration(), parameters, parent.getOptimizationConfiguration());
-		String messageToSend = serializer.toJson(optimizationStatus);
-		message.setBody(messageToSend);
-		System.out.println("OptimizationTool sending optimizationStaus "+messageToSend);
-		try {
-			chat.send(message);
-		} catch (NotConnectedException | InterruptedException e) {
-			System.out.println("Error sending the optimization status");
-			e.printStackTrace();
-		}
-	}*/
 	
 	public List<OptimizationTaskStatus> getTasksList(){
 		return tasksList;

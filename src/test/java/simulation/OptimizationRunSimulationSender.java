@@ -54,6 +54,9 @@ public class OptimizationRunSimulationSender implements Runnable{
 			}
 			status = null;
 			parent.sendPresence(OptimizationStatusType.STARTED);
+			if (new Integer(parent.getSimulationID()).intValue() > (parent.getCandidateCount() * parent.getVariantCount()-1)) {
+				parent.sendPresence(OptimizationStatusType.RUNNING);
+			}
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
@@ -73,7 +76,7 @@ public class OptimizationRunSimulationSender implements Runnable{
 			if (parent.getManagers().size() > 0) {
 				for (EntityFullJid manager : parent.getManagers()) {
 					while (parent.isOffline()) {
-						System.out.println("OT is offline, waiting..........\n");
+						System.out.println("OT is offline, waiting..........");
 						try {
 							Thread.sleep(3000);
 						} catch (InterruptedException e) {
@@ -83,18 +86,11 @@ public class OptimizationRunSimulationSender implements Runnable{
 					simulationID = String.valueOf(sid);
 					if (sid < ((parent.getMaxGeneration() + 1) * parent.getCandidateCount()
 							* parent.getVariantCount())) {
-						RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(),
-								simulationID, Long.valueOf(1234).longValue(), parameters);
+						RunSimulationMessage runSimulation = new RunSimulationMessage(parent.getOptimizationID(), simulationID, Long.valueOf(1234).longValue(), parameters);
 						ChatManager chatManager = ChatManager.getInstanceFor(parent.getConnection());
 						chat = chatManager.chatWith(manager.asEntityBareJid());
 						try {
-							// if (parent.getConnection().isConnected()) {
 							chat.send(gson.toJson(runSimulation));
-							/*
-							 * } else { System.out.println("\nlost connection.........."); do { try {
-							 * Thread.sleep(5000); } catch (InterruptedException e) { e.printStackTrace(); }
-							 * } while(!parent.getConnection().isConnected()); sid -= 1; }
-							 */
 						} catch (NotConnectedException | InterruptedException e) {
 							e.printStackTrace();
 							sid -= 1;
@@ -117,7 +113,7 @@ public class OptimizationRunSimulationSender implements Runnable{
 							parent.setGeneration(parent.getGeneration() + 1);
 							parent.sendPresence(OptimizationStatusType.RUNNING);
 						}
-						if (sid == 3 && parent.getOptimizationError() != null) {
+						if (sid == 5 && parent.getOptimizationError() != null) {
 							parent.disconnect();
 							try {
 								Thread.sleep(5000);
@@ -132,11 +128,12 @@ public class OptimizationRunSimulationSender implements Runnable{
 					} else {
 						break;
 					}
+					if (!canRun) {
+						return;
+					}
 				}
 				continue;
 			}
-			if (!canRun)
-				return;
 		}
 		parent.setGeneration(parent.getGeneration() + 1);
 		parent.sendPresence(OptimizationStatusType.COMPLETE);

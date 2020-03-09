@@ -173,10 +173,11 @@ public class AppTest {
 				Thread.sleep(1000);
 			}		
 			Assert.assertTrue(orchestrator.getAvailableManagers().size()==1);
+			Thread.sleep(2000);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
+			manager2.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
-			Thread.sleep(2000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -247,6 +248,7 @@ public class AppTest {
 			final Roster roster = Roster.getInstanceFor(orchestrator.getConnection());
 			RosterEntry entry = roster.getEntry(JidCreate.bareFrom("manager_bamboo@"+serverName));
 			Assert.assertNotNull(entry);
+			Thread.sleep(2000);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 		} catch (Exception e) {
@@ -314,9 +316,9 @@ public class AppTest {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
+			Thread.sleep(2000);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
-			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -381,17 +383,15 @@ public class AppTest {
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
 			Thread.sleep(5000);
-			//  how to proceed that the data folder is null, the file transfer can not be successfully, so it never set simulation done, ==> dead block for waiting
 			orchestrator.evaluateSimulationManagers(status);
 			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
-			orchestrator.getConnection().disconnect();
 			Thread.sleep(2000);
+			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
-			Thread.sleep(5000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -408,7 +408,7 @@ public class AppTest {
 	public void testOptimizationToolRecoveryConnection() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testOptimizationToolRecovery1 test----------------------------------");
+			System.out.println("--------------------Starting the testOptimizationToolRecoveryConnection test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			Gson gson = new Gson();
 			StatusSerializer serializer = new StatusSerializer();
@@ -457,14 +457,15 @@ public class AppTest {
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
-			optimizationTool.setOptimizationError("false");
+			 // String flag "optimizationError" to indicate if this is a recovery test (if null for no recovery test, false for connection recovery, true for optimization error recovery)
+			optimizationTool.setOptimizationError("false");  
 			Thread.sleep(3000);
 			orchestrator.evaluateSimulationManagers(status);
 			while(!orchestrator.isSimulationDone()) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
-			Thread.sleep(3000);
+			Thread.sleep(2000);
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();
 			orchestrator.getConnection().disconnect();
@@ -479,7 +480,7 @@ public class AppTest {
 	public void testOptimizationToolRecoveryError() {	
 		try {
 			System.out.println("-----------------------------------------------------------------------------------------");
-			System.out.println("--------------------Starting the testOptimizationToolRecovery2 test----------------------------------");
+			System.out.println("--------------------Starting the testOptimizationToolRecoveryError test----------------------------------");
 			System.out.println("-----------------------------------------------------------------------------------------");
 			StatusSerializer serializer = new StatusSerializer();
 			SimulationManagerStatus status = serializer.fromJson("{\r\n" + 
@@ -527,6 +528,7 @@ public class AppTest {
 			Assert.assertNotNull(manager);
 			DummyOptimizationTool optimizationTool = new DummyOptimizationTool(optimizationUser, serverIPAddress, serverName, "server", otDataFolder);
 			Assert.assertNotNull(optimizationTool);
+			 // String flag "optimizationError" to indicate if this is a recovery test (if null for no recovery test, false for connection recovery, true for optimization error recovery)
 			optimizationTool.setOptimizationError("true");
 			Thread.sleep(3000);
 			orchestrator.evaluateSimulationManagers(status);
@@ -534,7 +536,7 @@ public class AppTest {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue(orchestrator.isSimulationDone());
-			Thread.sleep(3000);
+			Thread.sleep(2000);
 			orchestrator.getConnection().disconnect();
 			manager.getConnection().disconnect();
 			optimizationTool.getConnection().disconnect();

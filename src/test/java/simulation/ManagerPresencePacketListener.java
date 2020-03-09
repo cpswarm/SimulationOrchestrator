@@ -100,7 +100,6 @@ public class ManagerPresencePacketListener implements StanzaListener {
 						"SimulationManager "+manager.getJid()+", connection disconnected");
 				return;
 			} catch (XmppStringprepException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 		}

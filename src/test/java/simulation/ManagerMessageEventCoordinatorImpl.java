@@ -25,7 +25,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 	public void newIncomingMessage(EntityBareJid sender, Message msg, org.jivesoftware.smack.chat2.Chat chat) {
 		MessageSerializer serializer = new MessageSerializer();
 		RunSimulationMessage runSimulation = serializer.fromJson(msg.getBody());
-		if(sender.toString().startsWith("optimization")) {
+		if(sender.compareTo(parent.getOptimizationToolJID().asBareJid()) == 0) {
 			System.out.println("SimulationManager received "+msg.getBody());
 			parent.setOptimizationID(runSimulation.getOptimizationId());
 			parent.setSimulationId(runSimulation.getSimulationId());
@@ -35,7 +35,7 @@ public final class ManagerMessageEventCoordinatorImpl implements IncomingChatMes
 				e.printStackTrace();
 			}
 			parent.publishFitness(80.0);
-		} else if(sender.toString().startsWith("orchestrator")) {   /* for single sim, OID = null */
+		} else if(sender.compareTo(parent.getOrchestratorJID().asBareJid()) == 0) {
 			if (parent.isOrchestratorAvailable()) {
 				try {
 					Thread.sleep(2000);
