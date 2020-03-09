@@ -1,6 +1,5 @@
 package simulation;
 
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -13,10 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.jxmpp.jid.impl.JidCreate;
-
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-
 import eu.cpswarm.optimization.parameters.ParameterOptimizationConfiguration;
 import eu.cpswarm.optimization.statuses.SimulationManagerStatus;
 import eu.cpswarm.optimization.statuses.StatusSerializer;

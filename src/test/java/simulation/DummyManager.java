@@ -83,7 +83,7 @@ public class DummyManager {
 			optimizationToolJID = JidCreate.from("optimization_bamboo@" + serverName + "/"+RESOURCE);
 			final SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, null, new SecureRandom());
-			SmackConfiguration.DEBUG = true;
+			SmackConfiguration.DEBUG = false;
 			XMPPTCPConnectionConfiguration connectionConfig = XMPPTCPConnectionConfiguration
 					.builder().setHostAddress(serverIP).setPort(5222)
 					.setXmppDomain(serverName)

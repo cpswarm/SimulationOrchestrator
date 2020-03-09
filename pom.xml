@@ -91,7 +91,7 @@
 							<groupId>eu.cpswarm</groupId>
 							<artifactId>optimization-messages</artifactId>
 							<version>2.0.0-bundle</version>
-                			<packaging>bundle</packaging>
+                			<packaging>jar</packaging>
                 			<file>${basedir}/BDjar/optimization-messages-2.0.0-bundle.jar</file>
             			</configuration>
         			</execution>
