@@ -112,7 +112,6 @@ public class SimulationOrchestrator {
 	public static final Semaphore SEMAPHORE = new Semaphore(1);
 	private static final int MAX_CONFIGURATION_ATTEMPTS = 3;
 	private BlockingQueue <Presence> queue;
-	private GetOptimizationStatusSender getOptimizationStateSender = null;
 	private Thread stateSenderThread = null;
 	private XMPPTCPConnection connection;
 	private ConnectionListenerImpl connectionListener;
@@ -1270,51 +1269,6 @@ public class SimulationOrchestrator {
 		}
 	}
 
-	public void startGetOptimizationStateSender() {
-		if(this.isRecovery() && stateSenderThread == null) {
-			this.getOptimizationStateSender = new GetOptimizationStatusSender(this);
-			// create the thread
-			stateSenderThread = new Thread(getOptimizationStateSender);
-			// run
-			stateSenderThread.start();
-		}
-	}
-	
-	
-	public void stopGetOptimizationStateSender() {
-		if(this.stateSenderThread!=null) {
-			getOptimizationStateSender.setSendState(false);
-			try {
-				stateSenderThread.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			stateSenderThread = null;
-			getOptimizationStateSender = null;
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public void suspendGetOptimizationStateSender() {
-		if(this.stateSenderThread!=null) {
-			this.getOptimizationStateSender.setSuspendState(true);	
-		}
-	}
-	
-	public void restartGetOptimizationStateSender() {
-		this.getOptimizationStateSender.setSuspendState(false);		
-	}
-	
-	public boolean isStateSenderSuspend() {
-		if(getOptimizationStateSender!=null) {
-			return getOptimizationStateSender.isSuspendState();
-		}
-		return false;
-	}
 
 	public void setConfiguration(ParameterOptimizationConfiguration configuration) {
 		this.optimizationConfiguration = configuration;
