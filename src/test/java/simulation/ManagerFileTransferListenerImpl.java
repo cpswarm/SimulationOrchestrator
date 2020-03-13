@@ -37,25 +37,6 @@ public class ManagerFileTransferListenerImpl implements FileTransferListener {
 	public void fileTransferRequest(FileTransferRequest request) {
 		final IncomingFileTransfer transfer = request.accept();
 		String fileToReceive = null;
-	/*	fileToReceive = "./" + request.getFileName();
-		try {
-			transfer.receiveFile(new File(fileToReceive));
-		} catch (SmackException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		while (!transfer.isDone()) {
-			if (transfer.getStatus() == Status.refused) {
-				System.out.println("Transfer refused");
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
 		System.out.println(" description in transfer() is: "+request.getDescription());
 		// in tests, not need to store the configuration files
 		try {

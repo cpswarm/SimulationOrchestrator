@@ -129,7 +129,6 @@ public class SimulationOrchestrator {
 	private List<EntityBareJid> blacklistedManagers = null;
 	private Jid optimizationToolJid = null;
 	private String optimizationId = null;
-	private Boolean recovery = null;
 	// JSon containing the Optimization Configuration 
 	// TODO receive these configurations from the Launcher
 	private ParameterOptimizationConfiguration optimizationConfiguration = null;
@@ -198,7 +197,6 @@ public class SimulationOrchestrator {
 		String envSim = "";
 		int maxAgents = 0;
 		Boolean guiEnabled = false;
-		Boolean recovery = null;
 		Boolean optimizationEnabled = false;
 		String configurationFolder = null;
 		String optimizationToolPath = null;
@@ -383,7 +381,6 @@ public class SimulationOrchestrator {
 			if(localSimulationManager) {
 				simulationManagerPath = document.getElementsByTagName("simulationManagerPath").item(0).getTextContent();
 			}
-			recovery = Boolean.parseBoolean(document.getElementsByTagName("recovery").item(0).getTextContent());
 			if(!inputDataFolder.endsWith(File.separator)) {
 				inputDataFolder+=File.separator;
 			} 
@@ -423,7 +420,7 @@ public class SimulationOrchestrator {
 			e1.printStackTrace();
 			return;
 		} 
-		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, recovery, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout, simulationTimeoutSeconds, scxml, adfFile, envSim);
+		new SimulationOrchestrator(opMode, serverURI, serverName, serverUsername, serverPassword, inputDataFolder, outputDataFolder, optimizationToolUser, scid, guiEnabled, parameters, dimensions, maxAgents, optimizationEnabled, configurationFolder, localOptimization, optimizationToolPath, optimizationToolPassword, localSimulationManager, simulationManagerPath, optConf, configEnabled, startingTimeout, simulationTimeoutSeconds, scxml, adfFile, envSim);
 		while(true) {
 			try {
 				Thread.sleep(10000);
@@ -499,7 +496,6 @@ public class SimulationOrchestrator {
 									final String inputDataFolder, 
 									final String outputDataFolder, 
 									final String optimizationToolUser, 
-									final boolean recovery, 
 									final String scid, 
 									final Boolean guiEnabled, 
 									final String parameters, 
@@ -525,8 +521,7 @@ public class SimulationOrchestrator {
 		this.outputDataFolder = outputDataFolder;
 		this.serverUsername = serverUsername;
 		this.serverPassword = serverPassword;
-		this.simulationManagers = new HashMap<EntityBareJid, SimulationManagerStatus>();		
-		this.recovery = recovery;
+		this.simulationManagers = new HashMap<EntityBareJid, SimulationManagerStatus>();
 		this.simulationConfiguration = "gui:=" + (guiEnabled? "true":"false") + parameters.toString();
 		this.optimizationEnabled = optimization;
 		this.configurationFolder = configurationFolder;
@@ -1186,10 +1181,6 @@ public class SimulationOrchestrator {
 	public void setOptimizationId(String optimizationId) {
 		this.optimizationId = optimizationId;
 		this.sendPresence(optimizationId);
-	}
-	
-	public Boolean isRecovery( ) {
-		return recovery;
 	}
 	
 	public Boolean getOptimizationEnabled() {

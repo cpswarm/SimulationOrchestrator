@@ -119,7 +119,7 @@
         ]
       },
       "selector": {
-        "application": "stage"
+        "k8s-app": "stage"
       },
       "type": "NodePort"
     }

@@ -7,7 +7,6 @@
     "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/soo",
     "uid": "8b781241-d31a-11e8-ab6c-34e6d7414fab",
     "generation": 1,
-    "creationTimestamp": "2018-10-23T20:30:39Z",
     "labels": {
       "k8s-app": "soo"
     },
@@ -34,7 +33,7 @@
         "containers": [
           {
             "name": "soo",
-            "image": "cpswarm/soo-runner:1.0.4",
+            "image": "cpswarm/soo-runner:api2.0",
             "resources": {},
             "terminationMessagePath": "/dev/termination-log",
             "terminationMessagePolicy": "File",

@@ -32,7 +32,7 @@ mvn install -DskipTests
 This is the command to be used to launch tests
 
 ``` bash
-mvn test -Dtest_server_ip=123.123.123.123 -Dtest_server_name=pippo.pluto.it -Dtest_server_username=orchestrator_bamboo -Dtest_server_password=orchestrator -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_bamboo -Dot_data_folder= -Dros_folder=   -Dtask_id=emergency_exit  -Dparameters="" -Dgui=false -Drecovery=false -Ddimensions="Any" -Dmax_agents=3 -Dlocal_optimzation=false -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
+mvn test -Dtest_server_ip=123.123.123.123 -Dtest_server_name=pippo.pluto.it -Dtest_server_username=orchestrator_bamboo -Dtest_server_password=orchestrator -Dtest_orchestrator_output_data_folder= -Dtest_manager_data_folder= -Doptimization_user=optimization_bamboo -Dot_data_folder= -Dros_folder=   -Dtask_id=emergency_exit  -Dparameters="" -Dgui=false -Ddimensions="Any" -Dmax_agents=3 -Dlocal_optimzation=false -Dstarting_timeout=5000 -Djavax.xml.accessExternalDTD=all
 ```
 
 And here with the explanation of the parameters:
@@ -48,7 +48,6 @@ And here with the explanation of the parameters:
   -Doptimization_user=optimization_bamboo (User of the Optimization Tool)
   -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool, if run by the SOO) - optional - it can be empty for test
   -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) - optional - it can be empty for test
-  -Drecovery=true (Flag to enable or disable the backup of optimization status, for optimization recovery in case of errors)
   -Dgui=false (indicates if the GUI has to be used during the simulations)
   -Dparameters="" (indicates the parameters to be used in the simulations)
   -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)

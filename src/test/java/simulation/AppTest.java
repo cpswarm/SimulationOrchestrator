@@ -43,7 +43,6 @@ public class AppTest {
 	 * -Doptimization_user=optimization_test (XMPP username used for the Optimization Tool)
 	 * -Dot_data_folder=/home/cpswarm/Desktop/ot/  (folder used by the Optimization Tool) -- Optional
 	 * -Dros_folder=/home/cpswarm/Desktop/test/src/emergency_exit/src/ (Folder used for the ROS package to start the first simulation) -- Optional
-	 * -Drecovery=true (Flag to enable or disable the thread which monitor the progress of the optimization process)
 	 * -Dgui_enabled=false (indicates if the GUI has to be used during the simulations)
 	 * -Dparameters="" (indicates the parameters to be used in the simulations)
 	 * -Ddimensions = "2D" (indicates the number of dimensions required for the simulation)
@@ -67,8 +66,7 @@ public class AppTest {
 	private String optimizationUser = System.getProperty("optimization_user");
 	private String otDataFolder = System.getProperty("ot_data_folder");
 	private String rosFolder = System.getProperty("ros_folder");
-	private Boolean recovery = Boolean.parseBoolean(System.getProperty("recovery"));
-	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui_enabled"));
+	private Boolean guiEnabled = Boolean.parseBoolean(System.getProperty("gui"));
 	private String parameters = System.getProperty("parameters");
 	private String dimensions = System.getProperty("dimensions");
 	private int maxAgents = Integer.parseInt(System.getProperty("max_agents"));
@@ -124,7 +122,6 @@ public class AppTest {
 																			orchestratorInputDataFolder, 
 																			orchestratorOutputDataFolder,
 																			optimizationUser, 
-																			recovery, 
 																			"emergency_exit", 
 																			guiEnabled, 
 																			parameters, 
@@ -215,7 +212,7 @@ public class AppTest {
 																			orchestratorInputDataFolder, 
 																			orchestratorOutputDataFolder, 
 																			optimizationUser, 
-																			recovery, "emergency_exit", 
+																			"emergency_exit", 
 																			guiEnabled, 
 																			parameters, 
 																			dimensions, 
@@ -279,8 +276,7 @@ public class AppTest {
 																			serverPassword, 
 																			orchestratorInputDataFolder, 
 																			orchestratorOutputDataFolder, 
-																			optimizationUser, 
-																			recovery, 
+																			optimizationUser,
 																			"emergency_exit",
 																			guiEnabled, 
 																			parameters,
@@ -348,8 +344,7 @@ public class AppTest {
 																			serverPassword,
 																			orchestratorInputDataFolder, 
 																			orchestratorOutputDataFolder,
-																			optimizationUser, 
-																			recovery, 
+																			optimizationUser,
 																			"emergency_exit", 
 																			guiEnabled, 
 																			parameters, 
@@ -424,8 +419,7 @@ public class AppTest {
 																			serverPassword,
 																			orchestratorInputDataFolder,
 																			orchestratorOutputDataFolder,
-																			optimizationUser, 
-																			recovery,
+																			optimizationUser,
 																			"cpswarm_sar", // This uses cpswarm_sar and not emergency_exit to indicated that need a test optimization that doesn't finish immediately, to test the OT recovery
 																			guiEnabled, 
 																			parameters, 
@@ -495,9 +489,8 @@ public class AppTest {
 																			serverPassword,
 																			orchestratorInputDataFolder,
 																			orchestratorOutputDataFolder,
-																			optimizationUser, 
-																			recovery,
-																			"cpswarm_sar", // This usws cpswarm_sar and not emergency_exit to indicated that neeed a test optimization that doesn't finish immediately, to test the OT recovery
+																			optimizationUser,
+																			"cpswarm_sar",
 																			guiEnabled, 
 																			parameters, 
 																			dimensions, 
