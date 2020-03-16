@@ -60,6 +60,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
+import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
@@ -951,13 +952,10 @@ public class SimulationOrchestrator {
 			} catch (final SmackException | InterruptedException e) {
 				e.printStackTrace();
 				return false;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
 			}
 			Exception ex = transfer.getException();
-			if(ex!=null) {
-				System.out.println("Exception transferring file "+ex.getMessage());
+			if(ex!=null && transfer.getStatus().equals(FileTransfer.Status.error)) {
+				System.out.println("ERROR Exception transferring file: "+ex.getMessage());
 				return false;
 			}
 			switch(transfer.getStatus()) {
@@ -972,7 +970,7 @@ public class SimulationOrchestrator {
 				return true;
 			default:
 				System.out.println("Transfer not completed");
-				return false;
+				return true;
 			}
 		} else {
 			System.out.println("Error, the Simulation manager: "+receiver+" doesn't support the file transfer");

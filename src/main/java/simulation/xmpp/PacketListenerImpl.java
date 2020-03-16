@@ -59,7 +59,7 @@ public class PacketListenerImpl implements StanzaListener {
 				SimulationOrchestrator.SEMAPHORE.release();
 			} else {
 				if (presence.getType().equals(Presence.Type.available)) {
-				//	if( presence.getFrom().compareTo(parent.getOptimizationJid()) == 0)
+					if( presence.getFrom().compareTo(parent.getOptimizationJid()) == 0)
 						System.out.println("presence received from " + presence.getFrom() + ", status: " + presence.getStatus());
 					if (presence.getStatus() != null) {
 						StatusSerializer serializer = new StatusSerializer();
