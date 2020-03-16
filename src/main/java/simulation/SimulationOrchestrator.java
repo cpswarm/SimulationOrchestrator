@@ -969,7 +969,6 @@ public class SimulationOrchestrator {
 				System.out.println("File transfered");
 				return true;
 			default:
-				System.out.println("Transfer not completed");
 				return true;
 			}
 		} else {
