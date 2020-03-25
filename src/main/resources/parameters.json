@@ -1,0 +1,25 @@
+{
+"parameters": [
+            {
+                "name": "step_size",
+                "meta": "file:ugv_random_walk",
+                "min": 2,
+                "max": 10,
+                "scale": 1
+            },
+            {
+                "name": "scouts",
+                "meta": "command_line",
+                "min": 1,
+                "max": 2,
+                "scale": 1
+            },
+            {
+                "name": "workers",
+                "meta": "command_line",
+                "min": 1,
+                "max": 5,
+                "scale": 1
+            }
+        ]
+}
