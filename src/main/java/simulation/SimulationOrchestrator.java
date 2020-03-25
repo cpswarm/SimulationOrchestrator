@@ -394,18 +394,14 @@ public class SimulationOrchestrator {
 					configurationFolder+=File.separator;
 				}
 				if((opMode.equals(OP_MODE.S) || opMode.equals(OP_MODE.DS)) && optimizationEnabled) {
-				/*	Gson gson = new Gson();
+					Gson gson = new Gson();
 					JsonReader reader = new JsonReader(new FileReader(configurationFolder+"parameters.json"));
 					Parameters modelledParams =  gson.fromJson(reader, Parameters.class);
 					List<ParameterDefinition> frevoParameters = new ArrayList<ParameterDefinition>();
 					for (Parameter param : modelledParams.getParameters()) {
 						ParameterDefinition frevoParaneter = new ParameterDefinition(param.getName(), param.getMeta(), param.getMin().intValue(), param.getMax().intValue(), Float.parseFloat(param.getScale()));
 						frevoParameters.add(frevoParaneter);
-					}*/
-					List<ParameterDefinition> frevoParameters = new ArrayList<ParameterDefinition>();
-					frevoParameters.add(new ParameterDefinition("step_size", "file:ugv_random_walk", 2, 10, Float.parseFloat("1.0")));
-					frevoParameters.add(new ParameterDefinition("scouts", "command_line", 1, 2, Float.parseFloat("1.0")));
-					frevoParameters.add(new ParameterDefinition("workers", "command_line", 1, 5, Float.parseFloat("1.0")));
+					}
 					optConf.setParameterDefinitions(frevoParameters);
 				}
 			} 
